@@ -71,7 +71,7 @@
    .showContainer{
      position: relative;
      height: 4.42rem;
-     //background: url(../../../images/yunnan1.jpg) no-repeat;
+     background: url(../../images/yunnan1.jpg) no-repeat;
      img{
        position: absolute;
        width: 100%;

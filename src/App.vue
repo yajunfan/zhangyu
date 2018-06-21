@@ -13,6 +13,7 @@ export default {
 <style>
 /* tab标签页 */
 #app{
-  /* background: lightblue; */
+  height: 14rem;
+  background: lightcyan;
 }
 </style>
