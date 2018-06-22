@@ -33,6 +33,7 @@
 </template>
 
 <script>
+import UTILS from "../../lib/utils";
   export default {
     data(){
       return{
@@ -58,7 +59,12 @@
     },
     mounted(){
       var this_= this;
-      this_.detailtitle = this.$route.params.name;
+      if(this.$route.params.name){
+        this_.detailtitle = this.$route.params.name;
+        UTILS.SESSIONOPERATE.setStorage("title",this_.detailtitle);
+      }else{
+        this_.detailtitle = UTILS.SESSIONOPERATE.getStorage("title");
+      }
       document.title = this_.detailtitle;
     }   
   }
@@ -139,7 +145,8 @@
      }
      .playbt{
        position: fixed;
-       bottom: 0;
+       bottom: 0.8rem;
+       left: 0;
        width: 100%;
        height: 1rem;
        line-height: 1rem;

@@ -18,19 +18,23 @@
             <div class="iconcontainer">
               <van-row>
                 <van-col span="8">
-                  <span class="preview_icon d-i-b" @click="jumptomake()">
+                  <span class="preview_icon d-i-b" @click="previewFn()">
                     <img src="../../images/preview.png" alt="预览">
                   </span>
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b">
+                    <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                      <van-icon name="photograph" />
+                    </van-uploader>
+                    <!-- <input id="fileImage" class="fileImage" type="file"  accept="image/*" capture="camera" size="30"> -->
                     <img src="../../images/onload.png" alt="上传">
                     <span class="mark">20</span>
                   </span>
                 </van-col>
                 <van-col span="8">
                   <span class="save_icon d-i-b">
-                    <img src="../../images/save.png" alt="保存">
+                    <img src="../../images/save.png" alt="保存" @click="saveFn()">
                   </span>
                 </van-col>
               </van-row>
@@ -64,19 +68,25 @@
             <div class="iconcontainer iconcontainershow">
               <van-row>
                 <van-col span="8">
-                  <span class="preview_icon d-i-b" @click="jumptomake()">
+                  <span class="preview_icon d-i-b" @click="previewFn()">
                     <img src="../../images/preview.png" alt="预览">
                   </span>
                 </van-col>
                 <van-col span="8">
-                  <span class="onload_icon d-i-b">
+                  <span class="onload_icon d-i-b" @click="markflag=true;">
+                    <!-- accept="image/*;capture=camera" 直接调用相机
+                        accept="image/*" 调用相机 图片或者相册 -->
+                    <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                      <van-icon name="photograph" />
+                    </van-uploader>
+                    <!-- <input id="fileImage" class="fileImage" type="file"  accept="image/*" capture="camera" size="30"> -->
                     <img src="../../images/onload.png" alt="上传">
                     <span class="mark">20</span>
                   </span>
                 </van-col>
                 <van-col span="8">
                   <span class="save_icon d-i-b">
-                    <img src="../../images/save.png" alt="保存">
+                    <img src="../../images/save.png" alt="保存" @click="saveFn()">
                   </span>
                 </van-col>
               </van-row>
@@ -120,9 +130,32 @@
       }
     },
     methods:{
+      //右侧的点击每一项
       selectPrewImgFn(index){
         var this_ = this;
         this_.i = index;
+      },
+      onRead(file) {
+       console.log(file)
+      }, 
+      //预览功能
+      previewFn(){
+
+      },
+      //保存功能
+      saveFn(){
+        var this_ = this;
+        this.$router.push({  
+          path: '/savesuccess',
+          name: 'SAVESUCCESS',  
+          params: {   
+           
+          }, 
+          // query: {  
+          //   name:name,   
+          //   id: id
+          // }
+        }) 
       }
     },
     mounted(){
@@ -252,7 +285,7 @@ body{
       }
       .iconcontainer,.iconcontainershow{
         position: fixed;
-        bottom:0.46rem;
+        bottom:1rem;
         padding: 0 0.6rem;
         box-sizing: border-box;
         .preview_icon,.onload_icon,.save_icon{
@@ -275,6 +308,13 @@ body{
             color: white;
             padding: 0.02rem;
           }
+        }
+        .fileImage{
+          position: absolute;
+          height: 1rem;
+          width: 1rem;
+          z-index: 999;
+          opacity: 0;
         }
       }
       .iconcontainershow{

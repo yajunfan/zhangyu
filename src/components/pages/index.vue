@@ -15,10 +15,10 @@
       </div>
       <div class="iconcontainer">
          <span class="print d-i-b" @click="jumptomake()">
-            <img src="../../../static/images/print.png" alt="开始制作">
+            <img src="../../images/print.png" alt="开始制作">
          </span>
          <span class="me d-i-b">
-            <img src="../../../static/images/me.png" alt="我">
+            <img src="../../images/me.png" alt="我">
          </span>
       </div>
     </div>
@@ -116,6 +116,9 @@
           // }
         }) 
       }
+    },
+    mounted(){
+      document.title = '首页';
     }
   }
 </script>
@@ -175,11 +178,11 @@
   }
   .iconcontainer{
      position: fixed;
-     bottom:0.3rem;
+     bottom:1.1rem;
      right:0.49rem;
     .print,.me{
-      width: 0.6rem;
-      height: 0.6rem;
+      width: 1rem;
+      height: 1rem;
       img{
         width: 100%;
         height: 100%;

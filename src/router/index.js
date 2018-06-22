@@ -27,6 +27,14 @@ export default new Router({
         title: '开始制作'
       }
     },
+    {
+      path: '/savesuccess',
+      name: 'SAVESUCCESS',
+      component: resolve => require(['@/components/pages/savesuccess'],resolve),
+      meta: {
+        title: '开始制作'
+      }
+    },
   ]
 })
 
