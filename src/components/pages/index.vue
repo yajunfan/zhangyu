@@ -14,8 +14,8 @@
          </div>
       </div>
       <div class="iconcontainer">
-         <span class="print d-i-b">
-            <img src="../../../static/images/print.png" alt="打印">
+         <span class="print d-i-b" @click="jumptomake()">
+            <img src="../../../static/images/print.png" alt="开始制作">
          </span>
          <span class="me d-i-b">
             <img src="../../../static/images/me.png" alt="我">
@@ -102,6 +102,19 @@
             //   id: id
             // }
         })  
+      },
+      jumptomake(){
+        this.$router.push({  
+          path: 'startmake',   
+          name: 'STARTMAKE',  
+          params: {   
+            name: ''
+          }, 
+          // query: {  
+          //   name:name,   
+          //   id: id
+          // }
+        }) 
       }
     }
   }
