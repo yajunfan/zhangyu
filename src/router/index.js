@@ -32,7 +32,15 @@ export default new Router({
       name: 'SAVESUCCESS',
       component: resolve => require(['@/components/pages/savesuccess'],resolve),
       meta: {
-        title: '开始制作'
+        title: '保存成功'
+      }
+    },
+    {
+      path: '/confirmpay',
+      name: 'CONFIRMPAY',
+      component: resolve => require(['@/components/pages/confirmpay'],resolve),
+      meta: {
+        title: '确认支付'
       }
     },
   ]

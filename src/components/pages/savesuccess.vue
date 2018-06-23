@@ -18,9 +18,9 @@
      <div class="price_container" v-else>
        <div class="mark_container">
         <van-row>
-         <van-col span="22">
+         <van-col span="21">
            <div class="type_header">
-             <img src="../../images/title1.jpg" alt="模板" class="logo_img">
+             <img src="../../images/title1.jpg" alt="模板" class="logo_img" >
              <ul class="detail_container">
                 <li class="detail_title"><span>冬季的旅行</span></li>
                 <li class="detail_specifications"><span>规格：</span><span v-text="selectItem.specifications"></span></li>
@@ -34,11 +34,11 @@
               </ul>
            </div>
          </van-col>
-         <van-col span="2">
-            <span><img src="../../images/close.png" alt="关闭" @click="markflag=false;"></span>
+         <van-col span="3">
+            <span><img src="../../images/close.png" alt="关闭" @click="markflag=false;" class="close_img"></span>
          </van-col>
         </van-row>   
-        <div class="detail_next">下一步</div>
+        <div class="detail_next" @click="jumptopay(selectItem)">下一步</div>
       </div>
      </div>
   </div>
@@ -84,6 +84,21 @@
          this_.i = index;
          this_.selectItem = this_.styleAry.typeList[index];
        },
+       jumptopay(obj){
+        var this_ = this;
+        obj.logoimg=this_.styleAry.logoimg;
+        this.$router.push({  
+          path: '/confirmpay',
+          name: 'CONFIRMPAY',  
+          params: {   
+            data: obj
+          }, 
+          // query: {  
+          //   name:name,   
+          //   id: id
+          // }
+        }); 
+       }
      },
      mounted(){
       var this_= this;
@@ -108,7 +123,7 @@
   }
   .btn_container{
     position: fixed;
-    bottom:0.8rem;
+    bottom:0rem;
     width: 100%;
     .btn_share,.btn_make{
       height: 1.28rem;
@@ -128,7 +143,7 @@
      z-index: 100;
     .mark_container{
       position: fixed;
-      bottom: 0.8rem;
+      bottom: 0rem;
       width: 100%;
       height: 5.5rem;
       background: white;  
@@ -174,6 +189,7 @@
         font-size: 0.24rem;
         margin-bottom:0.26rem;
        }
+      
        .type_list{
          display: flex;
          flex-direction: row;
@@ -193,8 +209,12 @@
           color: white;
           background: #ff4747;  
         }
+        
        }
     } 
+    .close_img{
+      margin-top: 0.2rem;
+    }
     .detail_next{
       margin: 1.1rem auto 0.4rem;
       width: 3.16rem;

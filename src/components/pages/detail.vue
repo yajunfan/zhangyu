@@ -54,7 +54,7 @@ import UTILS from "../../lib/utils";
           //   name:name,   
           //   id: id
           // }
-        }) 
+        }) ;
       }
     },
     mounted(){
@@ -145,7 +145,7 @@ import UTILS from "../../lib/utils";
      }
      .playbt{
        position: fixed;
-       bottom: 0.8rem;
+       bottom: 0rem;
        left: 0;
        width: 100%;
        height: 1rem;
