@@ -32,13 +32,14 @@
            </li>
          </ul>
        </div>
-       <van-submit-bar :price="paymoney" button-text="立即支付" @submit="onSubmit"/>
+       <van-submit-bar :price="paymoney" button-text="立即支付" @submit="onSubmitFn"/>
      </div>
    </div>
  </div>
 </template>
 
 <script>
+// import { Toast } from 'vant';
   export default {
     data(){
       return{
@@ -68,8 +69,9 @@
         this.isEdit = false;
         this.showEdit = true;
       },
-     onSubmit(){
-
+     onSubmitFn(){
+       var this_ = this;
+       this_.$toast('！请填写收货地址');
      }
     },
     mounted(){

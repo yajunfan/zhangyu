@@ -196,9 +196,8 @@ body{
        background: white;
        .icon_img{
          position: absolute;
-         top: 50%;
+         top: 40%;
          left: -0.42rem;
-         margin-top: -0.26rem;
        }
        h4{
          text-align: center;
