@@ -30,18 +30,14 @@
                 <span class="opbtn add_btn d-i-b tc" @click="addFn()">＋</span>
              </span> 
            </li>
-           <li class="giftnum" v-if="!giftflag">
+           <li class="giftnum" >
              <span class="left_con">礼品卡</span>
-             <span class="right_con" @click="jumptogift('false')">无可用
+             <span class="right_con" @click="jumptogift('false')" v-if="!giftflag">无可用
                <img src="../../images/rightjt.png" alt="无">
              </span>
-           </li>
-           <li v-else>
-             <van-coupon-cell :coupons="coupons" :chosen-coupon="chosenCoupon" @click="showList = true"/>
-            <!-- 优惠券列表 -->
-            <!-- <van-popup v-model="showList" position="bottom">
-              <van-coupon-list :coupons="coupons" :chosen-coupon="chosenCoupon" :disabled-coupons="disabledCoupons"  @change="onChange"
-                @exchange="onExchange"/> -->
+             <span class="right_con" @click="jumptogift('true')" v-else>{{giftnum}}张可用
+               <img src="../../images/rightjt.png" alt="无">
+             </span>
            </li>
          </ul>
        </div>
@@ -61,35 +57,9 @@
         editingContact: {},
         paymoney:0,  //合集金额
         shopnum:1, //购买数量
-        giftflag:false, //是否有礼物卡
-        showList:[],
-        chosenCoupon: -1,
-        coupons: [
-          {
-            available: 1,
-            discount: 0,
-            denominations: 150,
-            origin_condition: 0,
-            reason: '',
-            value: 150,
-            name: '优惠券名称',
-            start_at: 1489104000,
-            end_at: 1514592000
-          }
-        ],
-        disabledCoupons: [
-          {
-            available: 1,
-            discount: 0,
-            denominations: 150,
-            origin_condition: 0,
-            reason: '',
-            value: 150,
-            name: '优惠券名称',
-            start_at: 1489104000,
-            end_at: 1514592000
-          }
-        ]
+        giftflag:true, //是否有礼物卡
+        giftnum:1,
+       
       }
     },
     computed: {
@@ -129,7 +99,14 @@
       },
       //礼品卡跳转
       jumptogift(flag){
-        
+        var this_ = this;
+        this_.$router.push({  
+           path: '/giftzero',
+           name: 'GIFTZERO',  
+           params: {   
+            flag: flag 
+           }
+        }) 
       },
       onChange(index) {
         this.showList = false;
@@ -157,7 +134,6 @@
      box-sizing: border-box;
    }
    .order_container{
-      height: 12rem;
      .order_title{
        height: 0.78rem;
        background: white;

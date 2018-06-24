@@ -14,5 +14,6 @@ export default {
 /* tab标签页 */
 #app{
   background: #F2F2F2;
+  min-height: 100vh;
 }
 </style>

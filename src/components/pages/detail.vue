@@ -59,7 +59,7 @@ import UTILS from "../../lib/utils";
     },
     mounted(){
       var this_= this;
-      if(this.$route.params.name){
+      if(this_.$route.params.name){
         this_.detailtitle = this.$route.params.name;
         UTILS.SESSIONOPERATE.setStorage("title",this_.detailtitle);
       }else{

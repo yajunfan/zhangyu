@@ -90,6 +90,10 @@ a:hover{
 .cp{
   cursor: pointer;
 }
+.h88{
+ height: 0.88rem;
+ line-height: 0.88rem;
+}
 .ft18{
   font-size: 18px;
 }
