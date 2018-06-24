@@ -1,71 +1,289 @@
 <template>
- <div class="gift_container">
+  <div class="gift_container">
      <!-- 有礼品卡 -->
-   <div v-if="ifgiftflag">
-     <div class="tabcontent h88">
+    <div v-if="ifgiftflag">
+      <div class="tabcontent h88">
           <ul class="tablist h88">
-            <li class="tc h88" @click="selectLiFn(0)" :class="active==0?'selecLi':''">可用卡<a href="javascript:;" >（0）</a></li>
+            <li class="tc h88" @click="selectLiFn(0)" :class="active==0?'selecLi':''">可用卡<a href="javascript:;" >（1）</a></li>
             <li class="tc h88" @click="selectLiFn(1)" :class="active==1?'selecLi':''">不可用卡<a href="javascript:;">（1）</a></li>
           </ul>
-      </div>  
-   </div>
-   <!-- 无礼品卡 -->
-   <div v-else>
+      </div>
+      <div class="tabListcontent" >
+        <ul  v-if="active==0">
+          <li v-for="(item,index) in tabarys" :key="index">
+            <div class="gift_title">
+               <van-row>
+                  <van-col span="12"><span class="title_left" v-text="item.name"></span></van-col>
+                  <van-col span="12" class="select_con" ><span class="select_icon" :class="item.iconflag?'selectSpan_icon':''"  @click="selecticonFn(item.iconflag,index)"></span></van-col>
+               </van-row>
+              </div>
+            <div class="gift_price">
+              <van-row>
+                  <van-col span="24"><span class="price_left">余额：￥</span><span class="price_right"><i v-text="item.amount"></i>.00</span></van-col>
+              </van-row>
+              </div>
+            <div class="gift_info">
+              <van-row>
+                  <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
+                  <van-col span="12"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
+              </van-row>
+              </div>
+          </li>
+        </ul>
+        <ul  v-if="active==1">
+           <li v-for="(item,index) in tabarys" :key="index">
+            <div class="gift_title">
+               <van-row>
+                  <van-col span="12"><span class="title_left" v-text="item.name"></span></van-col>
+                  <van-col span="12" class="select_con" ><span class="select_icon" :class="item.iconflag?'selectSpan_icon':''"  @click="selecticonFn(item.iconflag,index)"></span></van-col>
+               </van-row>
+              </div>
+            <div class="gift_price">
+              <van-row>
+                  <van-col span="24"><span class="price_left">余额：￥</span><span class="price_right"><i v-text="item.amount"></i>.00</span></van-col>
+              </van-row>
+              </div>
+            <div class="gift_info">
+              <van-row>
+                  <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
+                  <van-col span="12"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
+              </van-row>
+              </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- 无礼品卡 -->
+    <div v-else>
       <div class="tabcontent  h88">
           <ul class="tablist h88">
             <li class="tc h88" @click="selectLiFn(0)" :class="active==0?'selecLi':''">可用卡<a href="javascript:;"   >（0）</a></li>
             <li class="tc h88" @click="selectLiFn(1)" :class="active==1?'selecLi':''">不可用卡<a href="javascript:;"  >（0）</a></li>
           </ul>
       </div>
-   </div>
-   <!-- 绑定礼品卡 -->
-   <div class="bind_giftcard tc">绑定礼品卡 </div>
+      <div class="no_gift_tip">
+        <img src="../../images/giftbg.png" alt=".">
+        <p>暂无内容</p>
+      </div>
+    </div>
+    <!-- 绑定礼品卡 -->
+    <div class="bind_giftcard tc" @click="bindgiftcardFn">绑定礼品卡 </div>
+    <van-popup v-model="show" class="bindgift_container" :overlay-style = "overstyleObj" :close-on-click-overlay="overclickflag">
+      <div >
+         <h4 class="tc">绑定礼品卡</h4>
+         <div class="ps_input"><input type="text" v-model="giftpassword" placeholder="请输入礼品卡的密码"></div>
+         <p v-if="errorflag">卡密码错误!</p>
+         <div class="sure_btn tc" @click="sureFn()">确定</div>
+      </div>
+    </van-popup>
  </div>
 </template>
-
 <script>
-  export default {
-    data(){
-      return{
-        active:0,
-        ifgiftflag:true
-      }
+export default {
+  data() {
+    return {
+      active: 0,
+      activeicon: 0,
+      ifgiftflag: true, //是否有礼品卡
+      show: false, //是否显示弹框
+      giftpassword: "",
+      overclickflag: false, //蒙层点击
+      overstyleObj: {
+        //蒙层样式
+        background: "rgba(0,0,0,0.3)"
+      },
+      errorflag: false, //错误显示
+      tabarys: [
+        {
+          name: "章鱼书礼品卡",
+          amount: "200",
+          parvalue: "1000",
+          endtime: "1992.02.01",
+          iconflag: false
+        },
+        {
+          name: "章鱼书礼品卡",
+          amount: "200",
+          parvalue: "1000",
+          endtime: "1992.02.01",
+          iconflag: false
+        },
+        {
+          name: "章鱼书礼品卡",
+          amount: "200",
+          parvalue: "1000",
+          endtime: "1992.02.01",
+          iconflag: false
+        },
+        {
+          name: "章鱼书礼品卡",
+          amount: "200",
+          parvalue: "1000",
+          endtime: "1992.02.01",
+          iconflag: false
+        }
+      ]
+    };
+  },
+  methods: {
+    //tab切换
+    selectLiFn(index) {
+      var this_ = this;
+      this_.active = index;
     },
-    methods:{
-      selectLiFn(index){
-        var this_ = this;
-        this_.active = index;
-      }
+    //选择使用礼品卡
+    selecticonFn(flag, id) {
+      var this_ = this;
+      this_.tabarys[id].iconflag = !flag;
+      this_.$set(this_.tabarys, index, this_.tabarys[index]);
     },
-    mounted(){
-      var this_= this;
-      this_.ifgiftflag = this_.$route.params.flag;
-      document.title = '首页';
-    }  
+    //绑定礼品卡
+    bindgiftcardFn() {
+      var this_ = this;
+      this_.show = true;
+    },
+    //绑定礼品卡的确认
+    sureFn() {
+      var this_ = this;
+      // 写密码错误时候的相关逻辑
+      this.errorflag = true;
+      // if(this.errorflag){
+      //   this_.show = true;
+      // }else{
+      this_.show = false;
+      // }
+    },
+    oreClose(action, done) {
+      if (action === "confirm") {
+        setTimeout(done, 1000);
+      } else {
+        done();
+      }
+    }
+  },
+  mounted() {
+    var this_ = this;
+    this_.ifgiftflag = this_.$route.params.flag;
+    document.title = "首页";
   }
+};
 </script>
 
 <style scoped lang="scss" type="text/css">
-.gift_container{
-    //height: 15rem;
-  .tabcontent{
-    .tablist{
-        display: flex;
-        flex-direction: row;
-        background: white;
-      li{
+.gift_container {
+  //height: 15rem;
+  .tabcontent {
+    .tablist {
+      display: flex;
+      flex-direction: row;
+      background: white;
+      li {
         flex-grow: 2;
         font-size: 0.32rem;
       }
-      .selecLi{
+      .selecLi {
         color: #ff4747;
-        a{
-         color: #ff4747;
+        a {
+          color: #ff4747;
         }
-      }  
-    }   
+      }
+    }
   }
-  .bind_giftcard{
+  .tabListcontent {
+    padding-bottom:1.6rem;
+    ul {
+      display: flex;
+      flex-direction: column;
+      padding: 0 0.3rem;
+      box-sizing: border-box;
+      li {
+        width: 100%;
+        height: 3rem;
+        margin-top: 0.4rem;
+        background: white;
+        border-radius: 0.2rem;
+        background: url(../../images/giftcardbg.png) no-repeat;
+        background-size: 100% 100%;
+        box-sizing: border-box;
+        .gift_title,
+        .gift_price,
+        .gift_info {
+          span {
+            display: inline-block;
+          }
+          .title_left {
+            color: #111;
+            font-size: 0.34rem;
+            margin: 0.3rem 0 0 0.24rem;
+            box-sizing: border-box;
+          }
+          .select_con {
+            height: 100%;
+            margin-top: 0.24rem;
+            text-align: right;
+            .select_icon,
+            .selectSpan_icon {
+              background: url("../../images/noselect.png") no-repeat;
+              width: 0.3rem;
+              height: 0.3rem;
+              background-size: 100% 100%;
+              margin-right: 0.25rem;
+            }
+            .selectSpan_icon {
+              background: url("../../images/select.png") no-repeat;
+              background-size: 100% 100%;
+            }
+          }
+        }
+        .gift_info {
+          width: 99%;
+          height: 0.8rem;
+          border-top: 1px solid #a6a6a6;
+          color: #a6a6a6;
+          span ,i{
+            font-size: 0.34rem;
+          }
+          span.parvalue_left{
+            padding-left:0.24rem;
+            padding-top:0.1rem;
+          }
+         span.parvalue_right{
+            padding-right:0.26rem;
+            padding-top:0.1rem;
+          }
+        }
+        .gift_price {
+          padding-top: 0.2rem;
+          height: 1.18rem;
+          color: #ff5547;
+          width: 50vw;
+          padding-left: 25vw;
+          .price_left {
+            font-size: 0.28rem;
+          }
+          .price_right {
+            i {
+              font-size: 0.5rem;
+            }
+          }
+        }
+      }
+    }
+  }
+  .no_gift_tip {
+    width: 1.1rem;
+    height: 1rem;
+    margin: 2.2rem auto 0.3rem;
+    img {
+      width: 0.9rem;
+      height: 0.86rem;
+    }
+    p {
+      font-size: 0.24rem;
+      color: #999;
+    }
+  }
+  .bind_giftcard {
     position: fixed;
     width: 90vw;
     left: 5.5vw;
@@ -76,6 +294,52 @@
     line-height: 0.8rem;
     color: white;
     font-size: 0.28rem;
+  }
+  .bindgift_container {
+    //position: relative;
+    width: 5.5rem;
+    height: 3.06rem;
+    background: white;
+    border-radius: 8px;
+    h4 {
+      margin: 0.2rem;
+      font-size: 0.3rem;
+      color: #111;
+    }
+    p {
+      padding: 0.1rem 0.3rem;
+      box-sizing: border-box;
+      color: #ff5547;
+      font-size: 0.24rem;
+    }
+    .ps_input {
+      padding: 0 0.3rem;
+      box-sizing: border-box;
+      height: 0.8rem;
+      input {
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+        border: 0;
+        -webkit-appearance: none;
+        border: 1px solid #ccc;
+        padding-left: 0.2rem;
+        color: #999;
+        box-sizing: border-box;
+      }
+    }
+    .sure_btn {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 0.8rem;
+      line-height: 0.8rem;
+      background: #ff4747;
+      color: #fff;
+      font-size: 0.3rem;
+      border-bottom-left-radius: 8px;
+      border-bottom-right-radius: 8px;
+    }
   }
 }
 </style>
