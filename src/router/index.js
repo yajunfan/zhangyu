@@ -9,7 +9,10 @@ export default new Router({
     {
       path: '/',
       name: 'INDEX',
-      component: resolve => require(['@/components/pages/index'],resolve)
+      component: resolve => require(['@/components/pages/index'],resolve),
+      meta: {
+        title: '首页'
+      }
     },
     {
       path: '/detail',
@@ -25,6 +28,14 @@ export default new Router({
       component: resolve => require(['@/components/pages/startmake'],resolve),
       meta: {
         title: '开始制作'
+      }
+    },
+    {
+      path: '/personal',
+      name: 'PERSONAL',
+      component: resolve => require(['@/components/pages/personal'],resolve),
+      meta: {
+        title: '个人中心'
       }
     },
     {

@@ -1,7 +1,7 @@
 <template>
  <div class="confirm_container">
    <div class="add_container">
-      <van-contact-card :type="cardType"  @click="showList = true"/>
+      <van-contact-card :type="cardType"  name="" @click="showList = true"/>
    </div>
    <div class="order_container">
      <div class="order_title">
@@ -32,7 +32,7 @@
            </li>
          </ul>
        </div>
-       <van-submit-bar :price="23300" button-text="提交订单" @submit="onSubmit"/>
+       <van-submit-bar :price="paymoney" button-text="立即支付" @submit="onSubmit"/>
      </div>
    </div>
  </div>
@@ -42,17 +42,13 @@
   export default {
     data(){
       return{
-        modeldatas:null,
+        modeldatas:{},
         chosenContactId: null,
         editingContact: {},
         showList: false,
         showEdit: false,
         isEdit: false,
-        list: [{
-            name: '张三',
-            tel: '13000000000',
-            id: 0
-        }]
+        paymoney:0
       }
     },
     computed: {
@@ -65,46 +61,13 @@
       modeldataFn(){
         var this_ = this;
         this_.modeldatas = this_.$route.params.data;
-        console.log(this_.modeldatas);
+        this_.paymoney =(Number(this_.modeldatas.price).toFixed(2))*100;
       },
       onAdd() {
         this.editingContact = { id: this.list.length };
         this.isEdit = false;
         this.showEdit = true;
-        },
-
-    // 编辑联系人
-      onEdit(item) {
-        this.isEdit = true;      
-        this.showEdit = true;
-        this.editingContact = item;
       },
-       // 选中联系人
-    onSelect() {
-      this.showList = false;
-    },
-
-    // 保存联系人
-    onSave(info) {
-      this.showEdit = false;
-      this.showList = false;
-      
-      if (this.isEdit) {
-        this.list = this.list.map(item => item.id === info.id ? info : item);
-      } else {
-        this.list.push(info);
-      }
-      this.chosenContactId = info.id;
-    },
-
-    // 删除联系人
-    onDelete(info) {
-      this.showEdit = false;
-      this.list = this.list.filter(item => item.id !== info.id);
-      if (this.chosenContactId === info.id) {
-        this.chosenContactId = null;
-      }
-     },
      onSubmit(){
 
      }
@@ -113,6 +76,9 @@
       var this_= this;
       document.title = '确认支付';
       this_.modeldataFn();
+    },
+    watch:{
+     
     }  
   }
 </script>

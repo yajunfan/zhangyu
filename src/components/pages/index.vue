@@ -17,8 +17,8 @@
          <span class="print d-i-b" @click="jumptomake()">
             <img src="../../images/print.png" alt="开始制作">
          </span>
-         <span class="me d-i-b">
-            <img src="../../images/me.png" alt="我">
+         <span class="me d-i-b" @click="jumptoMy()">
+            <img src="../../images/me.png" alt="个人中心">
          </span>
       </div>
     </div>
@@ -103,8 +103,10 @@
             // }
         })  
       },
+      //跳转到开始制作页面
       jumptomake(){
-        this.$router.push({  
+        var this_ = this;
+        this_.$router.push({  
           path: 'startmake',   
           name: 'STARTMAKE',  
           params: {   
@@ -115,7 +117,23 @@
           //   id: id
           // }
         }) 
+      },
+      //跳转到个人中心页面
+      jumptoMy(){
+        var this_ = this;
+        this_.$router.push({  
+          path: '/personal',
+          name: 'PERSONAL', 
+          params: {   
+            name: ''
+          }, 
+          // query: {  
+          //   name:name,   
+          //   id: id
+          // }
+        }) 
       }
+      
     },
     mounted(){
       document.title = '首页';
