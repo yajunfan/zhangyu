@@ -30,9 +30,18 @@
                 <span class="opbtn add_btn d-i-b tc" @click="addFn()">＋</span>
              </span> 
            </li>
-           <!--  class="giftnum" -->
-           <li>
-             <van-coupon-cell  disabled-list-title="无礼品卡"  title="礼品卡" @click="showList = true" />
+           <li class="giftnum" v-if="!giftflag">
+             <span class="left_con">礼品卡</span>
+             <span class="right_con" @click="jumptogift('false')">无可用
+               <img src="../../images/rightjt.png" alt="无">
+             </span>
+           </li>
+           <li v-else>
+             <van-coupon-cell :coupons="coupons" :chosen-coupon="chosenCoupon" @click="showList = true"/>
+            <!-- 优惠券列表 -->
+            <!-- <van-popup v-model="showList" position="bottom">
+              <van-coupon-list :coupons="coupons" :chosen-coupon="chosenCoupon" :disabled-coupons="disabledCoupons"  @change="onChange"
+                @exchange="onExchange"/> -->
            </li>
          </ul>
        </div>
@@ -52,8 +61,35 @@
         editingContact: {},
         paymoney:0,  //合集金额
         shopnum:1, //购买数量
+        giftflag:false, //是否有礼物卡
+        showList:[],
         chosenCoupon: -1,
-        coupons:[],
+        coupons: [
+          {
+            available: 1,
+            discount: 0,
+            denominations: 150,
+            origin_condition: 0,
+            reason: '',
+            value: 150,
+            name: '优惠券名称',
+            start_at: 1489104000,
+            end_at: 1514592000
+          }
+        ],
+        disabledCoupons: [
+          {
+            available: 1,
+            discount: 0,
+            denominations: 150,
+            origin_condition: 0,
+            reason: '',
+            value: 150,
+            name: '优惠券名称',
+            start_at: 1489104000,
+            end_at: 1514592000
+          }
+        ]
       }
     },
     computed: {
@@ -68,27 +104,40 @@
         this_.modeldatas = this_.$route.params.data;
         this_.paymoney =(Number(this_.modeldatas.price).toFixed(2))*100;
       },
-     onSubmitFn(){
-       var this_ = this;
-       this_.$toast('！请填写收货地址');
-     },
-     reduceFn(){
-       var this_ = this;
-       if(this_.shopnum<2){
+      //立即支付
+      onSubmitFn(){
+        var this_ = this;
+        this_.$toast('！请填写收货地址');
+      },
+      //购买数量减少
+      reduceFn(){
+        var this_ = this;
+        if(this_.shopnum<2){
           this_.shopnum = 1;
-       }else{
-         this_.shopnum--
-       }
-       
-     },
-     addFn(){
-       var this_ = this;
-       if(this_.shopnum>30){
+        }else{
+          this_.shopnum--
+        }
+      },
+      //购买数量增加
+      addFn(){
+        var this_ = this;
+        if(this_.shopnum>30){
           this_.shopnum = 30;
-       }else{
-         this_.shopnum++;
-       }
-     }
+        }else{
+          this_.shopnum++;
+        }
+      },
+      //礼品卡跳转
+      jumptogift(flag){
+        
+      },
+      onChange(index) {
+        this.showList = false;
+        this.chosenCoupon = index;
+      },
+      onExchange(code) {
+        this.coupons.push(coupon);
+      }
     },
     mounted(){
       var this_= this;
@@ -108,6 +157,7 @@
      box-sizing: border-box;
    }
    .order_container{
+      height: 12rem;
      .order_title{
        height: 0.78rem;
        background: white;
@@ -115,7 +165,6 @@
          color: #111;
          font-size: 0.28rem;
          line-height: 0.78rem;
-         vertical-align: bottom;
          i{
            display: inline-block;
            margin: 0 0.1rem 0 0.3rem;
@@ -159,56 +208,67 @@
            } 
          }
        }
-     }
-     .pay_info{
-       width: 100%;
-      .payinfo_list{
-        .bugnum,.giftnum{
-          line-height: 0.88rem;
-          height: 0.88rem;
-          background: white;
-          padding: 0 0.3rem;
-          .left_con{
-           color: #111;
-           font-size: 0.28rem;     
+       .pay_info{
+        width: 100%;
+        .payinfo_list{
+          .bugnum,.giftnum{
+            line-height: 0.88rem;
+            height: 0.88rem;
+            background: white;
+            padding: 0 0.3rem;
+            .left_con{
+            color: #111;
+            font-size: 0.28rem;     
+            }
+            .right_con{
+              float: right;
+              margin: 0.2rem 0;
+              .opbtn{
+                float: left;
+                width: 0.7rem;
+                height: 0.5rem;
+                line-height: 0.5rem;
+                background: #f2f1f1;
+                border: 1px solid #E7E7E7;
+                font-size: 0.36rem;
+              }
+              .reduce_btn{
+                border-bottom-left-radius: 0.3rem;
+                border-top-left-radius: 0.3rem;
+              }
+              .add_btn{
+                border-bottom-right-radius: 0.3rem;
+                border-top-right-radius: 0.3rem;
+              }
+              .numtext{
+                background: none;
+                border-left: none;
+                border-right: none;
+                font-size: 0.24rem;
+              }
+              
+            } 
           }
-          .right_con{
-            float: right;
-            margin: 0.2rem 0;
-            .opbtn{
-              float: left;
-              width: 0.7rem;
-              height: 0.5rem;
-              line-height: 0.5rem;
-              background: rgb(212, 212, 212);
-              border: 1px solid #E7E7E7;
-              font-size: 0.48rem;
+          .giftnum{
+            position: relative;
+            border-top: 1px solid #e7e7e7;
+            .right_con{
+              position: absolute;
+              right: 0.35rem;
+              margin: 0;
+              line-height: 0.88rem;
+              color: #ff4747;
+              font-size: 0.28rem;
+              img{
+                width: 0.12rem;
+                vertical-align: middle;
+              }
             }
-            .reduce_btn{
-              border-bottom-left-radius: 0.3rem;
-              border-top-left-radius: 0.3rem;
-            }
-            .add_btn{
-              border-bottom-right-radius: 0.3rem;
-              border-top-right-radius: 0.3rem;
-            }
-            .numtext{
-              background: none;
-              border-left: none;
-              border-right: none;
-              font-size: 0.24rem;
-            }
-            
-          } 
-        }
-        .giftnum{
-          border-top: 1px solid #e7e7e7;
-          .right_con{
-            
           }
-        }
-      }   
+        }   
+      }
      }
+     
    }
 
  }

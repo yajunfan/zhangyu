@@ -54,6 +54,14 @@ export default new Router({
         title: '确认支付'
       }
     },
+    {
+      path: '/giftzero',
+      name: 'GIFTZERO',
+      component: resolve => require(['@/components/pages/giftzero'],resolve),
+      meta: {
+        title: '我的礼品卡'
+      }
+    },
   ]
 })
 
