@@ -24,11 +24,15 @@
          <ul class="payinfo_list">
            <li class="bugnum">
              <span class="left_con">购买数量</span>
-             <span class="right_con"></span> 
+             <span class="right_con">
+                <span class="opbtn reduce_btn d-i-b tc" @click="reduceFn()">－</span>
+                <span class="opbtn numtext d-i-b tc" v-text="shopnum"></span>
+                <span class="opbtn add_btn d-i-b tc" @click="addFn()">＋</span>
+             </span> 
            </li>
-           <li class="giftnum">
-             <span class="left_con">礼品卡</span>
-             <span class="right_con"></span>
+           <!--  class="giftnum" -->
+           <li>
+             <van-coupon-cell  disabled-list-title="无礼品卡"  title="礼品卡" @click="showList = true" />
            </li>
          </ul>
        </div>
@@ -46,10 +50,10 @@
         modeldatas:{},
         chosenContactId: null,
         editingContact: {},
-        showList: false,
-        showEdit: false,
-        isEdit: false,
-        paymoney:0
+        paymoney:0,  //合集金额
+        shopnum:1, //购买数量
+        chosenCoupon: -1,
+        coupons:[],
       }
     },
     computed: {
@@ -64,14 +68,26 @@
         this_.modeldatas = this_.$route.params.data;
         this_.paymoney =(Number(this_.modeldatas.price).toFixed(2))*100;
       },
-      onAdd() {
-        this.editingContact = { id: this.list.length };
-        this.isEdit = false;
-        this.showEdit = true;
-      },
      onSubmitFn(){
        var this_ = this;
        this_.$toast('！请填写收货地址');
+     },
+     reduceFn(){
+       var this_ = this;
+       if(this_.shopnum<2){
+          this_.shopnum = 1;
+       }else{
+         this_.shopnum--
+       }
+       
+     },
+     addFn(){
+       var this_ = this;
+       if(this_.shopnum>30){
+          this_.shopnum = 30;
+       }else{
+         this_.shopnum++;
+       }
      }
     },
     mounted(){
@@ -112,9 +128,11 @@
        }
      }
      .order_content{
-        padding: 0.35rem 0.3rem;
+        padding: 0.35rem 0rem;
         box-sizing: border-box;
        .order_info{
+         padding:  0 0.3rem 0.35rem;
+         box-sizing: border-box;
          .logo_img{
            img{
              width: 1.5rem;
@@ -148,13 +166,46 @@
         .bugnum,.giftnum{
           line-height: 0.88rem;
           height: 0.88rem;
+          background: white;
+          padding: 0 0.3rem;
           .left_con{
            color: #111;
            font-size: 0.28rem;     
           }
           .right_con{
+            float: right;
+            margin: 0.2rem 0;
+            .opbtn{
+              float: left;
+              width: 0.7rem;
+              height: 0.5rem;
+              line-height: 0.5rem;
+              background: rgb(212, 212, 212);
+              border: 1px solid #E7E7E7;
+              font-size: 0.48rem;
+            }
+            .reduce_btn{
+              border-bottom-left-radius: 0.3rem;
+              border-top-left-radius: 0.3rem;
+            }
+            .add_btn{
+              border-bottom-right-radius: 0.3rem;
+              border-top-right-radius: 0.3rem;
+            }
+            .numtext{
+              background: none;
+              border-left: none;
+              border-right: none;
+              font-size: 0.24rem;
+            }
             
           } 
+        }
+        .giftnum{
+          border-top: 1px solid #e7e7e7;
+          .right_con{
+            
+          }
         }
       }   
      }
