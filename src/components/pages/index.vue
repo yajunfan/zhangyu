@@ -35,7 +35,7 @@
             "content":[
               {
                 "name":"遇见.彩云之南",
-                "imgsrc":"../../../static/images/hui1.jpg"  
+                "imgsrc":"http://images.baixingliangfan.cn/homeFloor/20180407/20180407180109_6316.jpg"  
               },
               {
                 "name":"遇见你很高兴",
@@ -43,7 +43,7 @@
               },
               {
                 "name":"遇见你很高兴",
-                "imgsrc":"../../../static/images/hui3.jpg"  
+                "imgsrc":require('../../images/hui3.jpg') 
               }
             ]  
           },

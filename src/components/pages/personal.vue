@@ -9,7 +9,7 @@
     </div>
     <div class="change_router">
       <span> 
-        <div>
+        <div @click="jumptoorder">
           <img src="../../images/order.png" alt="">
           <p>订单</p>
         </div>
@@ -72,6 +72,13 @@ export default {
       this_.$router.push({  
         path: '/mybook',
         name: 'MYBOOK',
+      });
+    },
+    jumptoorder(){
+      var this_ = this;
+      this_.$router.push({  
+        path: '/order',
+        name: 'ORDER',
       });
     }
   },

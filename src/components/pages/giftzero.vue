@@ -27,15 +27,14 @@
                   <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
                   <van-col span="12"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
               </van-row>
-              </div>
+            </div>
           </li>
         </ul>
-        <ul  v-if="active==1">
+        <ul  v-if="active==1" class="no_use_container">
            <li v-for="(item,index) in tabarys" :key="index">
             <div class="gift_title">
                <van-row>
                   <van-col span="12"><span class="title_left" v-text="item.name"></span></van-col>
-                  <van-col span="12" class="select_con" ><span class="select_icon" :class="item.iconflag?'selectSpan_icon':''"  @click="selecticonFn(item.iconflag,index)"></span></van-col>
                </van-row>
               </div>
             <div class="gift_price">
@@ -48,11 +47,12 @@
                   <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
                   <van-col span="12" class="tr"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
               </van-row>
-              </div>
+            </div>
+            <div class="mark_fail mark_fail_expire"></div>
           </li>
         </ul>
         <!-- 使用说明和绑定操作 -->
-        <div class="tip_container tc">
+        <div class="tip_container tc" v-if="active==0">
           <a href="javascript:;" @click="bindgiftcardFn" class="introduce_icon d-i-b"><i class=" d-i-b"></i>使用说明</a>
           <a href="javascript:;" @click="giftcardintrucFn" class="bindgift_icon d-i-b" v-if="word_use"><i class=" d-i-b"></i>绑定礼品卡</a>
         </div>
@@ -333,6 +333,34 @@ export default {
           background-size: 100% 100%;
         }
         
+      }
+    }
+    .no_use_container{
+      li{
+        position: relative;
+        background:#ddd; 
+        .gift_title,.gift_price{
+          color: #999;
+          span{
+            color: #999;
+          }
+        }
+        .gift_info{
+          color: #8f8f8f;
+        }
+        .mark_fail{
+          position: absolute;
+          width: 1.06rem;
+          height: 1.4rem;
+          top: 0.6rem;
+          right: 0;
+          background: url(../../images/failure.png) no-repeat;
+          background-size: 100% 100%;
+        }
+        .mark_fail_expire{
+          background: url(../../images/expired.png) no-repeat;
+          background-size: 100% 100%;
+        }
       }
     }
   }

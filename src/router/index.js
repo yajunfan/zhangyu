@@ -47,6 +47,14 @@ export default new Router({
       }
     },
     {
+      path: '/order',
+      name: 'ORDER',
+      component: resolve => require(['@/components/pages/order'],resolve),
+      meta: {
+        title: '我的订单'
+      }
+    },
+    {
       path: '/savesuccess',
       name: 'SAVESUCCESS',
       component: resolve => require(['@/components/pages/savesuccess'],resolve),

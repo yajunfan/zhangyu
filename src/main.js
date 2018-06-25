@@ -3,9 +3,10 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import { Area ,Button, Row, Col,Tab, Tabs ,Toast ,Search ,Switch ,SwitchCell , Swipe , SwipeItem ,Uploader ,Icon ,ContactCard, ContactList, ContactEdit,SubmitBar,
+import 'vant/lib/vant-css/index.css'
+import { Area ,Button, Row, Col,Card ,Tab, Tabs ,Toast ,Search ,Switch ,SwitchCell , Swipe , SwipeItem ,Uploader ,Icon ,ContactCard, ContactList, ContactEdit,SubmitBar,
   CouponCell, CouponList ,Dialog,Popup,AddressEdit   } from 'vant'
-Vue.use(Area).use(Button).use(Row).use(Col).use(Tab).use(Tabs).use(Toast).use(Search).use(Switch).use(SwitchCell).use(Swipe).use(SwipeItem).use(Uploader).use(Icon).use(ContactCard)
+Vue.use(Area).use(Button).use(Row).use(Col).use(Card).use(Tab).use(Tabs).use(Toast).use(Search).use(Switch).use(SwitchCell).use(Swipe).use(SwipeItem).use(Uploader).use(Icon).use(ContactCard)
 .use(ContactList).use(ContactEdit).use(SubmitBar).use(CouponCell).use(CouponList).use(Dialog).use(Popup).use(AddressEdit);
 
 Vue.config.productionTip = false
