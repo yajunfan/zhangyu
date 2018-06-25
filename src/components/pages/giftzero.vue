@@ -46,7 +46,7 @@
             <div class="gift_info">
               <van-row>
                   <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
-                  <van-col span="12"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
+                  <van-col span="12" class="tr"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
               </van-row>
               </div>
           </li>
@@ -54,7 +54,7 @@
         <!-- 使用说明和绑定操作 -->
         <div class="tip_container tc">
           <a href="javascript:;" @click="bindgiftcardFn" class="introduce_icon d-i-b"><i class=" d-i-b"></i>使用说明</a>
-          <a href="javascript:;" @click="giftcardintrucFn" class="bindgift_icon d-i-b"><i class=" d-i-b"></i>绑定礼品卡</a>
+          <a href="javascript:;" @click="giftcardintrucFn" class="bindgift_icon d-i-b" v-if="word_use"><i class=" d-i-b"></i>绑定礼品卡</a>
         </div>
       </div>
     </div>
@@ -68,12 +68,12 @@
       </div>
       <div class="no_gift_tip">
         <img src="../../images/giftbg.png" alt=".">
-        <p>暂无内容</p>
       </div>
+      <p class="tc">暂无可用礼品卡</p>
     </div>
     
     <!-- 绑定礼品卡 -->
-    <div class="bind_giftcard tc" v-if="!word_use" @click="bindgiftcardFn">绑定礼品卡 </div>
+    <div class="bind_giftcard tc" v-if="!word_use" @click="giftcardintrucFn">绑定礼品卡 </div>
     <div class="bind_giftcard tc" v-if="word_use" @click="bindgiftcardFn">确认使用 </div>
     <van-popup v-model="showgift" class="bindgift_container" :overlay-style = "overstyleObj" :close-on-click-overlay="overclickflag">
       <div >
@@ -99,7 +99,7 @@ export default {
     return {
       active: 0,
       activeicon: 0,
-      ifgiftflag: true, //是否有礼品卡
+      ifgiftflag: false, //是否有礼品卡
       showgift: false, //是否显示绑定礼品卡弹框
       showgiftinfo: false, //是否显示使用说明弹框
       giftpassword: "",
@@ -138,7 +138,8 @@ export default {
           endtime: "1992.02.01",
           iconflag: false
         }
-      ]
+      ],
+      tipbindgiftflag:false //绑定礼品卡的小提示连接
     };
   },
   methods: {
@@ -185,8 +186,8 @@ export default {
   },
   mounted() {
     var this_ = this;
-    this_.ifgiftflag = this_.$route.params.flag;
-    document.title = "首页";
+   // this_.ifgiftflag = this_.$route.params.flag;
+    document.title = "我的礼品卡";
   },
   computed:{
     word_use(){
@@ -277,14 +278,15 @@ export default {
           border-top: 1px solid #a6a6a6;
           color: #a6a6a6;
           span ,i{
-            font-size: 0.34rem;
+            font-size: 0.30rem;
           }
           span.parvalue_left{
             padding-left:0.24rem;
             padding-top:0.1rem;
           }
          span.parvalue_right{
-            padding-right:0.26rem;
+           margin-left: 0.4rem;
+          
             padding-top:0.1rem;
           }
         }
@@ -306,6 +308,7 @@ export default {
       }
     }
     .tip_container{
+      margin-top: 0.3rem;
       .introduce_icon{
         margin-right: 0.23rem;
       }
@@ -334,18 +337,18 @@ export default {
     }
   }
   .no_gift_tip {
-    width: 1.1rem;
-    height: 1rem;
+    width: 0.9rem;
+    height: 0.86rem;
     margin: 2.2rem auto 0.3rem;
     img {
-      width: 0.9rem;
-      height: 0.86rem;
+      width: 100%;
+      height: 100%;
     }
-    p {
+  }
+  p {
       font-size: 0.24rem;
       color: #999;
     }
-  }
   .bind_giftcard {
     position: fixed;
     width: 90vw;

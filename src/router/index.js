@@ -39,6 +39,14 @@ export default new Router({
       }
     },
     {
+      path: '/mybook',
+      name: 'MYBOOK',
+      component: resolve => require(['@/components/pages/mybook'],resolve),
+      meta: {
+        title: '我的书架'
+      }
+    },
+    {
       path: '/savesuccess',
       name: 'SAVESUCCESS',
       component: resolve => require(['@/components/pages/savesuccess'],resolve),
@@ -60,6 +68,22 @@ export default new Router({
       component: resolve => require(['@/components/pages/giftzero'],resolve),
       meta: {
         title: '我的礼品卡'
+      }
+    },
+    {
+      path: '/newaddress',
+      name: 'NEWADDRESS',
+      component: resolve => require(['@/components/pages/newaddress'],resolve),
+      meta: {
+        title: '地址管理'
+      }
+    },
+    {
+      path: '/editaddress',
+      name: 'EDITADDRESS',
+      component: resolve => require(['@/components/pages/editaddress'],resolve),
+      meta: {
+        title: '编辑收货地址'
       }
     },
   ]

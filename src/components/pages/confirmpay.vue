@@ -1,7 +1,7 @@
 <template>
  <div class="confirm_container">
    <div class="add_container">
-      <van-contact-card :type="cardType"  name="" @click="showList = true"/>
+      <van-contact-card :type="cardType"  @click="jumpaddress"/>
    </div>
    <div class="order_container">
      <div class="order_title">
@@ -74,6 +74,14 @@
         this_.modeldatas = this_.$route.params.data;
         this_.paymoney =(Number(this_.modeldatas.price).toFixed(2))*100;
       },
+      //添加收货地址
+      jumpaddress(){
+        var this_ = this;
+        this_.$router.push({  
+          path: '/newaddress',
+          name: 'NEWADDRESS'
+        });
+      },
       //立即支付
       onSubmitFn(){
         var this_ = this;
@@ -95,7 +103,7 @@
           this_.shopnum = 30;
         }else{
           this_.shopnum++;
-        }
+        };
       },
       //礼品卡跳转
       jumptogift(flag){
@@ -106,7 +114,7 @@
            params: {   
             flag: flag 
            }
-        }) 
+        }); 
       },
       onChange(index) {
         this.showList = false;
