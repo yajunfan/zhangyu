@@ -63,7 +63,7 @@
 export default {
   data(){
     return{
-      bookflag:false, //书架不为空
+      bookflag:true, //书架不为空
     }
   },
   methods:{
