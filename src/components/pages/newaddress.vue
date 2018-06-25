@@ -123,6 +123,7 @@
   }
   .has_add{
       margin-top: 0.3rem;
+      margin-bottom: 1rem;
     .address_manager{
        li{
          background: white;

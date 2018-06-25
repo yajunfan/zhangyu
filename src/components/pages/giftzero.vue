@@ -186,7 +186,7 @@ export default {
   },
   mounted() {
     var this_ = this;
-   // this_.ifgiftflag = this_.$route.params.flag;
+    this_.ifgiftflag = this_.$route.params.flag;
     document.title = "我的礼品卡";
   },
   computed:{
