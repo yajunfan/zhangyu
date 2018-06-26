@@ -16,4 +16,7 @@ export default {
   background: #F2F2F2;
   min-height: 100vh;
 }
+.van-dialog__message{
+  text-align: center;
+}
 </style>

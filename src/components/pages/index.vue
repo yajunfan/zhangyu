@@ -25,6 +25,7 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
   export default {
     data(){
       return{
@@ -88,6 +89,20 @@
         }
     },
     methods:{
+      //获取模板类型
+      modelListFn(){
+        var obj={"service":"getTemplateType"}
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          console.log(res)
+          if(res.data.result){
+            this_.sourceData =JSON.parse(res.data.result);
+            this_.sourceDataNew= JSON.parse(JSON.stringify(this_.sourceData)); //深克隆一份
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
       //跳转到详情页面
       jumptodetail(name,id){
         this.$router.push({  
@@ -136,7 +151,9 @@
       
     },
     mounted(){
+      var this_ = this;
       document.title = '首页';
+      this_.modelListFn()
     }
   }
 </script>
@@ -169,15 +186,14 @@
       }  
     }
     .tabListcontent{
-        margin-top: 30px;
-        padding: 0 30px;
+        padding: 0.3rem 0.3rem 0 0.3rem;
         box-sizing: border-box;
         background: white;
       ul{
         width: 100%;
         li{
           width: 100%;
-          margin: 30px 0 0 0;
+          margin: 0.3rem 0 0 0;
           img{
             width: 100%;
             height: 4.1rem; 

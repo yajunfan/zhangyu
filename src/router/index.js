@@ -55,6 +55,14 @@ export default new Router({
       }
     },
     {
+      path: '/orderdetail',
+      name: 'ORDERDETAIL',
+      component: resolve => require(['@/components/pages/orderdetail'],resolve),
+      meta: {
+        title: '订单详情'
+      }
+    },
+    {
       path: '/savesuccess',
       name: 'SAVESUCCESS',
       component: resolve => require(['@/components/pages/savesuccess'],resolve),

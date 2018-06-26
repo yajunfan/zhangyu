@@ -1,11 +1,15 @@
 <template>
-  <div class="personal_container">
+  <div class="personal_container" >
     <div class="back_orange">
       <div class="head_image">
         <img src="../../images/title1.jpg" alt="">
         
       </div>
-      <div class="person_name"> <span>多宝妈妈</span><span><img src="../../images/editbook.png" alt=""></span></div>
+      <div class="person_name">
+        <span v-text="username" v-if="!editflag"></span>
+        <input type="text" v-model="username" v-else @blur="changeNameFn($event)" @focus="change($event)">
+        <span @click="editFn($event)"><img src="../../images/editbook.png" alt=""></span>
+      </div>
     </div>
     <div class="change_router">
       <span> 
@@ -15,13 +19,13 @@
         </div>
       </span>
       <span> 
-        <div>
+        <div @click="jumptoaddress(true)">
           <img src="../../images/peraddress.png" alt="">
           <p>地址</p>
         </div>
       </span>
       <span> 
-        <div>
+        <div @click="jumptogift(true)">
           <img src="../../images/giftcard.png" alt="">
           <p>礼品卡</p>
         </div>
@@ -64,6 +68,8 @@ export default {
   data(){
     return{
       bookflag:true, //书架不为空
+      editflag:false, //不可编辑
+      username:"小迪", 
     }
   },
   methods:{
@@ -80,6 +86,41 @@ export default {
         path: '/order',
         name: 'ORDER',
       });
+    },
+    jumptoaddress(flag){
+      var this_ = this;
+      this_.$router.push({  
+        path: '/newaddress',
+        name: 'NEWADDRESS',
+        params: {   
+          flag: flag
+        },
+      });
+    },
+    jumptogift(flag){
+      var this_ = this;
+      this_.$router.push({  
+        path: '/giftzero',
+        name: 'GIFTZERO',
+        params: {   
+          flag: flag
+        },
+      });
+    },
+    changeNameFn(e){
+      e.cancelBubble =true;
+      e.stopPropagation();
+      this.editflag =false;
+    },
+    change(e){
+      e.cancelBubble =true;
+      e.stopPropagation()
+      this.editflag =true;
+    },
+    editFn(e){
+     e.cancelBubble =true;
+     e.stopPropagation()
+     this.editflag =true;
     }
   },
   mounted() {

@@ -5,7 +5,7 @@
           <img src="../../images/addressbg.png" alt=".">
         </div>
         <p class="tc">收货地址为空</p>  
-        <div class="add_address tc" v-if="!word_use" @click="addAddressFn(false)">添加收货地址 </div>
+        <div class="add_address tc"  @click="addAddressFn(false)">添加收货地址 </div>
      </div>
      <div  class="has_add" v-else>
        <ul class="address_manager">
@@ -23,14 +23,14 @@
                     <span class="select_icon d-i-b" :class="active == index?'selectSpan_icon':''"  @click="selectadFn(index)"></span>
                     <span v-text="active == index?'默认地址':'设为默认'"></span></van-col>
                   <van-col span="12" class="tel_right tr" >
-                    <span class="ad_edit d-i-b"><i class="d-i-b"></i>编辑</span>
-                    <span class="ad_delete d-i-b"><i class="d-i-b"></i>删除</span>
+                    <span class="ad_edit d-i-b" @click="addAddressFn(true,item)"><i class="d-i-b"></i>编辑</span>
+                    <span class="ad_delete d-i-b" @click="deleteaddressFn()"><i class="d-i-b"></i>删除</span>
                   </van-col>
                </van-row>  
              </div>
           </li>
        </ul> 
-       <div class="add_address tc" v-if="!word_use" @click="addAddressFn(true)">添加新地址 </div>  
+       <div class="add_address tc"  @click="addAddressFn(true)">添加新地址 </div>  
      </div>
   </div>
 </template>
@@ -70,19 +70,34 @@
       }
     },
     methods:{
+    //选择默认地址
      selectadFn(index){
        var this_ = this;
        this_.active = index;
      },
-     addAddressFn(flag){
+     //添加新地址-跳转到地址编辑页面
+     addAddressFn(flag,obj){
+      var this_ = this;
+      this_.$router.push({  
+        path: '/editaddress',
+        name: 'EDITADDRESS',  
+        params: {   
+          flag: flag,
+          data:obj
+        }, 
+      }); 
+     },
+     //删除地址
+     deleteaddressFn(){
        var this_ = this;
-       this_.$router.push({  
-          path: '/editaddress',
-          name: 'EDITADDRESS',  
-          params: {   
-            flag: flag
-          }, 
-        }); 
+       this_.$dialog.confirm({
+        title: '',
+        message: '删除后不可撤销，确定要删除此地址吗？'
+      }).then(() => {
+          
+      }).catch(() => {
+        
+      });
      }
     },
     mounted() {

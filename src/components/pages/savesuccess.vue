@@ -1,6 +1,6 @@
 <template>
   <div class="save_container">
-     <ul class="photo_list">
+     <ul class="photo_list" :class="markflag?'photo_list_fix':''">
          <li v-for="item in 4">
             <img src="../../images/yunnan1.jpg" alt="muban">
          </li>
@@ -41,6 +41,7 @@
         <div class="detail_next" @click="jumptopay(selectItem)">下一步</div>
       </div>
      </div>
+    
   </div>
 </template>
 
@@ -75,7 +76,7 @@
             "name":"轻奢杂志",
             "specifications":"20cm*30cm",
             "price":"233.00"
-         }
+         },
        }
      },
      methods:{
@@ -121,6 +122,9 @@
       }
     } 
   }
+  .photo_list_fix{
+    position: fixed;
+  }
   .btn_container{
     position: fixed;
     bottom:0rem;
@@ -139,8 +143,8 @@
      top: 0;
      width: 100%;
      height: 15rem;
-     background: rgba(0, 0, 0, 0.2);
-     z-index: 100;
+     background: rgba(0, 0, 0, 0.4);
+     z-index: 7008;
     .mark_container{
       position: fixed;
       bottom: 0rem;

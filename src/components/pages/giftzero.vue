@@ -73,7 +73,7 @@
     </div>
     
     <!-- 绑定礼品卡 -->
-    <div class="bind_giftcard tc" v-if="!word_use" @click="giftcardintrucFn">绑定礼品卡 </div>
+    <div class="bind_giftcard tc" v-if="!word_use && active==0 " @click="giftcardintrucFn">绑定礼品卡 </div>
     <div class="bind_giftcard tc" v-if="word_use" @click="bindgiftcardFn">确认使用 </div>
     <van-popup v-model="showgift" class="bindgift_container" :overlay-style = "overstyleObj" :close-on-click-overlay="overclickflag">
       <div >

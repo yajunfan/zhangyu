@@ -4,11 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import 'vant/lib/vant-css/index.css'
-import { Area ,Button, Row, Col,Card ,Tab, Tabs ,Toast ,Search ,Switch ,SwitchCell , Swipe , SwipeItem ,Uploader ,Icon ,ContactCard, ContactList, ContactEdit,SubmitBar,
+import { Area ,Button, Row, Col,CellGroup ,Card ,Field ,Tab, Tabs ,Toast ,Search ,Switch ,SwitchCell , Swipe , SwipeItem ,Sku ,Uploader ,Icon ,ContactCard, ContactList, ContactEdit,SubmitBar,
   CouponCell, CouponList ,Dialog,Popup,AddressEdit   } from 'vant'
-Vue.use(Area).use(Button).use(Row).use(Col).use(Card).use(Tab).use(Tabs).use(Toast).use(Search).use(Switch).use(SwitchCell).use(Swipe).use(SwipeItem).use(Uploader).use(Icon).use(ContactCard)
-.use(ContactList).use(ContactEdit).use(SubmitBar).use(CouponCell).use(CouponList).use(Dialog).use(Popup).use(AddressEdit);
-
+Vue.use(Area).use(Button).use(Row).use(Col).use(CellGroup).use(Card).use(Field).use(Tab).use(Tabs).use(Toast).use(Search).use(Switch).use(SwitchCell).use(Swipe)
+.use(SwipeItem).use(Sku).use(Uploader).use(Icon).use(ContactCard).use(ContactList).use(ContactEdit).use(SubmitBar).use(CouponCell).use(CouponList).use(Dialog).use(Popup).use(AddressEdit);
+Dialog.resetDefaultOptions={
+  className:"tc"
+}
 Vue.config.productionTip = false
 
 /* eslint-disable no-new */

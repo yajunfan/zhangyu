@@ -96,7 +96,9 @@
         <van-col span="7">
           <div class="scaling ">
              <img src="../../images/scale.png" alt="" @click="showflag=true;" class="icon_img"/>
-             <h4>亲子</h4>
+             <select class="tc d-i-b">
+              <option :value ="item" v-for="item in 3" :key="item">亲子</option>
+            </select>
              <ul class="prewimg">
                <li v-for="(item,index) in 4" :key="item">
                  <div @click="selectPrewImgFn(index)" :class="index==i?'selDiv':''">
@@ -199,11 +201,21 @@ body{
          top: 40%;
          left: -0.42rem;
        }
-       h4{
-         text-align: center;
-         margin: 0.36rem 0 0.56rem 0;
-         color: #333;
-         font-size: 0.28rem;
+       select{
+         border:none;
+         outline:none;
+         margin: 0.36rem 0 0.56rem 30%;
+         option{
+           border:none;
+           outline:none;
+          text-align: center;
+          color: #333;
+          font-size: 0.28rem;
+         }
+         &:fouce{
+           border: 0px;
+           outline:none;
+         }
        }
        .prewimg{
          display: flex;
