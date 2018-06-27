@@ -15,7 +15,7 @@
                   <van-col span="12" class="name_left"><span v-text="item.name"></span></van-col>
                   <van-col span="12" class="tel_right tr" ><span v-text="item.tel"></span></van-col>
                </van-row>
-               <p v-text="item.address"></p>
+               <p v-text="item.province+item.city+item.county+item.address_detail"></p>
              </div> 
              <div class="address_operate">
                <van-row>
@@ -36,6 +36,7 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
   export default {
     data(){
       return{
@@ -43,27 +44,51 @@
         ifnewflag:false,  //是否有地址
         addressLists:[
           {
+            area_code:"110101",
             name:"张三",
             tel:'13332426729',
-            address:"浙江省杭州市西湖区文三路 138 号东方通信大厦 7 楼 501 室",
+            city:"杭州市",
+            county:"西湖区",
+            is_default:false,
+            postal_code:"",
+            province:"浙江省",
+            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
             selectflag:true
           },
           {
+            area_code:"",
             name:"李四",
             tel:'13332426729',
-            address:"浙江省杭州市西湖区文三路 138 号东方通信大厦 7 楼 501 室",
+            city:"杭州市",
+            county:"西湖区",
+            is_default:false,
+            postal_code:"",
+            province:"浙江省",
+            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
             selectflag:false
           },
           {
             name:"赵武",
+            area_code:"",
             tel:'13332426729',
-            address:"浙江省杭州市西湖区文三路 138 号东方通信大厦 7 楼 501 室",
+            city:"杭州市",
+            county:"西湖区",
+            is_default:false,
+            postal_code:"",
+            province:"浙江省",
+            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
             selectflag:false
           },
           {
             name:"Amy",
+            area_code:"",
             tel:'13332426729',
-            address:"浙江省杭州市西湖区文三路 138 号东方通信大厦 7 楼 501 室",
+            city:"杭州市",
+            county:"西湖区",
+            is_default:false,
+            postal_code:"",
+            province:"浙江省",
+            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
             selectflag:false
            },
         ]
@@ -71,12 +96,26 @@
     },
     methods:{
     //选择默认地址
-     selectadFn(index){
-       var this_ = this;
-       this_.active = index;
-     },
+    selectadFn(index){
+      var this_ = this;
+      this_.active = index;
+    },
+    //获取收货地址列表
+    getAddressListFn(){
+      var this_ = this;
+      var obj={"service":"getAddressList","stoken":"481627c3298175f2d3dff91cbf5605cd"};
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code ==0){
+          if(res.data.data){
+            this_.addressLists = res.data.data;
+          }
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
      //添加新地址-跳转到地址编辑页面
-     addAddressFn(flag,obj){
+    addAddressFn(flag,obj){
       var this_ = this;
       this_.$router.push({  
         path: '/editaddress',
@@ -86,7 +125,7 @@
           data:obj
         }, 
       }); 
-     },
+    },
      //删除地址
      deleteaddressFn(){
        var this_ = this;
@@ -103,6 +142,7 @@
     mounted() {
       var this_ = this;
       document.title = "地址管理";
+      this_.getAddressListFn();
     },    
   }
 </script>

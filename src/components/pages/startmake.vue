@@ -2,17 +2,17 @@
   <div class="makeContainer">
     <div class="titleContainer" v-if="showflag">
       <van-row>
-        <van-col span="22" v-for="(items,index1) in modelLists" :key="index1">
+        <van-col span="22">
            <van-row class="title_con">
-              <van-col span="12"><span v-text="items.name" class="title_name"></span></van-col>
+              <van-col span="12"><span class="title_name" v-text="photoName"></span></van-col>
               <van-col span="12" style="text-align:right;"><a href="javascript:;" class="detail_name">查看详情<i>></i></a></van-col>
            </van-row>
           <div class="make_container">
             <ul class="make_list">
-              <li v-for="(item,index) in items.imageLists" :key="index">
+              <li v-for="(item,index) in modelLists" :key="index">
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
-                 <div><img src="../../images/model1.jpg" alt="1"/></div>
+                 <div><img :src="item.img" alt="1"/></div>
               </li>
             </ul>
             <div class="iconcontainer">
@@ -52,17 +52,17 @@
     </div>
      <div class="titleContainer" v-else>
       <van-row>
-        <van-col span="17" v-for="(items,index1) in modelLists" :key="index1">
+        <van-col span="17" :key="index1">
            <van-row class="title_con">
-              <van-col span="12"><span v-text="items.name" class="title_name"></span></van-col>
+              <van-col span="12"><span  class="title_name" v-text="photoName"></span></van-col>
               <van-col span="12" style="text-align:right;"><a href="javascript:;" class="detail_name">查看详情<i>></i></a></van-col>
            </van-row>
           <div class="make_container">
             <ul class="make_list">
-              <li v-for="(item,index) in items.imageLists" :key="index">
+              <li v-for="(item,index) in modelLists" :key="index">
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
-                 <div><img src="../../images/model1.jpg" alt="1"/></div>
+                 <div><img :src="item.img" alt="1"/></div>
               </li>
             </ul>
             <div class="iconcontainer iconcontainershow">
@@ -96,13 +96,16 @@
         <van-col span="7">
           <div class="scaling ">
              <img src="../../images/scale.png" alt="" @click="showflag=true;" class="icon_img"/>
-             <select class="tc d-i-b">
-              <option :value ="item" v-for="item in 3" :key="item">亲子</option>
-            </select>
+             <div class="option_container">
+               
+               <select class="tc">
+                 <option :value ="item.id" v-for="item in tabarys" :key="item.id">{{item.name}}</option>
+               </select>
+             </div>
              <ul class="prewimg">
-               <li v-for="(item,index) in 4" :key="item">
+               <li v-for="(item,index) in modelLists" :key="index">
                  <div @click="selectPrewImgFn(index)" :class="index==i?'selDiv':''">
-                   <img src="../../images/model1.jpg" alt="1" />
+                   <img :src="item.img" alt="1" />
                  </div>
                </li>
              </ul>
@@ -115,10 +118,12 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
   export default {
     data(){
       return{
         photoName:"" ,
+        tabarys:[], //模板类型列表
         modelLists:[  //列表
           {
             'name':'冬季的旅行',
@@ -137,6 +142,38 @@
         var this_ = this;
         this_.i = index;
       },
+      //获取模板类型
+      modelTypeFn(){
+        var this_ = this;
+        var obj={"service":"getTemplateType"};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.tabarys = res.data.data;
+
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
+      //获取详情列表
+      detailListsFn(id){
+        var this_ = this;
+        var obj={"service":"getTemplateDetailInfo","id":id};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          console.log(res)
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.modelLists = res.data.data;
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
       onRead(file) {
        console.log(file)
       }, 
@@ -144,14 +181,14 @@
       previewFn(){
 
       },
-      //保存功能
+      //保存功能并跳到保存成功页面
       saveFn(){
         var this_ = this;
         this.$router.push({  
           path: '/savesuccess',
           name: 'SAVESUCCESS',  
           params: {   
-           
+            id:this_.$route.params.id
           }, 
           // query: {  
           //   name:name,   
@@ -162,8 +199,12 @@
     },
     mounted(){
       var this_= this;
-      this_.photoName = this_.$route.params.name;
       document.title = '马上制作';
+      this_.photoName = this_.$route.params.name;
+      var id= this_.$route.params.id;
+      this_.detailListsFn(id);
+      this_.modelTypeFn();
+      
     }      
   }
 </script>
@@ -201,22 +242,30 @@ body{
          top: 40%;
          left: -0.42rem;
        }
-       select{
-         border:none;
-         outline:none;
-         margin: 0.36rem 0 0.56rem 30%;
-         option{
-           border:none;
-           outline:none;
-          text-align: center;
-          color: #333;
-          font-size: 0.28rem;
-         }
-         &:fouce{
-           border: 0px;
-           outline:none;
-         }
+       .option_container{
+         margin: 0 auto;
+         select{
+          display: block;
+          border:none;
+          outline:none;
+          margin: 0.36rem auto 0.56rem;
+          appearance:none;
+          -moz-appearance:none;
+          -webkit-appearance:none;
+          option{
+            border:none;
+            outline:none;
+            text-align: center;
+            color: #333;
+            font-size: 0.28rem;
+          }
+          &:fouce{
+            border: 0px;
+            outline:none;
+          }
+        }
        }
+      
        .prewimg{
          display: flex;
          flex-direction: column;

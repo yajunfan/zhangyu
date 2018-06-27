@@ -1,13 +1,12 @@
 <template>
   <div class="detailContainer">
-     <!-- <h4 v-text="detailtitle" class="detailtitle"></h4> -->
      <div class="showContainer">
-        <img src="../../../static/images/yunnan1.jpg" alt="封面">
-        <p>曾为你买过很多礼物<br>
+        <img :src="detailinfo.img" alt="封面">
+        <!-- <p>曾为你买过很多礼物<br>
            而这一次只想做一份属于我们的独家记忆<br>
            记录你的眉毛<br>
            你的回眸
-        </p>
+        </p> -->
      </div>
      <div class="infoContainer">
         <h3>好品质保留更长久</h3>
@@ -15,17 +14,17 @@
         <div class="introduceContainer">
            <div class="introduceTitle">材质介绍</div> 
            <ul class="materialList" >
-             <li v-for="item in 4">
+             <li v-for="item in detailImg">
                 <div class="imgbor">
                   <div class="imgshadow">
-                    <img src="../../images/hui1.jpg" alt="牛皮材质">
+                    <img :src="item" alt="牛皮材质">
                   </div>
                 </div>
-                <h4>牛皮材质</h4>
+                <!-- <h4>牛皮材质</h4> -->
              </li>
            </ul>
         </div>
-        <div class="playbt" @click="startmakeFn()">
+        <div class="playbt" @click="jumptostartmakeFn()">
             马上制作
         </div>
      </div>
@@ -33,22 +32,42 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
   export default {
     data(){
       return{
-        detailtitle:"" 
+        detailtitle:"",
+        detailinfo:{},
+        detailImg:[]
       }
     },
     methods:{
-      //开始制作
-      startmakeFn(){
+      //获取模板详情
+      modelDetailFn(id){
+        var this_ = this;
+        var obj={"service":"getTemplateInfo","id":id};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.detailinfo = res.data.data;
+              this_.detailImg = this_.detailinfo.img_detail.split(",");
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
+      //跳转开始制作
+      jumptostartmakeFn(){
         var this_ = this;
         this.$router.push({  
           path: 'startmake',   
           name: 'STARTMAKE',  
           params: {   
-            name: this_.detailtitle
+            name: this_.detailtitle,
+            id:this_.$route.params.id
           }, 
           // query: {  
           //   name:name,   
@@ -64,7 +83,9 @@ import UTILS from "../../lib/utils";
         UTILS.SESSIONOPERATE.setStorage("title",this_.detailtitle);
       }else{
         this_.detailtitle = UTILS.SESSIONOPERATE.getStorage("title");
-      }
+      };
+      var id=this_.$route.params.id;
+      this_.modelDetailFn(id);
       document.title = this_.detailtitle;
     }   
   }
@@ -81,6 +102,7 @@ import UTILS from "../../lib/utils";
      img{
        position: absolute;
        width: 100%;
+       height: 4.42rem;
      }
      p{
       position: absolute;
@@ -89,7 +111,6 @@ import UTILS from "../../lib/utils";
       font-size: 0.28rem;
       color: white;
      }
-    //  background: url("../../../static/images/yunnan1.png");
    }
    .infoContainer{
      margin-top:0.48rem;
@@ -122,20 +143,21 @@ import UTILS from "../../lib/utils";
            .imgbor {
              width: 100%;
              height: 90%;
-             border:1px solid #000;
+             border:1px solid #AFAFAF;
              .imgshadow{
                position: relative;
-               right:-5%;
+               right:-2%;
                top: 3%;
                width: 100%;
                height: 95%;
-               background: lightgray;
+               //background: lightgray;
                img{
-                width: 90%;
-                height: 90%;
+                width: 95%;
+                height: 98%;
                 position: relative;
-                right:-3%;
-                top: 3%;
+                right:-1%;
+                top: 1%;
+                box-shadow: -2px 0px 3px 3px  rgba(0, 0, 0, 0.6);
                }
              }
              

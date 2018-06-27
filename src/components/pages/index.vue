@@ -2,13 +2,13 @@
     <div class="indexContainer">
       <div class="tabcontent">
           <ul class="tablist">
-            <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="active=index;" :class="active==index?'selecta':''" ></a></li>
+            <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(index,items.id);" :class="active==index?'selecta':''" ></a></li>
           </ul>
           <div class="tabListcontent">
             <ul v-for="(items,index) in tabarys" v-if="index == active">
-              <li v-for="(item,index2) in items.content" @click="jumptodetail(item.name,index2)">
-                 <img :src="item.imgsrc" :alt="item.name">
-                 <h4 v-text="item.name"></h4>
+              <li v-for="(item,index2) in tabLists" @click="jumptodetail(item.title,item.id)">
+                 <img :src="item.img" :alt="item.title">
+                 <h4 v-text="item.title"></h4>
                </li>
             </ul>
          </div>
@@ -30,87 +30,48 @@ import SERVERUTIL from "../../lib/SeviceUtil";
     data(){
       return{
         active:0,
-        tabarys:[
-          {
-            "name":'绘本',
-            "content":[
-              {
-                "name":"遇见.彩云之南",
-                "imgsrc":"http://images.baixingliangfan.cn/homeFloor/20180407/20180407180109_6316.jpg"  
-              },
-              {
-                "name":"遇见你很高兴",
-                 "imgsrc":"../../../static/images/hui2.jpg"  
-              },
-              {
-                "name":"遇见你很高兴",
-                "imgsrc":require('../../images/hui3.jpg') 
-              }
-            ]  
-          },
-          {
-            "name":'旅游',
-            "content":[
-              {
-                "name":"遇见.彩云之南",
-                "imgsrc":"../../../static/images/yunnan1.jpg"  
-              },
-              {
-                "name":"遇见你很高兴",
-                 "imgsrc":"../../../static/images/yunnan2.jpg"  
-                    },
-                    {
-                      "name":"遇见你很高兴",
-                       "imgsrc":"../../../static/images/yunnan3.jpg"  
-                    }
-                 ]
-                   
-                },
-                {
-                  "name":'亲子',
-                   "content":[
-                    {
-                      "name":"遇见.彩云之南",
-                       "imgsrc":"../../../static/images/qinzi1.jpg"  
-                    },
-                    {
-                      "name":"遇见你很高兴",
-                       "imgsrc":"../../../static/images/qinzi2.jpg"  
-                    },
-                    {
-                      "name":"遇见你很高兴",
-                       "imgsrc":"../../../static/images/qinzi3.jpg"  
-                    }
-                 ]
-                   
-                }
-            ],
-            locationIcon:require("../../assets/mybigbt.png")
+        num:0, //记录点击的次数
+        tabarys:[], //模板类型列表
+        tabLists:[], //模板列表
+        locationIcon:require("../../assets/mybigbt.png")
         }
     },
     methods:{
       //获取模板类型
-      modelListFn(){
+      modelTypeFn(){
         var this_ = this;
-         var obj={"service":"getTemplateType"};
-        // $.post("http://192.144.141.33:8081/api/index/index",obj,
-        // function(res){
-        //   if(res.code == 0){
-        //     if(res.data){
-        //       this_.tabarys = res.data;
-        //     }
-        //   }
-        // });
-        
+        var obj={"service":"getTemplateType"};
         SERVERUTIL.base.baseurl(obj).then(res => {
-          if(res.data.result){
-            this_.sourceData =JSON.parse(res.data.result);
-            this_.sourceDataNew= JSON.parse(JSON.stringify(this_.sourceData)); //深克隆一份
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.tabarys = res.data.data;
+              this_.modelListFn(this_.tabarys[0].id);
+            }
           }
         })
         .catch(error => {
           console.log(error);
         });
+      },
+      //获取模板列表
+      modelListFn(typeId){
+        var this_ = this;
+        var obj={"service":"getTemplateList","type_id":typeId};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.tabLists = res.data.data;
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
+      tabchange(index,id){
+        var this_ = this;
+        this_.active = index;
+        this_.modelListFn(id);
       },
       //跳转到详情页面
       jumptodetail(name,id){
@@ -162,7 +123,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
     mounted(){
       var this_ = this;
       document.title = '首页';
-      this_.modelListFn()
+      this_.modelTypeFn();
     }
   }
 </script>
@@ -207,7 +168,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
             width: 100%;
             height: 4.1rem; 
             margin-bottom: 0.2rem;
-            border: 1px solid black;
+            // border: 1px solid black;
             border-radius: 14px;
           }
           h4{

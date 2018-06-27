@@ -1,33 +1,19 @@
 <template>
   <div class="editaddress_container">
     <div class="edit_container">
-      <ul>
+      <van-address-edit :area-list="areaList"  :address-info = "addressIinfo" show-set-default show-search-result  @save="onSave"/>
+      <!-- <ul>
         <li>
           <van-cell-group class="h88">
            <van-field v-model="info.name" label="收货人" placeholder="请输入收货人姓名" :error-message="nameerrmessage" />
           </van-cell-group>
-          <!-- <van-row class="edit_item h88">
-            <van-col span="6" class="title_left">
-              <span class="h88">收货人</span>
-            </van-col>
-            <van-col span="18" class="content-right" >
-               <input  type="text" placeholder="请输入收货人姓名">
-            </van-col>
-          </van-row> -->
+         
         </li>
          <li style="margin-top: -2px;">
             <van-cell-group class="h88" >
              <van-field v-model="info.tel" label="联系电话" placeholder="请输入收货人手机号" :error-message="telerrmessage" />
             </van-cell-group>
-          <!-- <van-row class="edit_item"> -->
-            
-            <!-- <van-col span="6" class="title_left">
-              <span class="h88">联系电话</span>
-            </van-col>
-            <van-col span="18" class="content-right" >
-              
-            </van-col> -->
-          <!-- </van-row> -->
+         
         </li>
          <li>
           <van-row class="edit_item">
@@ -35,6 +21,7 @@
               <span class="h88">所在地区</span>
             </van-col>
             <van-col span="18" class="content-right" >
+              
                <input  type="text" placeholder="请输入收货人地区">
             </van-col>
           </van-row>
@@ -45,7 +32,7 @@
               <span class="h88">详细地址</span>
             </van-col>
             <van-col span="18" class="content-right" >
-               <textarea v-model="info.address" name="" id="" cols="30" rows="5" placeholder="请输入详细地址信息，如道路、门牌号等"></textarea>
+               <textarea v-model="address" name="" id="" cols="30" rows="5" placeholder="请输入详细地址信息，如道路、门牌号等"></textarea>
             </van-col>
           </van-row>
         </li>
@@ -54,42 +41,80 @@
             <van-switch-cell v-model="checked" title="设置默认地址" />
           </van-cell-group>
         </li>
-      </ul>
-      <div class="save_container">
+      </ul> -->
+      <!-- <div class="save_container">
         <div class="save_btn tc" @click="onSave()">保存 </div>  
-      </div>
+      </div> -->
       
     </div>
   </div>
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
+import AREALIST from "../../data/areaList"
   export default {
     data(){
       return{
         addressflag:true, //编辑地址
+        areaList:{},
         checked:false,
         name:"", //收货人姓名
         phone:'13310253603', //收货人手机号
+        address:"", //收货人详细地址
         nameerrmessage:"", //名字错误提示
         telerrmessage:"",  //电话错误提示
-        info:{}
+        info:{},
+        addressIinfo:{}
       }
     },
-     methods: {
-      onSave() {
-        Toast('save');
+    methods: {
+      onSave(res) {
+        console.log(res)
+        var this_= this;
+        var status=2;
+        if(res.is_default){
+          status = 1;
+        }
+        var obj={
+          "service":"addAddress",
+          "stoken":"481627c3298175f2d3dff91cbf5605cd",
+          "link_name":res.name,
+          "link_tel":res.tel,
+          "district":res.province+" "+res.city+" "+ res.county,
+          "address":res.address_detail,
+          "default_status":status
+        };
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code == 0){
+            this.$router.push({  
+              path: '/newaddress',
+              name: 'NEWADDRESS',
+              params: {   
+                data: obj
+              }, 
+              // query: {  
+              //   name:name,   
+              //   id: id
+              // }
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
       },
     },
     mounted() {
       var this_ = this;
       this_.addressflag = this_.$route.params.flag;
       if(this_.$route.params.data){
-        this_.info = this_.$route.params.data;
+        console.log(this_.$route.params.data);
+        this_.addressIinfo = this_.$route.params.data;
       };
-      console.log(this_.info)
       document.title = "编辑收货地址";
-    },    
+      this_.areaList = AREALIST.areaList;
+    }, 
   }
 </script>
 

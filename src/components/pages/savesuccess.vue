@@ -1,8 +1,8 @@
 <template>
   <div class="save_container">
      <ul class="photo_list" :class="markflag?'photo_list_fix':''">
-         <li v-for="item in 4">
-            <img src="../../images/yunnan1.jpg" alt="muban">
+         <li v-for="item in modelLists">
+            <img :src="item.img" alt="muban">
          </li>
      </ul>
      <div class="btn_container" v-if="!markflag">
@@ -46,11 +46,13 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
   export default {
      data(){
        return{
          markflag:false,
          i:0,
+         modelLists:[], //列表
          styleAry:{
            "logoimg":"../../images/title1.jpg",
            "title":"冬季的旅行",
@@ -80,11 +82,28 @@
        }
      },
      methods:{
+       //选规格
        selectTypeFn(index){
          var this_ = this;
          this_.i = index;
          this_.selectItem = this_.styleAry.typeList[index];
        },
+        //获取详情列表
+      detailListsFn(id){
+        var this_ = this;
+        var obj={"service":"getTemplateDetailInfo","id":id};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.modelLists = res.data.data;
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
+       //跳到付款页面
        jumptopay(obj){
         var this_ = this;
         obj.logoimg=this_.styleAry.logoimg;
@@ -104,6 +123,8 @@
      mounted(){
       var this_= this;
       document.title = '保存成功';
+      var id= this_.$route.params.id;
+      this_.detailListsFn(id);
     }     
   }
 </script>
