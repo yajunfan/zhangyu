@@ -114,6 +114,10 @@ import SERVERUTIL from "../../lib/SeviceUtil";
         console.log(error);
       });
     },
+    //查询收货地址信息
+    getAddressInfo(){
+      
+    },
      //添加新地址-跳转到地址编辑页面
     addAddressFn(flag,obj){
       var this_ = this;

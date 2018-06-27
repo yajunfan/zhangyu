@@ -70,7 +70,6 @@ import AREALIST from "../../data/areaList"
     },
     methods: {
       onSave(res) {
-        console.log(res)
         var this_= this;
         var status=2;
         if(res.is_default){
