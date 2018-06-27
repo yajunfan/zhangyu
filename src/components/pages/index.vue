@@ -91,9 +91,18 @@ import SERVERUTIL from "../../lib/SeviceUtil";
     methods:{
       //获取模板类型
       modelListFn(){
-        var obj={"service":"getTemplateType"}
+        var this_ = this;
+         var obj={"service":"getTemplateType"};
+        // $.post("http://192.144.141.33:8081/api/index/index",obj,
+        // function(res){
+        //   if(res.code == 0){
+        //     if(res.data){
+        //       this_.tabarys = res.data;
+        //     }
+        //   }
+        // });
+        
         SERVERUTIL.base.baseurl(obj).then(res => {
-          console.log(res)
           if(res.data.result){
             this_.sourceData =JSON.parse(res.data.result);
             this_.sourceDataNew= JSON.parse(JSON.stringify(this_.sourceData)); //深克隆一份
