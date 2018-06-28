@@ -2,19 +2,19 @@
   <div class="order_container">
     <div v-if="orderflag" class="has_order">
       <ul class="order_box">
-         <li v-for="(item,index) in orderlists" :key="index" @click="jumptodetail(item.paystatus,item)">
-            <div class="order_title">
+         <li v-for="(item,index) in orderlists" :key="index" >
+            <div class="order_title" @click="jumptodetail(item.paystatus,item)">
                <span>订单号：<i v-text="item.id"></i></span> 
                <span class="pay_status  fr" v-text="item.chinaStatus"></span>
             </div>
-            <div class="order_content">
+            <div class="order_content" @click="jumptodetail(item.paystatus,item)">
                <van-card :title="item.info.title" :desc="item.info.specifications" :num="item.info.number" :price="item.info.price" thumb="//img.yzcdn.cn/upload_files/2017/07/02/af5b9f44deaeb68000d7e4a711160c53.jpg"/> 
             </div>
             <div class="order_money">
               <span class="fr money_num">￥<i v-text="item.realpay"></i><span style="font-size:0.24rem;color:#ff5547;">.00</span></span>
               <span class="fr" v-text="item.paymoneyflag?'实付款':'需付款'"></span>
             </div>
-            <div class="order_btn" v-if="item.paymoneybtn">
+            <div class="order_btn" v-if="item.paymoneybtn" @click="operatebtnFn(item.paymoneytext)">
                <div class="tc fr " v-text="item.paymoneytext?'物流详情':'继续支付'"></div>
             </div>
          </li>
@@ -30,17 +30,32 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
+import UTILS from "../../lib/utils";
   export default {
     data(){
       return{
        orderflag:true, //有订单
-       orderlists:[]
+       userid:"",
+       token:"",
+       orderlists:[],
       }
     },
     methods:{
       //订单列表数据
-      orderFn(){
+      orderFn(id,token){
         var this_ = this;
+        var obj={"service":"getUserOrderList","stoken":token,};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          console.log(res);
+          if(res.data.code ==0){
+            if(res.data.data){
+              //this_.orderlists = res.data.data; 
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
         this_.orderlists=[
          {
            id:'W17102523455412',
@@ -139,12 +154,31 @@
           //   id: id
           // }
         }) ;
+      },
+      //继续支付和物流详情操作
+      operatebtnFn(flag){
+        //flag -true 物流详情   
+        //flag -false  继续支付
+        if(flag){
+          this.$router.push({  
+            path: '/logistics',
+            name: 'LOGISTICS',
+            params: {   
+             
+            }, 
+           
+          }) ;
+        }else{
+
+        }
       }
     },
     mounted() {
       var this_ = this;
       document.title = "我的订单";
-      this_.orderFn();
+      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
+      this_.userid = this_.$route.params.id;
+      this_.orderFn(this_.userid,this_.token);
     }, 
    }
 </script>

@@ -52,7 +52,7 @@
     </div>
      <div class="titleContainer" v-else>
       <van-row>
-        <van-col span="17" :key="index1">
+        <van-col span="17" >
            <van-row class="title_con">
               <van-col span="12"><span  class="title_name" v-text="photoName"></span></van-col>
               <van-col span="12" style="text-align:right;"><a href="javascript:;" class="detail_name">查看详情<i>></i></a></van-col>
@@ -74,12 +74,9 @@
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b" @click="markflag=true;">
-                    <!-- accept="image/*;capture=camera" 直接调用相机
-                        accept="image/*" 调用相机 图片或者相册 -->
                     <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
                       <van-icon name="photograph" />
                     </van-uploader>
-                    <!-- <input id="fileImage" class="fileImage" type="file"  accept="image/*" capture="camera" size="30"> -->
                     <img src="../../images/onload.png" alt="上传">
                     <span class="mark">20</span>
                   </span>
@@ -97,14 +94,13 @@
           <div class="scaling ">
              <img src="../../images/scale.png" alt="" @click="showflag=true;" class="icon_img"/>
              <div class="option_container">
-               
-               <select class="tc">
+               <select class="tc" @change="changeTypsFn"  v-model="liid">
                  <option :value ="item.id" v-for="item in tabarys" :key="item.id">{{item.name}}</option>
                </select>
              </div>
              <ul class="prewimg">
-               <li v-for="(item,index) in modelLists" :key="index">
-                 <div @click="selectPrewImgFn(index)" :class="index==i?'selDiv':''">
+               <li v-for="(item,index) in tabLists" :key="index">
+                 <div @click="selectPrewImgFn(index,item.id)" :class="index==i?'selDiv':''">
                    <img :src="item.img" alt="1" />
                  </div>
                </li>
@@ -124,7 +120,8 @@ import SERVERUTIL from "../../lib/SeviceUtil";
       return{
         photoName:"" ,
         tabarys:[], //模板类型列表
-        modelLists:[  //列表
+        liid:"1",
+        modelLists:[  //模板的详情页面列表
           {
             'name':'冬季的旅行',
              imageLists:[
@@ -132,15 +129,17 @@ import SERVERUTIL from "../../lib/SeviceUtil";
              ]
           }
         ],
+        tabLists:[], //右侧的类型列表
         showflag:true,
         i:0  //当前选中的列表项
       }
     },
     methods:{
       //右侧的点击每一项
-      selectPrewImgFn(index){
+      selectPrewImgFn(index,id){
         var this_ = this;
         this_.i = index;
+        this_.detailListsFn(id);
       },
       //获取模板类型
       modelTypeFn(){
@@ -150,7 +149,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           if(res.data.code ==0){
             if(res.data.data){
               this_.tabarys = res.data.data;
-
+              this_.modelListFn(this_.tabarys[0].id);
             }
           }
         })
@@ -158,12 +157,31 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           console.log(error);
         });
       },
+       //获取模板列表
+      modelListFn(typeId){
+        var this_ = this;
+        var obj={"service":"getTemplateList","type_id":typeId};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.tabLists = res.data.data;
+              console.log(this_.tabLists)
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
+      changeTypsFn(){
+        var this_ = this;
+        this_.modelListFn(this.liid);
+      },
       //获取详情列表
       detailListsFn(id){
         var this_ = this;
         var obj={"service":"getTemplateDetailInfo","id":id};
         SERVERUTIL.base.baseurl(obj).then(res => {
-          console.log(res)
           if(res.data.code ==0){
             if(res.data.data){
               this_.modelLists = res.data.data;

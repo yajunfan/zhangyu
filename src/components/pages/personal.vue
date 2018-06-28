@@ -2,18 +2,18 @@
   <div class="personal_container" >
     <div class="back_orange">
       <div class="head_image">
-        <img src="../../images/title1.jpg" alt="">
-        
+        <!-- userInfo.header_img -->
+        <img src="../../images/title1.jpg" alt="userInfo.nick_name">
       </div>
       <div class="person_name">
         <span v-text="username" v-if="!editflag"></span>
-        <input type="text" v-model="username" v-else @blur="changeNameFn($event)" @focus="change($event)">
+        <input type="text" v-model="username" v-else @blur="changeNameFn($event)">
         <span @click="editFn($event)"><img src="../../images/editbook.png" alt=""></span>
       </div>
     </div>
     <div class="change_router">
       <span> 
-        <div @click="jumptoorder">
+        <div @click="jumptoorder(userInfo.id)">
           <img src="../../images/order.png" alt="">
           <p>订单</p>
         </div>
@@ -33,7 +33,7 @@
 
     </div>
     <div class="my_book">
-      <h4>我的书架 <span @click="jumptobook" v-if="bookflag">更多<img src="../../images/rightjt.png" alt="无"></span></h4>
+      <h4>我的书架 <span @click="jumptobook" v-if="bookflag2">更多<img src="../../images/rightjt.png" alt="无"></span></h4>
       <div v-if="bookflag">
         <van-row class="edit_item" style="border:none;">
           <van-col span="10" class="title_left">
@@ -45,7 +45,7 @@
               <span class="preview_photo d-i-b"></span>
               <span class="edit_photo d-i-b"></span>
             </div>
-            <div class="use_photo tc">制作相册</div>
+            <div class="use_photo tc" @click="jumptostartmakeFn">制作相册</div>
           </van-col>
         </van-row>
       </div>
@@ -54,7 +54,7 @@
           <img src="../../images/nobook.png" alt=".">
         </div>
         <p class="tc">亲~您的书架空空如也<br>快来开始著相册吧</p>
-        <div class="use_photo tc">马上制作</div>
+        <div class="use_photo tc" @click="jumptostartmakeFn">马上制作</div>
       </div>
     </div>
     <div class="footer">
@@ -64,29 +64,84 @@
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
+import UTILS from "../../lib/utils";
 export default {
   data(){
     return{
       bookflag:true, //书架不为空
+      bookflag2:true,//书架数量小于2
       editflag:false, //不可编辑
-      username:"小迪", 
+      username:"", 
+      userInfo:{}, //用户信息
+      token:"",
+      booklists:[]
     }
   },
   methods:{
+    //获取用户信息
+    getUserInfoFn(token){
+      var this_ = this;
+      var obj={"service":"getUserInfo","stoken":token};
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code ==0){
+          if(res.data.data){
+            this_.userInfo = res.data.data;
+            this_.username = this_.userInfo.nick_name;
+          }
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    //获取图书列表
+    getBookListFn(token){
+      var this_ = this;
+      var obj={"service":"getBookList","stoken":token};
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code ==0){
+          if(res.data.data){
+            this_.booklists=res.data.data;
+            if(this_.booklists.length){
+              if(this_.booklists.length>1){
+                this_.bookflag2 = true;
+              }else{
+                this_.bookflag2 = false;
+              }
+            }else{
+              this_.bookflag = false;
+              this_.bookflag2 = false;
+            }
+          }
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    //跳转到我的书架更多
     jumptobook(){
       var this_ = this;
       this_.$router.push({  
         path: '/mybook',
         name: 'MYBOOK',
+        params:{
+          booklist:this_.booklists
+        }
       });
     },
-    jumptoorder(){
+    //跳转到订单页面
+    jumptoorder(id){
       var this_ = this;
       this_.$router.push({  
         path: '/order',
         name: 'ORDER',
+        params: {   
+          id:id,
+          token: this_.token
+        }, 
       });
     },
+    //跳转到地址页面
     jumptoaddress(flag){
       var this_ = this;
       this_.$router.push({  
@@ -97,6 +152,7 @@ export default {
         },
       });
     },
+    //跳转到礼品卡页面
     jumptogift(flag){
       var this_ = this;
       this_.$router.push({  
@@ -107,16 +163,25 @@ export default {
         },
       });
     },
+    //跳转到马上制作页面
+    jumptostartmakeFn(){
+      var this_ = this;
+      this.$router.push({  
+        path: 'startmake',   
+        name: 'STARTMAKE',  
+        params: {   
+          name: this_.detailtitle,
+          id:this_.$route.params.id
+        } 
+      }) ;
+    },
+    //修改用户名昵称
     changeNameFn(e){
       e.cancelBubble =true;
       e.stopPropagation();
       this.editflag =false;
     },
-    change(e){
-      e.cancelBubble =true;
-      e.stopPropagation()
-      this.editflag =true;
-    },
+    //编辑名称
     editFn(e){
      e.cancelBubble =true;
      e.stopPropagation()
@@ -124,7 +189,11 @@ export default {
     }
   },
   mounted() {
+    var this_ = this;
     document.title = "个人中心";
+    this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
+    this_.getUserInfoFn(this_.token);
+    this_.getBookListFn(this_.token);
   }
 };
 </script>

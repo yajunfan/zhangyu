@@ -1,9 +1,9 @@
 <template>
  <div class="book_container">
-    <van-row class="book_item"  v-for="item in 4" :key="item">
+    <van-row class="book_item"  v-for="(item,index) in booklists" :key="index">
         <van-col span="10" class="title_left">
           <img src="../../images/yunnan1.jpg" alt="相册">
-          <i class="book_ststus d-i-b "></i>
+          <i class=" d-i-b " :class="item.status == 1?'book_ststus':(item.status == 2?'fail_status':'')"></i>
         </van-col>
         <van-col span="14" class="content-right">
           <div class="opearte_container">
@@ -11,16 +11,57 @@
             <span class="preview_photo d-i-b"></span>
             <span class="edit_photo d-i-b"></span>
           </div>
-          <div class="use_photo tc">制作相册</div>
+          <div class="use_photo tc" @click="jumptostartmakeFn(item.book_name,item.id)">制作相册</div>
         </van-col>
       </van-row>
  </div>
 </template>
 
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
+import UTILS from "../../lib/utils";
   export default {
+    data(){
+      return{
+        booklists:[]
+      }
+    },
+    methods:{
+      //获取图书列表
+      getBookListFn(token){
+        var this_ = this;
+        var obj={"service":"getBookList","stoken":token};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.booklists=res.data.data;
+              console.log(this_.booklists)
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
+      //跳转到马上制作页面
+      jumptostartmakeFn(name,id){
+        var this_ = this;
+        this.$router.push({  
+          path: 'startmake',   
+          name: 'STARTMAKE',  
+          params: {   
+            name: name,
+            id:id
+          } 
+        }) ;
+      },
+    },
     mounted() {
+     var this_ = this;
      document.title = "我的书架";
+     this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
+     this_.getBookListFn(this_.token);
+     //this_.booklists=this_.$route.params.booklist;
+
     }    
   }
 </script>

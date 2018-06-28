@@ -2,7 +2,7 @@
     <div class="indexContainer">
       <div class="tabcontent">
           <ul class="tablist">
-            <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(index,items.id);" :class="active==index?'selecta':''" ></a></li>
+            <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(index,items);" :class="active==index?'selecta':''" ></a></li>
           </ul>
           <div class="tabListcontent">
             <ul v-for="(items,index) in tabarys" v-if="index == active">
@@ -26,17 +26,36 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
+import UTILS from "../../lib/utils";
   export default {
     data(){
       return{
         active:0,
         num:0, //记录点击的次数
+        photoname:"", //模板类型名称
         tabarys:[], //模板类型列表
         tabLists:[], //模板列表
+        getstoken:"",
         locationIcon:require("../../assets/mybigbt.png")
         }
     },
     methods:{
+      //用户登录
+      userLoginFn(){
+        var this_ = this;
+        var obj={"service":"login","telephone":"13161728388"};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.getstoken = res.data.data.stoken;
+              UTILS.SESSIONOPERATE.setStorage("stoken",this_.getstoken);
+            }
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        });
+      },
       //获取模板类型
       modelTypeFn(){
         var this_ = this;
@@ -46,6 +65,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
             if(res.data.data){
               this_.tabarys = res.data.data;
               this_.modelListFn(this_.tabarys[0].id);
+              this_.photoname = this_.tabarys[0].name;
             }
           }
         })
@@ -68,10 +88,11 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           console.log(error);
         });
       },
-      tabchange(index,id){
+      tabchange(index,obj){
         var this_ = this;
         this_.active = index;
-        this_.modelListFn(id);
+        this_.modelListFn(obj.id);
+        this_.photoname = obj.name;
       },
       //跳转到详情页面
       jumptodetail(name,id){
@@ -95,7 +116,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           path: 'startmake',   
           name: 'STARTMAKE',  
           params: {   
-            name: ''
+            name: this_.photoname
           }, 
           // query: {  
           //   name:name,   
@@ -110,12 +131,8 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           path: '/personal',
           name: 'PERSONAL', 
           params: {   
-            name: ''
-          }, 
-          // query: {  
-          //   name:name,   
-          //   id: id
-          // }
+            token: this_.getstoken
+          }
         }) 
       }
       
@@ -124,6 +141,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
       var this_ = this;
       document.title = '首页';
       this_.modelTypeFn();
+      this_.userLoginFn();
     }
   }
 </script>

@@ -15,13 +15,13 @@
                   <van-col span="12" class="name_left"><span v-text="item.name"></span></van-col>
                   <van-col span="12" class="tel_right tr" ><span v-text="item.tel"></span></van-col>
                </van-row>
-               <p v-text="item.province+item.city+item.county+item.address_detail"></p>
+               <p v-text="item.province+' '+item.city+' '+item.county+' '+item.address_detail"></p>
              </div> 
              <div class="address_operate">
                <van-row>
                   <van-col span="12" class="name_left">
-                    <span class="select_icon d-i-b" :class="active == index?'selectSpan_icon':''"  @click="selectadFn(index)"></span>
-                    <span v-text="active == index?'默认地址':'设为默认'"></span></van-col>
+                    <span class="select_icon d-i-b" :class="item.is_default?'selectSpan_icon':''"  @click="selectadFn(item,index)"></span>
+                    <span v-text="item.is_default?'默认地址':'设为默认'"></span></van-col>
                   <van-col span="12" class="tel_right tr" >
                     <span class="ad_edit d-i-b" @click="addAddressFn(true,item)"><i class="d-i-b"></i>编辑</span>
                     <span class="ad_delete d-i-b" @click="deleteaddressFn()"><i class="d-i-b"></i>删除</span>
@@ -37,77 +37,50 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
+import UTILS from "../../lib/utils";
   export default {
     data(){
       return{
         active:0, //选择默认地址
         ifnewflag:false,  //是否有地址
-        addressLists:[
-          {
-            area_code:"110101",
-            name:"张三",
-            tel:'13332426729',
-            city:"杭州市",
-            county:"西湖区",
-            is_default:false,
-            postal_code:"",
-            province:"浙江省",
-            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
-            selectflag:true
-          },
-          {
-            area_code:"",
-            name:"李四",
-            tel:'13332426729',
-            city:"杭州市",
-            county:"西湖区",
-            is_default:false,
-            postal_code:"",
-            province:"浙江省",
-            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
-            selectflag:false
-          },
-          {
-            name:"赵武",
-            area_code:"",
-            tel:'13332426729',
-            city:"杭州市",
-            county:"西湖区",
-            is_default:false,
-            postal_code:"",
-            province:"浙江省",
-            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
-            selectflag:false
-          },
-          {
-            name:"Amy",
-            area_code:"",
-            tel:'13332426729',
-            city:"杭州市",
-            county:"西湖区",
-            is_default:false,
-            postal_code:"",
-            province:"浙江省",
-            address_detail:"文三路 138 号东方通信大厦 7 楼 501 室",
-            selectflag:false
-           },
-        ]
+        addressLists:[]
       }
     },
     methods:{
     //选择默认地址
-    selectadFn(index){
+    selectadFn(item,index){
       var this_ = this;
       this_.active = index;
+      this_.addressLists.forEach(item=>{
+        item.is_default = false;
+      });
+      this_.addressLists[index].is_default = true;
+      this_.$set(this_.addressLists,index,this_.addressLists[index]);
     },
     //获取收货地址列表
-    getAddressListFn(){
+    getAddressListFn(token){
       var this_ = this;
-      var obj={"service":"getAddressList","stoken":"481627c3298175f2d3dff91cbf5605cd"};
+      var obj={"service":"getAddressList","stoken":token};
       SERVERUTIL.base.baseurl(obj).then(res => {
         if(res.data.code ==0){
           if(res.data.data){
             this_.addressLists = res.data.data;
+            this_.addressLists.forEach(item =>{
+              var ary = item.district.split("-");
+              item.province = ary[0];
+              item.city = ary[1];
+              item.county = ary[2];
+              item.address_detail = item.address;
+              item.name=item.link_name;
+              item.tel=item.link_tel;
+              item.area_code=item.district_id;
+              if(item.default_status == 2){
+                item.is_default= false;
+              }else{
+                item.is_default= true;
+              };
+            });
+            this_.addressLists.reverse();
           }
         }
       }).catch(error => {
@@ -121,13 +94,21 @@ import SERVERUTIL from "../../lib/SeviceUtil";
      //添加新地址-跳转到地址编辑页面
     addAddressFn(flag,obj){
       var this_ = this;
+      var useobj={};
+      if(obj){
+        useobj={   
+          flag: flag,
+          id:obj.id
+        }
+      }else{
+        useobj={   
+          flag: flag
+        }
+      };
       this_.$router.push({  
         path: '/editaddress',
         name: 'EDITADDRESS',  
-        params: {   
-          flag: flag,
-          data:obj
-        }, 
+        params:useobj 
       }); 
     },
      //删除地址
@@ -146,7 +127,8 @@ import SERVERUTIL from "../../lib/SeviceUtil";
     mounted() {
       var this_ = this;
       document.title = "地址管理";
-      this_.getAddressListFn();
+      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
+      this_.getAddressListFn(this_.token);
     },    
   }
 </script>

@@ -54,8 +54,20 @@ import UTILS from "../../lib/utils";
               this_.detailImg = this_.detailinfo.img_detail.split(",");
             }
           }
-        })
-        .catch(error => {
+        }).catch(error => {
+          console.log(error);
+        });
+      },
+      //查询模板页面详情
+      getTemplateDetailInfoFn(id){
+        var this_ = this;
+        var obj={"service":"getTemplateDetailInfo","id":id};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+            }
+          }
+        }).catch(error => {
           console.log(error);
         });
       },
@@ -78,15 +90,17 @@ import UTILS from "../../lib/utils";
     },
     mounted(){
       var this_= this;
+     
       if(this_.$route.params.name){
         this_.detailtitle = this.$route.params.name;
         UTILS.SESSIONOPERATE.setStorage("title",this_.detailtitle);
       }else{
         this_.detailtitle = UTILS.SESSIONOPERATE.getStorage("title");
       };
+       document.title = this_.detailtitle;
       var id=this_.$route.params.id;
       this_.modelDetailFn(id);
-      document.title = this_.detailtitle;
+      this_.getTemplateDetailInfoFn(id); 
     }   
   }
 </script>

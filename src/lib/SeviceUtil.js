@@ -9,8 +9,9 @@ var this_=this;
 axios.interceptors.request.use(  
   config => {                                         
     config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    //config.url=config.url+"&stoken=29161a560fc2e7b87125ff33b529b6e8";
     if(config.method === 'post') {
-        config.data =qs.stringify(config.data);
+      config.data =qs.stringify(config.data);
     }  
     return config;  
   },function(error){  

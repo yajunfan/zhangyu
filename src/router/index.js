@@ -102,6 +102,14 @@ export default new Router({
         title: '编辑收货地址'
       }
     },
+    {
+      path: '/logistics',
+      name: 'LOGISTICS',
+      component: resolve => require(['@/components/pages/logistics'],resolve),
+      meta: {
+        title: '物流详情'
+      }
+    },
   ]
 })
 

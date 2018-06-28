@@ -1,7 +1,16 @@
 <template>
  <div class="confirm_container">
-   <div class="add_container">
-      <van-contact-card :type="cardType"  @click="jumpaddress"/>
+   <!-- 没有默认收货地址 -->
+   <div class="add_container" v-if="!addressflag">
+      <van-contact-card type="add"  @click="jumpaddress"/>
+   </div>
+   <!-- 有收货地址 -->
+   <div v-if="addressflag" class="user_address">
+     <ul @click="jumpaddress">
+       <li><span class="d-i-b mr10" >战三</span><span>15379907289</span></li>
+       <li class="ad"><span>浙江省杭州市西湖区文三路 138 号东方通信大厦 7 楼 501 室</span><img src="../../images/rightjt.png" alt="无"></li>
+     </ul>
+     <div class="clear"></div>
    </div>
    <div class="order_container">
      <div class="order_title">
@@ -59,7 +68,17 @@
         shopnum:1, //购买数量
         giftflag:true, //是否有礼物卡
         giftnum:1,
-       
+        addressflag:true, //没有有默认收货地址
+        chosenContactId: null,
+        editingContact: {},
+        showList: false,
+        showEdit: true,
+        isEdit: false,
+        list: [{
+          name: '张三',
+          tel: '13000000000',
+          id: 0
+        }]
       }
     },
     computed: {
@@ -122,7 +141,18 @@
       },
       onExchange(code) {
         this.coupons.push(coupon);
-      }
+      },
+      onSave(info) {
+        this.showEdit = false;
+        this.showList = false;
+        
+        if (this.isEdit) {
+          this.list = this.list.map(item => item.id === info.id ? info : item);
+        } else {
+          this.list.push(info);
+        }
+        this.chosenContactId = info.id;
+      },
     },
     mounted(){
       var this_= this;
@@ -140,6 +170,33 @@
    .add_container{
      height: 1.46rem;
      box-sizing: border-box;
+   }
+   .user_address{
+     height: 0.8rem;
+     padding: 0.3rem 0.2rem;
+     background: white;
+     border-bottom:1px solid red;
+     li{
+       color: #111;
+       span{
+         font-size:0.28rem;
+       }
+       .mr10{
+         margin-right: 0.2rem;
+       }
+     }
+     li.ad{
+       span{
+         color:#999;
+         font-size:0.24rem;
+       }
+       img{
+         float: right;
+         width: 0.16rem;
+         margin-top: -8px;
+       }
+     }
+
    }
    .order_container{
      .order_title{
