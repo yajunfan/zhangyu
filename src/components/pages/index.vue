@@ -1,5 +1,6 @@
 <template>
     <div class="indexContainer">
+      {{count}}
       <div class="tabcontent">
           <ul class="tablist">
             <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(index,items);" :class="active==index?'selecta':''" ></a></li>
@@ -27,6 +28,8 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
+
   export default {
     data(){
       return{
@@ -111,7 +114,9 @@ import UTILS from "../../lib/utils";
       },
       //跳转到开始制作页面
       jumptomake(){
+          this.changeCount(2)
         var this_ = this;
+      
         this_.$router.push({  
           path: 'startmake',   
           name: 'STARTMAKE',  
@@ -134,7 +139,11 @@ import UTILS from "../../lib/utils";
             token: this_.getstoken
           }
         }) 
-      }
+      },
+      ...mapMutations([
+      "changeCount","changeObj"
+    
+    ])
       
     },
     mounted(){
@@ -142,6 +151,9 @@ import UTILS from "../../lib/utils";
       document.title = '首页';
       this_.modelTypeFn();
       this_.userLoginFn();
+    },
+    computed:{
+      ...mapState(['count'])
     }
   }
 </script>
