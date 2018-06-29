@@ -187,7 +187,7 @@ import UTILS from "../../lib/utils";
             height: 4.1rem; 
             margin-bottom: 0.2rem;
             // border: 1px solid black;
-            border-radius: 14px;
+            border-radius: 8px;
           }
           h4{
            font-size: 0.32rem;
