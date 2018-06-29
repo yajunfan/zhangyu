@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 import 'vant/lib/vant-css/index.css'
 import { Area ,Button, Row, Col,CellGroup ,Card ,Field ,Tab, Tabs ,Toast ,Search ,Step, Steps,Switch ,SwitchCell , Swipe , SwipeItem ,Sku ,Uploader ,Icon ,ContactCard, ContactList, ContactEdit,SubmitBar,
   CouponCell, CouponList ,Dialog,Popup,AddressEdit   } from 'vant'
@@ -16,6 +17,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })
