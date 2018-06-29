@@ -15,16 +15,17 @@
                   <van-col span="12" class="name_left"><span v-text="item.name"></span></van-col>
                   <van-col span="12" class="tel_right tr" ><span v-text="item.tel"></span></van-col>
                </van-row>
-               <p v-text="item.province+' '+item.city+' '+item.county+' '+item.address_detail"></p>
+               <p><span v-if="item.is_default&&!vaddressenterflag" style="color:red;">【 默认地址 】</span><span v-text="item.province+' '+item.city+' '+item.county+' '+item.address_detail"></span></p>
              </div> 
              <div class="address_operate">
                <van-row>
                   <van-col span="12" class="name_left">
-                    <span class="select_icon d-i-b" :class="item.is_default?'selectSpan_icon':''"  @click="selectadFn(item,index)"></span>
-                    <span v-text="item.is_default?'默认地址':'设为默认'"></span></van-col>
+                    <span :style="{'opacity':vaddressenterflag?'1':'0'}" class="select_icon d-i-b" :class="item.is_default?'selectSpan_icon':''"  @click="selectadFn(item,index)"></span>
+                    <span :style="{'opacity':vaddressenterflag?'1':'0'}" v-text="item.is_default?'默认地址':'设为默认'"></span></van-col>
+                    
                   <van-col span="12" class="tel_right tr" >
                     <span class="ad_edit d-i-b" @click="addAddressFn(true,item)"><i class="d-i-b"></i>编辑</span>
-                    <span class="ad_delete d-i-b" @click="deleteaddressFn()"><i class="d-i-b"></i>删除</span>
+                    <span class="ad_delete d-i-b" @click="deleteaddressFn(item)"><i class="d-i-b"></i>删除</span>
                   </van-col>
                </van-row>  
              </div>
@@ -37,7 +38,7 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
-import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
@@ -112,24 +113,48 @@ import UTILS from "../../lib/utils";
       }); 
     },
      //删除地址
-     deleteaddressFn(){
+     deleteaddressFn(obj){
        var this_ = this;
        this_.$dialog.confirm({
-        title: '',
-        message: '删除后不可撤销，确定要删除此地址吗？'
-      }).then(() => {
+          title: '',
+          message: '删除后不可撤销，确定要删除此地址吗？'
+       }).then(() => {
+         var paramsobj={};
+         paramsobj={
+          "service":"setAddress",
+          "id":obj.id,
+          "stoken":this_.token,
+          "link_name":obj.link_name,
+          "link_tel":obj.tel,
+          "district":obj.province+"-"+obj.city+"-"+ obj.county,
+          "address":obj.address_detail,
+          "district_id":obj.area_code,
+          "status":10
+        };
+          SERVERUTIL.base.baseurl(paramsobj).then(res => {
+            if(res.data.code == 0){
+              this_.getAddressListFn(this_.token);
+            }
+          }).catch(error => {
+            console.log(error);
+          });  
+       }).catch(() => {
           
-      }).catch(() => {
-        
-      });
-     }
+       });
+     },
+     ...mapMutations([
+        "changeToken","changeObj","changeGiftlist","changeEnter"
+      ])
     },
     mounted() {
       var this_ = this;
       document.title = "地址管理";
-      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
+      //this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
       this_.getAddressListFn(this_.token);
-    },    
+    },
+    computed:{
+      ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag"])
+    } ,    
   }
 </script>
 

@@ -4,17 +4,17 @@
       <ul class="order_box">
          <li v-for="(item,index) in orderlists" :key="index" >
             <div class="order_title" @click="jumptodetail(item.paystatus,item)">
-               <span>订单号：<i v-text="item.id"></i></span> 
+               <span>订单号：<i v-text="item.book_id"></i></span> 
                <span class="pay_status  fr" v-text="item.chinaStatus"></span>
             </div>
             <div class="order_content" @click="jumptodetail(item.paystatus,item)">
-               <van-card :title="item.info.title" :desc="item.info.specifications" :num="item.info.number" :price="item.info.price" thumb="//img.yzcdn.cn/upload_files/2017/07/02/af5b9f44deaeb68000d7e4a711160c53.jpg"/> 
+               <van-card :title="item.template_name" :desc="item.discount_price" :num="item.num" :price="item.unit_price" :thumb="item.img"/> 
             </div>
             <div class="order_money">
-              <span class="fr money_num">￥<i v-text="item.realpay"></i><span style="font-size:0.24rem;color:#ff5547;">.00</span></span>
+              <span class="fr money_num">￥<i v-text="item.real_price"></i><span style="font-size:0.24rem;color:#ff5547;">.00</span></span>
               <span class="fr" v-text="item.paymoneyflag?'实付款':'需付款'"></span>
             </div>
-            <div class="order_btn" v-if="item.paymoneybtn" @click="operatebtnFn(item.paymoneytext)">
+            <div class="order_btn" v-if="item.paymoneybtn" @click="operatebtnFn(item.paymoneytext,item)">
                <div class="tc fr " v-text="item.paymoneytext?'物流详情':'继续支付'"></div>
             </div>
          </li>
@@ -32,12 +32,12 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
        orderflag:true, //有订单
        userid:"",
-       token:"",
        orderlists:[],
       }
     },
@@ -47,101 +47,42 @@ import UTILS from "../../lib/utils";
         var this_ = this;
         var obj={"service":"getUserOrderList","stoken":token,};
         SERVERUTIL.base.baseurl(obj).then(res => {
-          console.log(res);
           if(res.data.code ==0){
             if(res.data.data){
-              //this_.orderlists = res.data.data; 
+              this_.orderlists = res.data.data; 
+              console.log(this_.orderlists)
+              this_.orderlists.forEach((  item,index)=>{
+                item.real_price = Number(item.real_price).toFixed(0);
+                item.paymoneyflag=true;
+                item.paymoneybtn=false;
+                item.paymoneytext=false;
+                if(item.status == 1){
+                  item.chinaStatus = '待付款';
+                  item.paymoneyflag=false;
+                  item.paymoneybtn=true;
+                }else  if(item.status == 2){
+                  item.chinaStatus = '已付款，待印刷'; 
+                }else  if(item.status == 3){
+                  item.chinaStatus = '已发货';
+                  item.paymoneybtn=true; 
+                  item.paymoneytext=true;
+                }else  if(item.status == 4){
+                  item.chinaStatus = '已签收'; 
+                }else  if(item.status == 5){
+                  item.chinaStatus = '已取消'; 
+                };
+              }); 
             }
           }
         }).catch(error => {
           console.log(error);
         });
-        this_.orderlists=[
-         {
-           id:'W17102523455412',
-           paystatus:1,
-           info:{
-             "logoimg":'../../images/title1.jpg',
-             "title":"小熊维尼轻奢杂志",
-             "specifications":"20cm*30cm",
-             "price":"233.00",
-             "number":1
-           },
-           realpay:'233'
-         },
-         {
-           id:'W17102523455412',
-           paystatus:2,
-           logoimg:'../../images/title1.jpg',
-           info:{
-             "title":"小熊维尼轻奢杂志",
-             "specifications":"20cm*30cm",
-             "price":"233.00",
-             "number":1
-           },
-           realpay:'233'
-         },
-         {
-           id:'W17102523455412',
-           paystatus:3,
-           logoimg:'../../images/title1.jpg',
-           info:{
-             "title":"小熊维尼轻奢杂志",
-             "specifications":"20cm*30cm",
-             "price":"233.00",
-             "number":1
-           },
-           realpay:'233'
-         },
-         {
-           id:'W17102523455412',
-           paystatus:4,
-           logoimg:'../../images/title1.jpg',
-           info:{
-             "title":"小熊维尼轻奢杂志",
-             "specifications":"20cm*30cm",
-             "price":"233.00",
-             "number":1
-           },
-           realpay:'233'
-         },
-         {
-           id:'W17102523455412',
-           paystatus:5,
-           logoimg:'../../images/title1.jpg',
-           info:{
-             "title":"小熊维尼轻奢杂志",
-             "specifications":"20cm*30cm",
-             "price":"233.00",
-             "number":2
-           },
-           realpay:'233'
-         }
-        ] ;
-        this_.orderlists.forEach((item,index)=>{
-          item.paymoneyflag=true;
-          item.paymoneybtn=false;
-          item.paymoneytext=false;
-          if(item.paystatus == 1){
-            item.chinaStatus = '待付款';
-            item.paymoneyflag=false;
-            item.paymoneybtn=true;
-          }else  if(item.paystatus == 2){
-            item.chinaStatus = '已付款，待印刷'; 
-          }else  if(item.paystatus == 3){
-            item.chinaStatus = '已发货';
-            item.paymoneybtn=true; 
-            item.paymoneytext=true;
-          }else  if(item.paystatus == 4){
-            item.chinaStatus = '已签收'; 
-          }else  if(item.paystatus == 5){
-            item.chinaStatus = '已取消'; 
-          };
-        }); 
+       
       },
       //跳转到详情页
       jumptodetail(status,obj){
         var this_ = this;
+        console.log(obj)
         this.$router.push({  
           path: '/orderdetail',
           name: 'ORDERDETAIL', 
@@ -156,7 +97,8 @@ import UTILS from "../../lib/utils";
         }) ;
       },
       //继续支付和物流详情操作
-      operatebtnFn(flag){
+      operatebtnFn(flag,obj){
+        var this_ = this;
         //flag -true 物流详情   
         //flag -false  继续支付
         if(flag){
@@ -164,22 +106,26 @@ import UTILS from "../../lib/utils";
             path: '/logistics',
             name: 'LOGISTICS',
             params: {   
-             
-            }, 
-           
+              id:obj.id
+            }
           }) ;
         }else{
-
+          //调用wx支付
         }
-      }
+      },
+       ...mapMutations([
+        "changeToken"
+      ])
     },
     mounted() {
       var this_ = this;
       document.title = "我的订单";
-      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
       this_.userid = this_.$route.params.id;
       this_.orderFn(this_.userid,this_.token);
     }, 
+    computed:{
+      ...mapState(['token'])
+    }
    }
 </script>
 

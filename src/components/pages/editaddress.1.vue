@@ -1,19 +1,33 @@
 <template>
   <div class="editaddress_container">
     <div class="edit_container">
-      <van-address-edit :area-list="areaList"  :address-info = "addressIinfo"  :show-set-default="defaultflag"  @save="onSave"/>
-      <!-- <ul>
+      <ul>
         <li>
           <van-cell-group class="h88">
            <van-field v-model="info.name" label="收货人" placeholder="请输入收货人姓名" :error-message="nameerrmessage" />
           </van-cell-group>
-         
+          <!-- <van-row class="edit_item h88">
+            <van-col span="6" class="title_left">
+              <span class="h88">收货人</span>
+            </van-col>
+            <van-col span="18" class="content-right" >
+               <input  type="text" placeholder="请输入收货人姓名">
+            </van-col>
+          </van-row> -->
         </li>
          <li style="margin-top: -2px;">
             <van-cell-group class="h88" >
              <van-field v-model="info.tel" label="联系电话" placeholder="请输入收货人手机号" :error-message="telerrmessage" />
             </van-cell-group>
-         
+          <!-- <van-row class="edit_item"> -->
+            
+            <!-- <van-col span="6" class="title_left">
+              <span class="h88">联系电话</span>
+            </van-col>
+            <van-col span="18" class="content-right" >
+              
+            </van-col> -->
+          <!-- </van-row> -->
         </li>
          <li>
           <van-row class="edit_item">
@@ -41,101 +55,55 @@
             <van-switch-cell v-model="checked" title="设置默认地址" />
           </van-cell-group>
         </li>
-      </ul> -->
-      <!-- <div class="save_container">
+      </ul>
+      <div class="save_container">
         <div class="save_btn tc" @click="onSave()">保存 </div>  
-      </div> -->
+      </div>
       
     </div>
+    <van-area :area-list="areaList" value="110101" confirm="aa"/>
   </div>
 </template>
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import AREALIST from "../../data/areaList"
-import UTILS from "../../lib/utils";
   export default {
     data(){
       return{
         addressflag:true, //编辑地址
         areaList:{},
-        checked:true,
+        checked:false,
         name:"", //收货人姓名
         phone:'13310253603', //收货人手机号
         address:"", //收货人详细地址
         nameerrmessage:"", //名字错误提示
         telerrmessage:"",  //电话错误提示
-        info:{},
-        addressIinfo:{},
-        token:"",
-        defaultflag:false
-
+        info:{}
       }
     },
-    methods: {
-      //获取收货地址信息
-      getAddressInfoFn(id,token){
-        var this_ = this;
-        var obj={"service":"getAddressInfo","stoken":token,"id":id};
-        SERVERUTIL.base.baseurl(obj).then(res => {
-          if(res.data.code ==0){
-            if(res.data.data){
-              this_.addressIinfo = res.data.data;
-              var ary = this_.addressIinfo.district.split("-");
-              this_.addressIinfo.province = ary[0];
-              this_.addressIinfo.city = ary[1];
-              this_.addressIinfo.county = ary[2];
-              this_.addressIinfo.address_detail = this_.addressIinfo.address;
-              this_.addressIinfo.name=this_.addressIinfo.link_name;
-              this_.addressIinfo.tel=this_.addressIinfo.link_tel;
-              this_.addressIinfo.area_code=this_.addressIinfo.district_id;
-              if(this_.addressIinfo.default_status == 2){
-                this_.addressIinfo.is_default= false;
-              }else{
-                this_.addressIinfo.is_default= true;
-              };
-            }
-          }
-        }).catch(error => {
-          console.log(error);
-        });
-      },
-      onSave(res) {
+     methods: {
+      onSave() {
         var this_= this;
-        var status=2;
-        var obj={};
-        if(res.is_default){
-          status = 1;
-        };
-        obj={
-          "service":"setAddress",
-          "stoken":this_.token,
-          "link_name":res.name,
-          "link_tel":res.tel,
-          "district":res.province+"-"+res.city+"-"+ res.county,
-          "address":res.address_detail,
-          "district_id":res.area_code,
+        var status=1;
+        if(this_.checked){
+          status = 2;
+        }
+        var obj={
+          "service":"addAddress",
+          "stoken":"481627c3298175f2d3dff91cbf5605cd",
+          "link_name":this_.name,
+          "link_tel":this_.phone,
+          "district":this_.name,
+          "address":this_.address,
           "default_status":status
         };
-        if(this_.addressIinfo.id){
-          obj.id = this_.addressIinfo.id;
-          obj.service = "setAddress";
-        }else{
-          obj.service ="addAddress";
-        }
         SERVERUTIL.base.baseurl(obj).then(res => {
-          if(res.data.code == 0){
-            this.$router.push({  
-              path: '/newaddress',
-              name: 'NEWADDRESS',
-              params: {   
-                data: obj
-              }, 
-              // query: {  
-              //   name:name,   
-              //   id: id
-              // }
-            });
+          console.log(res)
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.modelLists = res.data.data;
+            }
           }
         })
         .catch(error => {
@@ -145,16 +113,17 @@ import UTILS from "../../lib/utils";
     },
     mounted() {
       var this_ = this;
-      document.title = "编辑收货地址";
       this_.addressflag = this_.$route.params.flag;
-      this_.areaList = AREALIST.areaList;
-      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
-      if(this_.$route.params.id){
-        this_.userid = this_.$route.params.id;
-        this_.getAddressInfoFn(this_.userid,this_.token);
-        this_.defaultflag=true;
+      if(this_.$route.params.data){
+        this_.info = this_.$route.params.data;
       };
+      document.title = "编辑收货地址";
+      console.log(AREALIST);
+      this_.areaList = AREALIST.areaList;
     }, 
+    aa(){
+      console.log(arguments)
+    }   
   }
 </script>
 

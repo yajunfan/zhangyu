@@ -24,12 +24,40 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
   export default {
+    methods:{
+      //获取物流详情
+      getUserExpressInfoFn(id){
+        var this_ = this;
+        var obj={
+          service:"getUserExpressInfo",
+          stoken:this_.token,
+          id:id
+        };
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
+      ...mapMutations([
+        "changeToken"
+      ])
+    },
     mounted() {
       var this_ = this;
       document.title = "物流详情";
-      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
-    },    
+      var id = this_.$route.params.id;
+      this_.getUserExpressInfoFn(id);
+    }, 
+    computed:{
+      ...mapState(['token'])
+    }   
   }
 </script>
 

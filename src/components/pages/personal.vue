@@ -41,9 +41,9 @@
           </van-col>
           <van-col span="14" class="content-right">
             <div class="opearte_container">
-              <span class="delete_photo d-i-b"></span>
-              <span class="preview_photo d-i-b"></span>
-              <span class="edit_photo d-i-b"></span>
+              <span class="delete_photo d-i-b" @click="operatebookFn(10)"></span>
+              <span class="preview_photo d-i-b" @click="previewFn()"></span>
+              <span class="edit_photo d-i-b" @click="jumptosave"></span>
             </div>
             <div class="use_photo tc" @click="jumptostartmakeFn">制作相册</div>
           </van-col>
@@ -65,7 +65,7 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
-import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
 export default {
   data(){
     return{
@@ -74,7 +74,6 @@ export default {
       editflag:false, //不可编辑
       username:"", 
       userInfo:{}, //用户信息
-      token:"",
       booklists:[]
     }
   },
@@ -118,6 +117,66 @@ export default {
         console.log(error);
       });
     },
+    //获取可用礼品卡的数据
+    getUserCardFn(token){
+      var this_ = this;
+      var obj={"service":"getUserCard","stoken":token,"status":""};
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code ==0){
+          if(res.data.data){
+            this_.giftcardnum = res.data.data.length;
+          }
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    //修改和删除图书信息
+    operatebookFn(status){
+      var this_ = this;
+      var status = status || "";
+      var paramsobj={};
+      paramsobj={
+        "service":"setBook",
+        "id":this_.booklists[0].id,
+        "stoken":this_.token,
+        "book_name":this_.booklists[0].book_name,
+        "author":this_.booklists[0].author,
+        "status":status
+      };
+      SERVERUTIL.base.baseurl(paramsobj).then(res => {
+        if(res.data.code == 0){
+          this_.getBookListFn(this_.token);
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    //预览图书
+    previewFn(){
+      var this_ = this;
+      this_.changeModelId(this_.booklists[0].template_id);
+      this.$router.push({  
+        path: '/savesuccess',
+        name: 'SAVESUCCESS',  
+        params: {   
+          id:this_.booklists[0].template_id,
+          title:"预览"
+        }
+      }) 
+    },
+    //编辑图书 -- 跳转到保存页面，不过是可以编辑
+    jumptosave(){
+      var this_ = this;
+      this_.$router.push({  
+        path: '/savesuccess',
+        name: 'SAVESUCCESS',  
+        params: {   
+          id:this_.$route.params.id,
+          flag:false
+        }, 
+      });
+    },
     //跳转到我的书架更多
     jumptobook(){
       var this_ = this;
@@ -144,23 +203,29 @@ export default {
     //跳转到地址页面
     jumptoaddress(flag){
       var this_ = this;
+      this_.changeEnter(true);
       this_.$router.push({  
         path: '/newaddress',
-        name: 'NEWADDRESS',
-        params: {   
-          flag: flag
-        },
+        name: 'NEWADDRESS'
       });
     },
     //跳转到礼品卡页面
     jumptogift(flag){
       var this_ = this;
+      var flag;
+      this_.changeGift(false);
+      if(this_.giftcardnum>0){
+        flag=true;
+      }else{
+        flag=false;
+      }
       this_.$router.push({  
         path: '/giftzero',
         name: 'GIFTZERO',
-        params: {   
-          flag: flag
-        },
+        params:{
+          flag:flag
+        }
+
       });
     },
     //跳转到马上制作页面
@@ -177,23 +242,41 @@ export default {
     },
     //修改用户名昵称
     changeNameFn(e){
-      e.cancelBubble =true;
-      e.stopPropagation();
-      this.editflag =false;
+      var this_ = this;
+      this_.editflag =false;
+      var obj={};
+      obj={
+        "service":"setUserInfo",
+        "nick_name":this_.username,
+        "stoken":this_.token,
+      };
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code == 0){
+          this_.getUserInfoFn(this_.token);
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //编辑名称
     editFn(e){
      e.cancelBubble =true;
      e.stopPropagation()
      this.editflag =true;
-    }
+    },
+    ...mapMutations([
+      "changeToken","changeModelId","changeEnter","changeGift"
+    ])
   },
   mounted() {
     var this_ = this;
     document.title = "个人中心";
-    this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
     this_.getUserInfoFn(this_.token);
     this_.getBookListFn(this_.token);
+    this_.getUserCardFn(this_.token);
+  },
+  computed:{
+    ...mapState(['token',"modelid","vaddressenterflag","vgiftflag"])
   }
 };
 </script>

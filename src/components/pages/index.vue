@@ -1,6 +1,5 @@
 <template>
     <div class="indexContainer">
-      {{count}}
       <div class="tabcontent">
           <ul class="tablist">
             <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(index,items);" :class="active==index?'selecta':''" ></a></li>
@@ -29,7 +28,6 @@
 import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
 import { mapState, mapMutations } from "vuex";
-
   export default {
     data(){
       return{
@@ -51,7 +49,8 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.getstoken = res.data.data.stoken;
-              UTILS.SESSIONOPERATE.setStorage("stoken",this_.getstoken);
+              this_.changeToken(this_.getstoken);
+              //UTILS.SESSIONOPERATE.setStorage("stoken",this_.getstoken);
             }
           }
         })
@@ -69,10 +68,10 @@ import { mapState, mapMutations } from "vuex";
               this_.tabarys = res.data.data;
               this_.modelListFn(this_.tabarys[0].id);
               this_.photoname = this_.tabarys[0].name;
+              this_.changeModelTypeId(this_.tabarys[0].id);
             }
           }
-        })
-        .catch(error => {
+        }).catch(error => {
           console.log(error);
         });
       },
@@ -94,39 +93,34 @@ import { mapState, mapMutations } from "vuex";
       tabchange(index,obj){
         var this_ = this;
         this_.active = index;
+        this_.changeModelTypeId(obj.id);
         this_.modelListFn(obj.id);
         this_.photoname = obj.name;
       },
       //跳转到详情页面
       jumptodetail(name,id){
-        this.$router.push({  
+        var this_ = this;
+        this_.changeModelId(id);
+        this_.changeModelTypeName(name);
+        this_.$router.push({  
             path: 'detail',   
             name: 'DETAIL',  
             params: {   
-              name: name,   
-              id: id  
-            }, 
-            // query: {  
-            //   name:name,   
-            //   id: id
-            // }
+              name: this_.modeltypename,   
+              id: this_.modelid  
+            }
         })  
       },
       //跳转到开始制作页面
       jumptomake(){
-          this.changeCount(2)
         var this_ = this;
-      
+        this_.changeModelTypeName(this_.photoname);
         this_.$router.push({  
           path: 'startmake',   
           name: 'STARTMAKE',  
           params: {   
             name: this_.photoname
-          }, 
-          // query: {  
-          //   name:name,   
-          //   id: id
-          // }
+          }
         }); 
       },
       //跳转到个人中心页面
@@ -141,8 +135,7 @@ import { mapState, mapMutations } from "vuex";
         }) 
       },
       ...mapMutations([
-      "changeCount","changeObj"
-    
+      "changeToken","changeModelTypeId","changeModelTypeName","changeModelId"
     ])
       
     },
@@ -153,7 +146,7 @@ import { mapState, mapMutations } from "vuex";
       this_.userLoginFn();
     },
     computed:{
-      ...mapState(['count'])
+      ...mapState(['token',"modeltypeid","modeltypename","modelid"])
     }
   }
 </script>

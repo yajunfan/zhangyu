@@ -21,8 +21,8 @@
           <div><img src="../../images/address.png" alt="address"></div>
         </van-col>
         <van-col span="21" class="address_right">
-          <div>收货人：<span v-text="orderItem.name"></span><span class="fr" v-text="">1111111111111</span></div>
-          <div>收货地址：<span>cccccccccccccccccccccccc</span></div>
+          <div>收货人：<span v-text="vaddress.name"></span><span class="fr" v-text="vaddress.tel"></span></div>
+          <div>收货地址：<span v-text="vaddress">cccccccccccccccccccccccc</span></div>
         </van-col>
       </van-row>
     </div>
@@ -45,10 +45,10 @@
     <!-- 商品信息栏 -->
     <div class="order_container">
         <div class="order_title">
-          <span>订单号：<i v-text="orderItem.id"></i></span> 
+          <span>订单号：<i v-text="orderItem.book_id"></i></span> 
         </div>
         <div class="order_content">
-           <van-card class="card_content" :title="orderItem.info.title" :desc="orderItem.info.specifications" :num="orderItem.info.number" :price="orderItem.info.price" thumb="//img.yzcdn.cn/upload_files/2017/07/02/af5b9f44deaeb68000d7e4a711160c53.jpg"/> 
+           <van-card class="card_content" :title="orderItem.template_name" :desc="orderItem.discount_price" :num="orderItem.num" :price="orderItem.unit_price" :thumb="orderItem.img"/> 
         </div>
         <div class="gift_container">
           <div>
@@ -56,12 +56,12 @@
             <span class="">运费</span>
           </div>
           <div>
-            <span class="fr money_num">-￥<i v-text=""></i>100</span>
+            <span class="fr money_num">-￥<i v-text="orderItem.discount_price"></i></span>
             <span class="">礼品卡</span>
           </div>
         </div>
         <div class="order_money">
-          <span class="fr money_num">￥<i v-text="orderItem.realpay"></i><span style="font-size:0.24rem;color:#ff5547;">.00</span></span>
+          <span class="fr money_num">￥<i v-text="orderItem.real_price"></i><span style="font-size:0.24rem;color:#ff5547;">.00</span></span>
           <span class="fl">订单金额</span>
         </div>
     </div>
@@ -69,15 +69,15 @@
     <!-- 订单时间信息栏 -->
     <div class="orderTime_container">
       <div>
-        <span class="fr"><i v-text="orderItem.id"></i>00</span>
+        <span class="fr"><i v-text="orderItem.book_id"></i></span>
         <span class="">订单号</span>
       </div>
       <div>
-        <span class="fr"><i v-text=""></i>2017-06-18 17:22:23</span>
+        <span class="fr"><i v-text="orderItem.created_at"></i></span>
         <span class="">创建时间</span>
       </div>
       <div>
-        <span class="fr"><i v-text=""></i>2017-06-18 17:22:23</span>
+        <span class="fr"><i v-text="orderItem.updated_at"></i></span>
         <span class="">付款时间</span>
       </div>
     </div>
@@ -99,6 +99,7 @@
 </template>
 
 <script>
+import { mapState, mapMutations } from "vuex";
  export default {
    data(){
      return{
@@ -164,16 +165,23 @@
          this_.getText = "您已签收本次订单包裹，本次配送完成";
        };
      },
+     ...mapMutations([
+       "changeToken","changeaddress"
+     ])
    },
    mounted() {
       var this_ = this;
       this_.orderstatus = this_.$route.params.status;
       this_.orderItem = this_.$route.params.data;
-      console.log(this_.orderItem)
+      this_.orderItem.real_price = Number(this_.orderItem.real_price).toFixed(0);
+      console.log(this_.vaddress);
       this_.orderItem.name="张三";
       document.title = "订单详情";
       this_.detailFn();
-    },       
+    }, 
+    computed:{
+      ...mapState(['token',"vaddress"])
+    } ,      
  }
 </script>
 

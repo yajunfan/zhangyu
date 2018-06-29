@@ -7,8 +7,8 @@
    <!-- 有收货地址 -->
    <div v-if="addressflag" class="user_address">
      <ul @click="jumpaddress">
-       <li><span class="d-i-b mr10" >战三</span><span>15379907289</span></li>
-       <li class="ad"><span>浙江省杭州市西湖区文三路 138 号东方通信大厦 7 楼 501 室</span><img src="../../images/rightjt.png" alt="无"></li>
+       <li><span class="d-i-b mr10" v-text="defaultinfo.link_name"></span><span v-text="defaultinfo.link_tel"></span></li>
+       <li class="ad"><span v-text="defaultinfo.district+defaultinfo.address"></span><img src="../../images/rightjt.png" alt="无"></li>
      </ul>
      <div class="clear"></div>
    </div>
@@ -23,7 +23,7 @@
            <van-col span="12">
              <ul>
                 <li class="detail_title" v-text="modeldatas.name"></li>
-                <li class="detail_specifications">规格:<span v-text="modeldatas.specifications"></span></li>
+                <li class="detail_specifications">规格:<span v-text="modeldatas.size"></span></li>
              </ul>
            </van-col>
            <van-col span="6" class="detail_price">￥<span v-text="modeldatas.price"></span></van-col>
@@ -40,11 +40,13 @@
              </span> 
            </li>
            <li class="giftnum" >
-             <span class="left_con">礼品卡</span>
+             <span class="left_con" >礼品卡</span>
              <span class="right_con" @click="jumptogift('false')" v-if="!giftflag">无可用
                <img src="../../images/rightjt.png" alt="无">
              </span>
-             <span class="right_con" @click="jumptogift('true')" v-else>{{giftnum}}张可用
+             <span class="right_con" @click="jumptogift('true')" v-else>
+                <span v-if="giftcardflag">{{giftcardnum}}张可用</span>
+                <span v-if="!giftcardflag">-{{total}}</span>
                <img src="../../images/rightjt.png" alt="无">
              </span>
            </li>
@@ -58,13 +60,15 @@
 
 <script>
 // import { Toast } from 'vant';
+import SERVERUTIL from "../../lib/SeviceUtil";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
         modeldatas:{},
         chosenContactId: null,
         editingContact: {},
-        paymoney:0,  //合集金额
+        paymoney:0,  //合计金额
         shopnum:1, //购买数量
         giftflag:true, //是否有礼物卡
         giftnum:1,
@@ -74,11 +78,11 @@
         showList: false,
         showEdit: true,
         isEdit: false,
-        list: [{
-          name: '张三',
-          tel: '13000000000',
-          id: 0
-        }]
+        defaultinfo: {}, //默认的收货地址信息
+        giftcardnum:0,//可用礼品卡的数量
+        vailableList:null,  //选择确认使用后的礼品卡列表
+        giftcardflag:true,   //判断显示几张可用还是可使用的金额
+        total:"", //总共可减少金额
       }
     },
     computed: {
@@ -90,21 +94,133 @@
       //获取选择的模板数据
       modeldataFn(){
         var this_ = this;
-        this_.modeldatas = this_.$route.params.data;
-        this_.paymoney =(Number(this_.modeldatas.price).toFixed(2))*100;
+        this_.modeldatas = this_.bookinfo;
+        this_.paymoney = (Number(this_.modeldatas.price).toFixed(2))*100;
+      },
+      //获取收货地址列表
+      getAddressListFn(token){
+        var this_ = this;
+        var obj={"service":"getAddressList","stoken":token};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.addressLists = res.data.data;
+              if(this_.addressLists.length){
+                this_.addressflag = true;
+                this_.addressLists.forEach(item =>{
+                  if(item.default_status == 1){
+                    this_.defaultinfo = item;
+                  }
+                })
+              }else{
+                this_.addressflag = false;
+              }
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
       },
       //添加收货地址
       jumpaddress(){
         var this_ = this;
+        this_.changeEnter(false);
         this_.$router.push({  
           path: '/newaddress',
           name: 'NEWADDRESS'
         });
       },
+      //获取可用礼品卡的数据
+      getUserCardFn(token){
+        var this_ = this;
+        var obj={"service":"getUserCard","stoken":token,"status":"1"};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.giftcardnum = res.data.data.length;
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
       //立即支付
       onSubmitFn(){
         var this_ = this;
-        this_.$toast('！请填写收货地址');
+        var cardstr="";
+        this_.changeaddress(this_.defaultinfo);
+        this_.vailableList.forEach(item =>{
+          cardstr+=item.id+",";
+        });
+        cardstr = cardstr.slice(0,cardstr.length-1);
+        if(this_.addressflag){
+          var obj={
+            service:"addOrder",
+            stoken:this_.token,
+            book_id:this_.modeldatas.id,
+            num:this_.shopnum,
+            address_id:this_.defaultinfo.id,
+            card_id:cardstr
+          };
+          var message="";
+          if(this_.giftcardflag){
+            message="该笔订单确认不使用礼品卡来支付吗？"
+          }else{
+            message="该笔订单确认要全部使用礼品卡余额来支付吗？"
+          }
+          this_.$dialog.confirm({
+            title: '支付提示',
+            message: message
+          }).then(() => {
+            SERVERUTIL.base.baseurl(obj).then(res => {
+              if(res.data.code ==0){
+                if(res.data.data){
+                  //调用wx支付接口
+                  this_.$router.push({  
+                    path: '/paysuccess',
+                    name: 'PAYSUCCESS',
+                  });
+                }
+              }else{
+                this_.$toast('支付失败，原因是：'+res.data.message);
+                const toast = this_.$toast.loading({
+                  duration: 0,       // 持续展示 toast
+                  forbidClick: true, // 禁用背景点击
+                  loadingType: 'spinner',
+                  message: '倒计时 3 秒'
+                });
+
+                let second = 3;
+                const timer = setInterval(() => {
+                  second--;
+                  if (second) {
+                    toast.message = `倒计时 ${second} 秒`;
+                  } else {
+                    clearInterval(timer);
+                    this_.$toast.clear();
+                    this.$router.push({  
+                      path: '/orderdetail',
+                      name: 'ORDERDETAIL', 
+                      params: {   
+                        status: 1,
+                        data:obj
+                      }
+                    }) ;
+                  }
+                }, 1000);
+                
+              }
+            }).catch(error => {
+              console.log(error);
+            });    
+          }).catch(() => {
+              
+          });
+          
+        }else{
+          this_.$toast('！请填写收货地址');
+        }
+        
       },
       //购买数量减少
       reduceFn(){
@@ -127,6 +243,7 @@
       //礼品卡跳转
       jumptogift(flag){
         var this_ = this;
+        this_.changeGift(true);
         this_.$router.push({  
            path: '/giftzero',
            name: 'GIFTZERO',  
@@ -145,7 +262,6 @@
       onSave(info) {
         this.showEdit = false;
         this.showList = false;
-        
         if (this.isEdit) {
           this.list = this.list.map(item => item.id === info.id ? info : item);
         } else {
@@ -153,14 +269,39 @@
         }
         this.chosenContactId = info.id;
       },
+       ...mapMutations([
+        "changeToken","changeObj","changeGiftlist","changeEnter","changeGift","changeaddress"
+      ])
     },
     mounted(){
       var this_= this;
       document.title = '确认支付';
       this_.modeldataFn();
+      this_.getAddressListFn(this_.token);
+      this_.getUserCardFn(this_.token);
+      //选择的礼品卡列表
+      this_.vailableList = this_.vgiftuserlist;
+      this_.total="";
+      if(this_.vailableList.length){
+        this_.giftcardflag=false;
+        this_.vailableList.forEach(item=>{
+          this_.total+=item.left_price;
+        });
+        if(this_.total>this_.modeldatas.price || this_.total == this_.modeldatas.price){
+          this_.total = this_.modeldatas.price;
+        }
+      };
     },
+    computed:{
+        ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag","vgiftflag","vaddress"])
+    } ,
     watch:{
-     
+     total(n,o){
+       var this_ = this;
+       if(!n == ""){
+         this_.paymoney = (this_.modeldatas.price - n)*100;
+       }
+     }
     }  
   }
 </script>

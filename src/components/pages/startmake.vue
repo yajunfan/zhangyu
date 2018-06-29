@@ -5,7 +5,7 @@
         <van-col span="22">
            <van-row class="title_con">
               <van-col span="12"><span class="title_name" v-text="photoName"></span></van-col>
-              <van-col span="12" style="text-align:right;"><a href="javascript:;" class="detail_name">查看详情<i>></i></a></van-col>
+              <van-col span="12" style="text-align:right;" ><a href="javascript:;" class="detail_name" @click="jumptodetail()">查看详情<i>></i></a></van-col>
            </van-row>
           <div class="make_container">
             <ul class="make_list">
@@ -29,7 +29,7 @@
                     </van-uploader>
                     <!-- <input id="fileImage" class="fileImage" type="file"  accept="image/*" capture="camera" size="30"> -->
                     <img src="../../images/onload.png" alt="上传">
-                    <span class="mark">20</span>
+                    <span class="mark tc" v-text="modelnum">20</span>
                   </span>
                 </van-col>
                 <van-col span="8">
@@ -55,7 +55,7 @@
         <van-col span="17" >
            <van-row class="title_con">
               <van-col span="12"><span  class="title_name" v-text="photoName"></span></van-col>
-              <van-col span="12" style="text-align:right;"><a href="javascript:;" class="detail_name">查看详情<i>></i></a></van-col>
+              <van-col span="12" style="text-align:right;"><a href="javascript:;" class="detail_name" @click="jumptodetail()">查看详情<i>></i></a></van-col>
            </van-row>
           <div class="make_container">
             <ul class="make_list">
@@ -78,7 +78,7 @@
                       <van-icon name="photograph" />
                     </van-uploader>
                     <img src="../../images/onload.png" alt="上传">
-                    <span class="mark">20</span>
+                    <span class="mark tc" v-text="modelnum">20</span>
                   </span>
                 </van-col>
                 <van-col span="8">
@@ -100,7 +100,7 @@
              </div>
              <ul class="prewimg">
                <li v-for="(item,index) in tabLists" :key="index">
-                 <div @click="selectPrewImgFn(index,item.id)" :class="index==i?'selDiv':''">
+                 <div @click="selectPrewImgFn(index,item)" :class="index==i?'selDiv':''">
                    <img :src="item.img" alt="1" />
                  </div>
                </li>
@@ -115,12 +115,15 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
         photoName:"" ,
         tabarys:[], //模板类型列表
         liid:"1",
+        userid:"",//相册模板id
+        modelnum:"", //模板总共有几张，上传成功之后，剩余多少张需要上传，动态计算
         modelLists:[  //模板的详情页面列表
           {
             'name':'冬季的旅行',
@@ -136,10 +139,14 @@ import SERVERUTIL from "../../lib/SeviceUtil";
     },
     methods:{
       //右侧的点击每一项
-      selectPrewImgFn(index,id){
+      selectPrewImgFn(index,obj){
         var this_ = this;
         this_.i = index;
-        this_.detailListsFn(id);
+        this_.detailListsFn(obj.id);
+        this_.photoName = obj.title;
+        this_.userid = obj.id;
+        this_.changeModelId(obj.id);
+        this_.changeModelTypeName(obj.title);
       },
       //获取模板类型
       modelTypeFn(){
@@ -149,7 +156,7 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           if(res.data.code ==0){
             if(res.data.data){
               this_.tabarys = res.data.data;
-              this_.modelListFn(this_.tabarys[0].id);
+              this_.modelListFn(this_.modeltypeid);
             }
           }
         })
@@ -173,9 +180,11 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           console.log(error);
         });
       },
+      //更改右侧模板对应的模板列表变化
       changeTypsFn(){
         var this_ = this;
         this_.modelListFn(this.liid);
+        
       },
       //获取详情列表
       detailListsFn(id){
@@ -185,45 +194,87 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           if(res.data.code ==0){
             if(res.data.data){
               this_.modelLists = res.data.data;
+              this_.modelnum = this_.modelLists.length;
             }
           }
-        })
-        .catch(error => {
+        }).catch(error => {
           console.log(error);
         });
       },
+      //查看详情 跳转到详情页面传入模板的id
+      jumptodetail(){
+        var this_ = this;
+        this_.$router.push({  
+          path: 'detail',   
+          name: 'DETAIL',  
+          params: {   
+            name: this_.photoName,   
+            id: this_.modelid  
+          }
+        })  
+      },
       onRead(file) {
-       console.log(file)
+       console.log(file);
+       var this_ = this;
+       var obj={"service":"createBook","id":id,"stoken":token};
+       SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code ==0){
+          if(res.data.data){
+            
+          }
+        }
+       }).catch(error => {
+        console.log(error);
+       });
       }, 
       //预览功能
       previewFn(){
-
-      },
-      //保存功能并跳到保存成功页面
-      saveFn(){
         var this_ = this;
         this.$router.push({  
           path: '/savesuccess',
           name: 'SAVESUCCESS',  
           params: {   
-            id:this_.$route.params.id
+            id:this_.$route.params.id,
+            title:"预览"
           }, 
           // query: {  
           //   name:name,   
           //   id: id
           // }
         }) 
-      }
+      },
+      //保存功能并跳到保存成功页面
+      saveFn(){
+        var this_ = this;
+        //这里有一个调用保存的数据接口，成功后进入保存成功页面
+        this.$router.push({  
+          path: '/savesuccess',
+          name: 'SAVESUCCESS',  
+          params: {   
+            id:this_.$route.params.id,
+            flag:true
+          }, 
+          // query: {  
+          //   name:name,   
+          //   id: id
+          // }
+        }) 
+      },
+       ...mapMutations([
+        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId"
+      ])
     },
     mounted(){
       var this_= this;
       document.title = '马上制作';
-      this_.photoName = this_.$route.params.name;
-      var id= this_.$route.params.id;
-      this_.detailListsFn(id);
+      this_.photoName = this_.modeltypename;
+      this_.userid= this_.$route.params.id;
+      this_.detailListsFn(this_.modelid);
       this_.modelTypeFn();
-      
-    }      
+    } ,
+     computed:{
+        ...mapState(['token',"modeltypeid","modeltypename","modelid"])
+      }     
   }
 </script>
 
@@ -381,10 +432,11 @@ body{
             position: absolute;
             top: 0.15rem;
             right: 0.1rem;
+            width: 0.36rem;
             background: #ff4747;
             border-radius: 50%;
             color: white;
-            padding: 0.02rem;
+
           }
         }
         .fileImage{

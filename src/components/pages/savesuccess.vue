@@ -1,9 +1,15 @@
 <template>
   <div class="save_container">
-     <ul class="photo_list" :class="markflag?'photo_list_fix':''">
-         <li v-for="item in modelLists">
-            <img :src="item.img" alt="muban">
-         </li>
+     <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="ifedit">
+        <li v-for="item in modelLists">
+           <img :src="item.img" alt="muban">
+        </li>
+     </ul>
+     <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
+        <li v-for="item in modelLists" @dblclick="editBookFn">
+           <img :src="item.img" alt="muban">
+        </li>
+        
      </ul>
      <div class="btn_container" v-if="!markflag">
        <van-row>
@@ -20,17 +26,17 @@
         <van-row>
          <van-col span="21">
            <div class="type_header">
-             <img src="../../images/title1.jpg" alt="模板" class="logo_img" >
+             <img :src="modelimg" alt="模板" class="logo_img" >
              <ul class="detail_container">
-                <li class="detail_title"><span>冬季的旅行</span></li>
-                <li class="detail_specifications"><span>规格：</span><span v-text="selectItem.specifications"></span></li>
-                <li class="detail_price"><span>￥</span><span v-text="selectItem.price"></span></li>
+                <li class="detail_title"><span v-text="detailinfo.title" ></span></li>
+                <li class="detail_specifications"><span>规格：</span><span v-text="detailinfo.size"></span></li>
+                <li class="detail_price"><span>￥</span><span v-text="modelprice"></span></li>
              </ul>
            </div> 
            <div class="type_body">
               <h4>选择种类</h4>
               <ul class="type_list">
-                <li v-for="(item,index) in styleAry.typeList" v-text="item.name" @click="selectTypeFn(index)" :class="index==i?'selectLi':''"></li>
+                <li v-for="(item,index) in paytypelist" v-text="item.name" @click="selectTypeFn(index,item)" :class="index==i?'selectLi':''"></li>
               </ul>
            </div>
          </van-col>
@@ -47,10 +53,12 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
+import { mapState, mapMutations } from "vuex";
   export default {
      data(){
        return{
          markflag:false,
+         ifedit:true, //是否可编辑
          i:0,
          modelLists:[], //列表
          styleAry:{
@@ -74,21 +82,25 @@ import SERVERUTIL from "../../lib/SeviceUtil";
               }
             ]
          },
-         selectItem: {
-            "name":"轻奢杂志",
-            "specifications":"20cm*30cm",
-            "price":"233.00"
-         },
+         selectItem: {},
+         detailinfo:{} ,//图书信息规格
+         paytypelist:[] , //不同种类的价格
+         detailImg:[], // 不同的图片
+         modelprice:"" , //模板价格
+         modelimg:"" ,// 模板的图片
        }
      },
      methods:{
-       //选规格
-       selectTypeFn(index){
+      //选规格
+      selectTypeFn(index,obj){
          var this_ = this;
          this_.i = index;
-         this_.selectItem = this_.styleAry.typeList[index];
+         this_.modelprice = this_.paytypelist[index].price;
+         this_.modelimg = this_.detailImg[index];
+         this_.selectItem = obj;
+         this_.selectItem.size=this_.detailinfo.size;
        },
-        //获取详情列表
+      //获取详情列表  -- getTemplateDetailInfo
       detailListsFn(id){
         var this_ = this;
         var obj={"service":"getTemplateDetailInfo","id":id};
@@ -103,29 +115,63 @@ import SERVERUTIL from "../../lib/SeviceUtil";
           console.log(error);
         });
       },
-       //跳到付款页面
+      //获取制作图书的规格信息 -- getTemplateInfo
+      modelDetailFn(id){
+        var this_ = this;
+        var obj={"service":"getTemplateInfo","id":id};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+               console.log(this_.detailinfo)
+              this_.detailinfo = res.data.data;
+              this_.paytypelist = JSON.parse(this_.detailinfo.price);
+              this_.detailImg = this_.detailinfo.img_detail.split(",");
+              this_.selectItem = this_.paytypelist[0];
+              this_.selectItem.size = this_.detailinfo.size;
+             
+              this_.modelprice = this_.paytypelist[0].price;
+              this_.modelimg = this_.detailImg[0];
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
+       //点击下一步跳到付款页面
        jumptopay(obj){
         var this_ = this;
         obj.logoimg=this_.styleAry.logoimg;
+        this_.changeObj(obj);
         this.$router.push({  
           path: '/confirmpay',
           name: 'CONFIRMPAY',  
           params: {   
             data: obj
-          }, 
-          // query: {  
-          //   name:name,   
-          //   id: id
-          // }
+          }
         }); 
-       }
+       },
+       //编辑图书
+       editBookFn(){
+         var this_ = this;
+       },
+       ...mapMutations([
+        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId","changeObj"
+       ])
      },
      mounted(){
       var this_= this;
       document.title = '保存成功';
-      var id= this_.$route.params.id;
-      this_.detailListsFn(id);
-    }     
+      if(this_.$route.params.title){
+        var title = this_.$route.params.title;
+         document.title = '预览';
+      };
+      this_.ifedit = this_.$route.params.flag;
+      this_.detailListsFn(this_.modelid);
+      this_.modelDetailFn(this_.modelid);
+    },
+    computed:{
+      ...mapState(['token',"modeltypeid","modeltypename","modelid","bookinfo"])
+    }       
   }
 </script>
 

@@ -79,6 +79,14 @@ export default new Router({
       }
     },
     {
+      path: '/paysuccess',
+      name: 'PAYSUCCESS',
+      component: resolve => require(['@/components/pages/paysuccess'],resolve),
+      meta: {
+        title: '支付成功'
+      }
+    },
+    {
       path: '/giftzero',
       name: 'GIFTZERO',
       component: resolve => require(['@/components/pages/giftzero'],resolve),

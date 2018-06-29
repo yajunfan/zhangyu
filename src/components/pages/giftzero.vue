@@ -4,51 +4,51 @@
     <div v-if="ifgiftflag">
       <div class="tabcontent h88">
           <ul class="tablist h88">
-            <li class="tc h88" @click="selectLiFn(0)" :class="active==0?'selecLi':''">可用卡<a href="javascript:;" >（1）</a></li>
-            <li class="tc h88" @click="selectLiFn(1)" :class="active==1?'selecLi':''">不可用卡<a href="javascript:;">（1）</a></li>
+            <li class="tc h88" @click="selectLiFn(0,'has')" :class="active==0?'selecLi':''">可用卡<a href="javascript:;" >（{{Vnum}}）</a></li>
+            <li class="tc h88" @click="selectLiFn(1,'no')" :class="active==1?'selecLi':''">不可用卡<a href="javascript:;">（{{notVnum}}）</a></li>
           </ul>
       </div>
       <div class="tabListcontent" >
         <ul  v-if="active==0">
-          <li v-for="(item,index) in tabarys" :key="index">
+          <li v-for="(item,index) in vailableList" :key="index">
             <div class="gift_title">
                <van-row>
-                  <van-col span="12"><span class="title_left" v-text="item.name"></span></van-col>
-                  <van-col span="12" class="select_con" ><span class="select_icon" :class="item.iconflag?'selectSpan_icon':''"  @click="selecticonFn(item.iconflag,index)"></span></van-col>
+                  <van-col span="12"><span class="title_left" v-text="item.title"></span></van-col>
+                  <van-col span="12" class="select_con" ><span v-if="vgiftflag" class="select_icon" :class="item.iconflag?'selectSpan_icon':''"  @click="selecticonFn(item.iconflag,index)"></span></van-col>
                </van-row>
               </div>
             <div class="gift_price">
               <van-row>
-                  <van-col span="24"><span class="price_left">余额：￥</span><span class="price_right"><i v-text="item.amount"></i>.00</span></van-col>
+                  <van-col span="24"><span class="price_left">余额：￥</span><span class="price_right"><i v-text="item.left_price"></i>.00</span></van-col>
               </van-row>
               </div>
             <div class="gift_info">
               <van-row>
-                  <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
-                  <van-col span="12"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
+                  <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.price"></i> </span></van-col>
+                  <van-col span="12"><span class="parvalue_right">有效期：<i v-text="item.expire_time"></i></span></van-col>
               </van-row>
             </div>
           </li>
         </ul>
         <ul  v-if="active==1" class="no_use_container">
-           <li v-for="(item,index) in tabarys" :key="index">
+           <li v-for="(item,index) in notAvailableList" :key="index">
             <div class="gift_title">
                <van-row>
-                  <van-col span="12"><span class="title_left" v-text="item.name"></span></van-col>
+                  <van-col span="12"><span class="title_left" v-text="item.title"></span></van-col>
                </van-row>
               </div>
             <div class="gift_price">
               <van-row>
-                  <van-col span="24"><span class="price_left">余额：￥</span><span class="price_right"><i v-text="item.amount"></i>.00</span></van-col>
+                  <van-col span="24"><span class="price_left">余额：￥</span><span class="price_right"><i v-text="item.left_price"></i>.00</span></van-col>
               </van-row>
               </div>
             <div class="gift_info">
               <van-row>
-                  <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.parvalue"></i> </span></van-col>
-                  <van-col span="12" class="tr"><span class="parvalue_right">有效期：<i v-text="item.endtime"></i></span></van-col>
+                  <van-col span="12"><span class="parvalue_left">面值：<i v-text="item.price"></i> </span></van-col>
+                  <van-col span="12" class="tr"><span class="parvalue_right">有效期：<i v-text="item.expire_time"></i></span></van-col>
               </van-row>
             </div>
-            <div class="mark_fail mark_fail_expire"></div>
+            <div class="mark_fail" :class="item.flag?'mark_fail_expire':''"></div>
           </li>
         </ul>
         <!-- 使用说明和绑定操作 -->
@@ -62,8 +62,8 @@
     <div v-else>
       <div class="tabcontent  h88">
           <ul class="tablist h88">
-            <li class="tc h88" @click="selectLiFn(0)" :class="active==0?'selecLi':''">可用卡<a href="javascript:;"   >（0）</a></li>
-            <li class="tc h88" @click="selectLiFn(1)" :class="active==1?'selecLi':''">不可用卡<a href="javascript:;"  >（0）</a></li>
+            <li class="tc h88" @click="selectLiFn(0,'has')" :class="active==0?'selecLi':''">可用卡<a href="javascript:;"   >（0）</a></li>
+            <li class="tc h88" @click="selectLiFn(1,'no')" :class="active==1?'selecLi':''">不可用卡<a href="javascript:;"  >（0）</a></li>
           </ul>
       </div>
       <div class="no_gift_tip">
@@ -74,12 +74,12 @@
     
     <!-- 绑定礼品卡 -->
     <div class="bind_giftcard tc" v-if="!word_use && active==0 " @click="giftcardintrucFn">绑定礼品卡 </div>
-    <div class="bind_giftcard tc" v-if="word_use" @click="bindgiftcardFn">确认使用 </div>
-    <van-popup v-model="showgift" class="bindgift_container" :overlay-style = "overstyleObj" :close-on-click-overlay="overclickflag">
+    <div class="bind_giftcard tc" v-if="word_use" @click="sureusecardFn">确认使用 </div>
+    <van-popup v-model="showgift" class="bindgift_container" :overlay-style = "overstyleObj" >
       <div >
          <h4 class="tc">绑定礼品卡</h4>
          <div class="ps_input"><input type="text" v-model="giftpassword" placeholder="请输入礼品卡的密码"></div>
-         <p v-if="errorflag">卡密码错误!</p>
+         <p v-if="errorflag" v-text="message"></p>
          <div class="sure_btn tc" @click="sureFn()">确定</div>
       </div>
     </van-popup>
@@ -94,6 +94,8 @@
  </div>
 </template>
 <script>
+import SERVERUTIL from "../../lib/SeviceUtil";
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -109,51 +111,55 @@ export default {
         background: "rgba(0,0,0,0.3)"
       },
       errorflag: false, //错误显示
-      tabarys: [
-        {
-          name: "章鱼书礼品卡",
-          amount: "200",
-          parvalue: "1000",
-          endtime: "1992.02.01",
-          iconflag: false
-        },
-        {
-          name: "章鱼书礼品卡",
-          amount: "200",
-          parvalue: "1000",
-          endtime: "1992.02.01",
-          iconflag: false
-        },
-        {
-          name: "章鱼书礼品卡",
-          amount: "200",
-          parvalue: "1000",
-          endtime: "1992.02.01",
-          iconflag: false
-        },
-        {
-          name: "章鱼书礼品卡",
-          amount: "200",
-          parvalue: "1000",
-          endtime: "1992.02.01",
-          iconflag: false
-        }
-      ],
+      notAvailableList: [ ],//不可用礼品卡
+      notVnum:"", //不可用卡的数量
+      Vnum:"", //可用卡数量
+      vailableList:[],  //可用礼品卡
       tipbindgiftflag:false //绑定礼品卡的小提示连接
     };
   },
   methods: {
     //tab切换
-    selectLiFn(index) {
+    selectLiFn(index,status) {
       var this_ = this;
       this_.active = index;
+    },
+    //获取可用礼品卡的数据
+    getUserCardFn(token,status){
+      var this_ = this;
+      var obj={"service":"getUserCard","stoken":token,"status":status};
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if(res.data.code ==0){
+          if(res.data.data){
+            this_.giftcardnum = res.data.data.length;
+            var giftary = res.data.data;
+            giftary.forEach(item =>{
+              item.left_price = Number(item.left_price).toFixed(0);
+              if(item.status ==1){
+                this_.vailableList.push(item);
+                item.iconflag = false;
+              }else if(item.status == 2){
+                if(item.card_type_id ==1){
+                  item.flag=false;
+                }else if(item.card_type_id == 2){
+                  item.flag=true;
+                };
+                this_.notAvailableList.push(item);
+              };
+            });
+            this_.notVnum = this_.notAvailableList.length;
+            this_.Vnum = this_.vailableList.length;
+          }
+        }
+       }).catch(error => {
+        console.log(error);
+      });
     },
     //选择使用礼品卡
     selecticonFn(flag, id) {
       var this_ = this;
-      this_.tabarys[id].iconflag = !flag;
-      this_.$set(this_.tabarys, id, this_.tabarys[id]);
-      console.log(this_.tabarys)
+      this_.vailableList[id].iconflag = !flag;
+      this_.$set(this_.vailableList, id, this_.vailableList[id]);
     },
     //绑定礼品卡
     bindgiftcardFn() {
@@ -164,44 +170,76 @@ export default {
     giftcardintrucFn(){
       var this_ = this;
       this_.showgift = true;
+
+    },
+    //确认使用礼品卡
+    sureusecardFn(){
+      var this_ = this;
+      var selectgift = [];
+      this_.vailableList.forEach(item=>{
+        if(item.iconflag){
+          selectgift.push(item);
+        }
+      });
+      this_.changeGiftlist(selectgift);
+      this_.$router.push({  
+        path: '/confirmpay',
+        name: 'CONFIRMPAY',  
+        params: {   
+          vailableList: selectgift
+        }
+      });
     },
     //绑定礼品卡的确认
     sureFn() {
       var this_ = this;
       // 写密码错误时候的相关逻辑
-      this.errorflag = true;
-      // if(this.errorflag){
-      //   this_.show = true;
-      // }else{
-      this_.show = false;
-      // }
+      var obj={
+        service:"exchangeCard",
+        stoken:this_.token,
+        pwd:this_.giftpassword
+      };
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        this_.message=res.data.message;
+        if(res.data.code == 0){
+          this_.getUserCardFn(this_.token,"");
+          this_.showgift = false;
+        }else{
+          this.errorflag = true;
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
+
     oreClose(action, done) {
       if (action === "confirm") {
         setTimeout(done, 1000);
       } else {
         done();
       }
-    }
+    },
+    ...mapMutations([
+      "changeToken","changeObj","changeGiftlist","changeGift"
+    ])
   },
   mounted() {
     var this_ = this;
     this_.ifgiftflag = this_.$route.params.flag;
     document.title = "我的礼品卡";
+    this_.getUserCardFn(this_.token,"");
   },
   computed:{
     word_use(){
       let a=false;
-      this.tabarys.forEach(item=>{
+      this.vailableList.forEach(item=>{
         if(item.iconflag){
           a=true;
         }
-
       })
       return a;
-      
-    }
-    
+    },
+    ...mapState(['token',"bookinfo","vgiftuserlist","vgiftflag"])
   }
 };
 </script>

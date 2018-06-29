@@ -7,9 +7,9 @@
         </van-col>
         <van-col span="14" class="content-right">
           <div class="opearte_container">
-            <span class="delete_photo d-i-b"></span>
-            <span class="preview_photo d-i-b"></span>
-            <span class="edit_photo d-i-b"></span>
+            <span class="delete_photo d-i-b" @click="operatebookFn(item,10)"></span>
+            <span class="preview_photo d-i-b" @click="previewFn()"></span>
+            <span class="edit_photo d-i-b" @click="operatebookFn(item)"></span>
           </div>
           <div class="use_photo tc" @click="jumptostartmakeFn(item.book_name,item.id)">制作相册</div>
         </van-col>
@@ -20,6 +20,7 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
@@ -42,6 +43,28 @@ import UTILS from "../../lib/utils";
           console.log(error);
         });
       },
+      //修改和删除图书信息
+      operatebookFn(item,status){
+        var this_ = this;
+        var status = status || "";
+        var paramsobj={};
+        this_.changeModelId(item.template_id);
+        paramsobj={
+          "service":"setBook",
+          "id":item.id,
+          "stoken":this_.token,
+          "book_name":item.book_name,
+          "author":item.author,
+          "status":status
+        };
+        SERVERUTIL.base.baseurl(paramsobj).then(res => {
+          if(res.data.code == 0){
+            this_.getBookListFn(this_.token);
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
       //跳转到马上制作页面
       jumptostartmakeFn(name,id){
         var this_ = this;
@@ -54,6 +77,10 @@ import UTILS from "../../lib/utils";
           } 
         }) ;
       },
+      ...mapMutations([
+        "changeToken","changeModelId","changeEnter","changeGift"
+      ])
+
     },
     mounted() {
      var this_ = this;
@@ -62,7 +89,10 @@ import UTILS from "../../lib/utils";
      this_.getBookListFn(this_.token);
      //this_.booklists=this_.$route.params.booklist;
 
-    }    
+    } ,
+    computed:{
+      ...mapState(['token',"modelid","vaddressenterflag","vgiftflag"])
+    }   
   }
 </script>
 

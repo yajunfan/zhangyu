@@ -17,7 +17,7 @@
              <li v-for="item in detailImg">
                 <div class="imgbor">
                   <div class="imgshadow">
-                    <img :src="item" alt="牛皮材质">
+                    <img :src="item" alt="模板">
                   </div>
                 </div>
                 <!-- <h4>牛皮材质</h4> -->
@@ -34,6 +34,7 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
@@ -58,19 +59,6 @@ import UTILS from "../../lib/utils";
           console.log(error);
         });
       },
-      //查询模板页面详情
-      getTemplateDetailInfoFn(id){
-        var this_ = this;
-        var obj={"service":"getTemplateDetailInfo","id":id};
-        SERVERUTIL.base.baseurl(obj).then(res => {
-          if(res.data.code ==0){
-            if(res.data.data){
-            }
-          }
-        }).catch(error => {
-          console.log(error);
-        });
-      },
       //跳转开始制作
       jumptostartmakeFn(){
         var this_ = this;
@@ -80,28 +68,22 @@ import UTILS from "../../lib/utils";
           params: {   
             name: this_.detailtitle,
             id:this_.$route.params.id
-          }, 
-          // query: {  
-          //   name:name,   
-          //   id: id
-          // }
-        }) ;
-      }
+          }
+        });
+      },
+      ...mapMutations([
+        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId"
+      ])
     },
     mounted(){
       var this_= this;
-     
-      if(this_.$route.params.name){
-        this_.detailtitle = this.$route.params.name;
-        UTILS.SESSIONOPERATE.setStorage("title",this_.detailtitle);
-      }else{
-        this_.detailtitle = UTILS.SESSIONOPERATE.getStorage("title");
-      };
-       document.title = this_.detailtitle;
-      var id=this_.$route.params.id;
-      this_.modelDetailFn(id);
-      this_.getTemplateDetailInfoFn(id); 
-    }   
+      this_.detailtitle = this_.modeltypename;
+      document.title = this_.detailtitle;
+      this_.modelDetailFn(this_.modelid);
+    },
+    computed:{
+      ...mapState(['token',"modeltypeid","modeltypename","modelid"])
+    } 
   }
 </script>
 
