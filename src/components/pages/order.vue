@@ -3,11 +3,11 @@
     <div v-if="orderflag" class="has_order">
       <ul class="order_box">
          <li v-for="(item,index) in orderlists" :key="index" >
-            <div class="order_title" @click="jumptodetail(item.paystatus,item)">
+            <div class="order_title" @click="jumptodetail(item.status,item)">
                <span>订单号：<i v-text="item.book_id"></i></span> 
                <span class="pay_status  fr" v-text="item.chinaStatus"></span>
             </div>
-            <div class="order_content" @click="jumptodetail(item.paystatus,item)">
+            <div class="order_content" @click="jumptodetail(item.status,item)">
                <van-card :title="item.template_name" :desc="item.discount_price" :num="item.num" :price="item.unit_price" :thumb="item.img"/> 
             </div>
             <div class="order_money">
@@ -61,15 +61,17 @@ import { mapState, mapMutations } from "vuex";
                   item.paymoneyflag=false;
                   item.paymoneybtn=true;
                 }else  if(item.status == 2){
-                  item.chinaStatus = '已付款，待印刷'; 
+                  item.chinaStatus = '已取消'; 
                 }else  if(item.status == 3){
+                  item.chinaStatus = '已付款，待印刷'; 
+                }else  if(item.status == 4){
                   item.chinaStatus = '已发货';
                   item.paymoneybtn=true; 
                   item.paymoneytext=true;
-                }else  if(item.status == 4){
-                  item.chinaStatus = '已签收'; 
                 }else  if(item.status == 5){
-                  item.chinaStatus = '已取消'; 
+                  item.chinaStatus = '已签收'; 
+                }else  if(item.status == 6){
+                  item.chinaStatus = '已完成'; 
                 };
               }); 
             }

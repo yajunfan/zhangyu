@@ -19,10 +19,10 @@
      <div class="order_content">
        <div class="order_info">
          <van-row>
-           <van-col span="6" class="logo_img"><img src="../../images/model1.jpg" alt="logo"></van-col>
+           <van-col span="6" class="logo_img"><img :src="modeldatas.modelimg" alt="logo"></van-col>
            <van-col span="12">
              <ul>
-                <li class="detail_title" v-text="modeldatas.name"></li>
+                <li class="detail_title" v-text="modeldatas.title"></li>
                 <li class="detail_specifications">规格:<span v-text="modeldatas.size"></span></li>
              </ul>
            </van-col>
@@ -157,7 +157,7 @@ import { mapState, mapMutations } from "vuex";
           var obj={
             service:"addOrder",
             stoken:this_.token,
-            book_id:this_.modeldatas.id,
+            book_id:this_.vbookid,
             num:this_.shopnum,
             address_id:this_.defaultinfo.id,
             card_id:cardstr
@@ -182,15 +182,15 @@ import { mapState, mapMutations } from "vuex";
                   });
                 }
               }else{
-                this_.$toast('支付失败，原因是：'+res.data.message);
+                //this_.$toast('支付失败，原因是：'+res.data.message);
                 const toast = this_.$toast.loading({
                   duration: 0,       // 持续展示 toast
                   forbidClick: true, // 禁用背景点击
                   loadingType: 'spinner',
-                  message: '倒计时 3 秒'
+                  message: '支付失败：'+res.data.message
                 });
 
-                let second = 3;
+                let second = 4;
                 const timer = setInterval(() => {
                   second--;
                   if (second) {
@@ -208,7 +208,6 @@ import { mapState, mapMutations } from "vuex";
                     }) ;
                   }
                 }, 1000);
-                
               }
             }).catch(error => {
               console.log(error);
@@ -270,7 +269,7 @@ import { mapState, mapMutations } from "vuex";
         this.chosenContactId = info.id;
       },
        ...mapMutations([
-        "changeToken","changeObj","changeGiftlist","changeEnter","changeGift","changeaddress"
+        "changeToken","changeObj","changeGiftlist","changeEnter","changeGift","changeaddress","changebookid","changebuynum"
       ])
     },
     mounted(){
@@ -281,25 +280,35 @@ import { mapState, mapMutations } from "vuex";
       this_.getUserCardFn(this_.token);
       //选择的礼品卡列表
       this_.vailableList = this_.vgiftuserlist;
-      this_.total="";
+      this_.shopnum = this_.vbuynum;
+      this_.total=0;
       if(this_.vailableList.length){
         this_.giftcardflag=false;
         this_.vailableList.forEach(item=>{
-          this_.total+=item.left_price;
+          this_.total+=Number(item.left_price);
         });
-        if(this_.total>this_.modeldatas.price || this_.total == this_.modeldatas.price){
-          this_.total = this_.modeldatas.price;
+        var totalmoney = this_.modeldatas.price*this_.shopnum;
+        if(this_.total>totalmoney || this_.total == totalmoney){
+          this_.total = totalmoney;
         }
       };
+      
     },
     computed:{
-        ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag","vgiftflag","vaddress"])
+        ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag","vgiftflag","vaddress","vbookid","vbuynum"])
     } ,
     watch:{
      total(n,o){
        var this_ = this;
        if(!n == ""){
-         this_.paymoney = (this_.modeldatas.price - n)*100;
+         this_.paymoney = (this_.modeldatas.price*this_.shopnum - n)*100;
+       }
+     },
+     shopnum(n,o){
+       var this_ = this;
+       if(!n == ""){
+         this_.changebuynum(n);
+         this_.paymoney = (this_.modeldatas.price*n - this_.total)*100;
        }
      }
     }  

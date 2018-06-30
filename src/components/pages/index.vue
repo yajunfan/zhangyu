@@ -49,12 +49,28 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.getstoken = res.data.data.stoken;
+              this_.getUserInfoFn(this_.getstoken);
               this_.changeToken(this_.getstoken);
-              //UTILS.SESSIONOPERATE.setStorage("stoken",this_.getstoken);
             }
           }
         })
         .catch(error => {
+          console.log(error);
+        });
+      },
+      //获取用户信息
+      getUserInfoFn(token){
+        var this_ = this;
+        var obj={"service":"getUserInfo","stoken":token};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.username = res.data.data.nick_name;
+              console.log(this_.username)
+              this_.changeNickname(this_.username);
+            }
+          }
+        }).catch(error => {
           console.log(error);
         });
       },
@@ -68,7 +84,6 @@ import { mapState, mapMutations } from "vuex";
               this_.tabarys = res.data.data;
               this_.modelListFn(this_.tabarys[0].id);
               this_.photoname = this_.tabarys[0].name;
-              this_.changeModelTypeId(this_.tabarys[0].id);
             }
           }
         }).catch(error => {
@@ -83,6 +98,8 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.tabLists = res.data.data;
+              this_.changeModelTypeId(this_.tabLists[0].type_id);
+              this_.changeModelId(this_.tabLists[0].id);
             }
           }
         })
@@ -94,6 +111,7 @@ import { mapState, mapMutations } from "vuex";
         var this_ = this;
         this_.active = index;
         this_.changeModelTypeId(obj.id);
+        this_.changeModelId(this_.tabLists[index].id);
         this_.modelListFn(obj.id);
         this_.photoname = obj.name;
       },
@@ -135,7 +153,7 @@ import { mapState, mapMutations } from "vuex";
         }) 
       },
       ...mapMutations([
-      "changeToken","changeModelTypeId","changeModelTypeName","changeModelId"
+      "changeToken","changeNickname","changeModelTypeId","changeModelTypeName","changeModelId"
     ])
       
     },
@@ -146,7 +164,7 @@ import { mapState, mapMutations } from "vuex";
       this_.userLoginFn();
     },
     computed:{
-      ...mapState(['token',"modeltypeid","modeltypename","modelid"])
+      ...mapState(['token',"vnickname","modeltypeid","modeltypename","modelid"])
     }
   }
 </script>

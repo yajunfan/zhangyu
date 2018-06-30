@@ -8,6 +8,7 @@ Vue.use(Vuex);
 
 const state = {
   token:"", 
+  vnickname:"", //名称作者
   modeltypeid:"",  //模板类型的id
   modeltypename:"",//模板类型的名称
   modelid:"",  //选择的模板的id
@@ -16,6 +17,8 @@ const state = {
   vgiftflag:true, // 礼品卡的入口 false-个人中心   true -- 确认支付
   vaddressenterflag:false, //地址管理的入口 false-确认支付   true -- 个人中心
   vaddress:"",  //最后收货地址
+  vbuynum:1, //购买数量
+  vbookid:"", //获取book_id
 
 
 }
@@ -24,6 +27,10 @@ const mutations = {
   //token值的保留
   changeToken(state, value){
     state.token = value;
+  },
+   //昵称值的 -- 在个人中心修改会改变，首页是第一次保存
+   changeNickname(state, value){
+    state.vnickname = value;
   },
   //模板类型的id
   changeModelTypeId(state, value){
@@ -57,6 +64,14 @@ const mutations = {
   changeaddress(state,value){
     state.vaddress=value;
   },
+  //购买数量
+  changebuynum(state,value){
+    state.vbuynum=value;
+  },
+  //获取book_id 在立即支付的时候使用
+  changebookid(state,value){
+    state.vbookid=value;
+  }
 }
 
 export default new Vuex.Store({

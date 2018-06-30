@@ -21,8 +21,8 @@
           <div><img src="../../images/address.png" alt="address"></div>
         </van-col>
         <van-col span="21" class="address_right">
-          <div>收货人：<span v-text="vaddress.name"></span><span class="fr" v-text="vaddress.tel"></span></div>
-          <div>收货地址：<span v-text="vaddress">cccccccccccccccccccccccc</span></div>
+          <div>收货人：<span v-text="orderItem.name"></span><span class="fr" v-text="orderItem.tel"></span></div>
+          <div>收货地址：<span v-text="orderItem.district+' '+orderItem.address"></span></div>
         </van-col>
       </van-row>
     </div>
@@ -99,6 +99,7 @@
 </template>
 
 <script>
+import UTILS from "../../lib/utils";
 import { mapState, mapMutations } from "vuex";
  export default {
    data(){
@@ -114,7 +115,8 @@ import { mapState, mapMutations } from "vuex";
        dfkflag:false, //待付款的倒计时
        paymoneytext1:"物流详情", //按钮显示内容
        paymoneytext2:"确认收货", //按钮显示内容
-       logisticsimg:"logywc"
+       logisticsimg:"logywc",
+       timenum:"", //倒计时
      }
    },
    methods:{
@@ -122,7 +124,30 @@ import { mapState, mapMutations } from "vuex";
        var this_ = this;
        if(this_.orderstatus == 1){
          this_.chinaStatus = '待付款';
-         this_.chinaSubStatus = "19分59秒后自动取消";
+         this_.chinaSubStatus = this_.orderItem.wait_time;
+         if(this_.chinaSubStatus !== 0){
+            var ary=this_.chinaSubStatus.split("分");
+            var seconds = ary[1].slice(0,ary[1].length-1);
+            var num = Number(ary[0]*60)+Number(seconds);
+            var timer = setInterval(function(){
+              if(num > 1 || num == 1){
+                num -- ;
+                this_.timenum = UTILS.TIMERSET.FORMATSECONDS(num);
+                this_.chinaSubStatus = this_.timenum;
+              }else{
+                clearInterval(timer);
+                this_.$router.push({  
+                  path: '/order',
+                  name: 'ORDER',
+                  params: {   
+                    id:this_.orderItem.id,
+                    token: this_.token
+                  }
+                }) ;
+                
+              }
+            },1000);
+         };
          this_.orderimg = 'dfk';
          this_.paymoneytext1 ="取消订单";
          this_.paymoneytext2 ="继续支付";
@@ -130,10 +155,14 @@ import { mapState, mapMutations } from "vuex";
          this_.paymoneyflag=false;
          this_.paymoneybtn=true;
        }else  if(this_.orderstatus == 2){
+         this_.chinaStatus = '已取消'; 
+         this_.chinaSubStatus = "";
+         this_.orderimg = 'yqx';
+       }else  if(this_.orderstatus == 3){
          this_.chinaStatus = '已付款，待印刷'; 
          this_.chinaSubStatus = "照片书正在检查，等待印刷";
          this_.orderimg = 'yfk';
-       }else  if(this_.orderstatus == 3){
+       }else  if(this_.orderstatus == 4){
          this_.chinaStatus = '已发货';
          this_.getstatus = true;
          this_.chinaSubStatus = "货物已发出，请注意查收";
@@ -144,7 +173,7 @@ import { mapState, mapMutations } from "vuex";
          this_.paymoneytext2 ="确认收货";
          this_.paymoneybtn=true; 
          this_.paymoneytext=true;
-       }else  if(this_.orderstatus == 4){
+       }else  if(this_.orderstatus == 5){
          this_.chinaStatus = '已签收';
          this_.getstatus = true;
          this_.chinaSubStatus = ""; 
@@ -153,12 +182,9 @@ import { mapState, mapMutations } from "vuex";
          this_.operateflag = true;
          this_.paymoneytext1 ="物流详情";
          this_.paymoneytext2 ="确认收货";
-       }else  if(this_.orderstatus == 5){
-         this_.chinaStatus = '已取消'; 
-         this_.chinaSubStatus = "";
-         this_.orderimg = 'yqx';
        }else{
          this_.chinaStatus = '已完成'; 
+         this_.operateflag = false;
          this_.getstatus = true;
          this_.chinaSubStatus = "";
          this_.orderimg = 'ywc';
@@ -166,21 +192,22 @@ import { mapState, mapMutations } from "vuex";
        };
      },
      ...mapMutations([
-       "changeToken","changeaddress"
+       "changeToken"
      ])
    },
    mounted() {
       var this_ = this;
+     
       this_.orderstatus = this_.$route.params.status;
       this_.orderItem = this_.$route.params.data;
+       console.log(this_.orderItem)
       this_.orderItem.real_price = Number(this_.orderItem.real_price).toFixed(0);
-      console.log(this_.vaddress);
       this_.orderItem.name="张三";
       document.title = "订单详情";
       this_.detailFn();
     }, 
     computed:{
-      ...mapState(['token',"vaddress"])
+      ...mapState(['token'])
     } ,      
  }
 </script>

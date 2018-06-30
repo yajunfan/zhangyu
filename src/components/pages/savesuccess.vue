@@ -99,6 +99,8 @@ import { mapState, mapMutations } from "vuex";
          this_.modelimg = this_.detailImg[index];
          this_.selectItem = obj;
          this_.selectItem.size=this_.detailinfo.size;
+         this_.selectItem.title = this_.detailinfo.title;
+         this_.selectItem.modelimg = this_.detailImg[index];
        },
       //获取详情列表  -- getTemplateDetailInfo
       detailListsFn(id){
@@ -122,12 +124,13 @@ import { mapState, mapMutations } from "vuex";
         SERVERUTIL.base.baseurl(obj).then(res => {
           if(res.data.code ==0){
             if(res.data.data){
-               console.log(this_.detailinfo)
               this_.detailinfo = res.data.data;
               this_.paytypelist = JSON.parse(this_.detailinfo.price);
               this_.detailImg = this_.detailinfo.img_detail.split(",");
               this_.selectItem = this_.paytypelist[0];
               this_.selectItem.size = this_.detailinfo.size;
+              this_.selectItem.title = this_.detailinfo.title;
+              this_.selectItem.modelimg = this_.detailImg[0];
              
               this_.modelprice = this_.paytypelist[0].price;
               this_.modelimg = this_.detailImg[0];
@@ -140,7 +143,8 @@ import { mapState, mapMutations } from "vuex";
        //点击下一步跳到付款页面
        jumptopay(obj){
         var this_ = this;
-        obj.logoimg=this_.styleAry.logoimg;
+        console.log(obj)
+        
         this_.changeObj(obj);
         this.$router.push({  
           path: '/confirmpay',

@@ -24,7 +24,7 @@
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b">
-                    <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                    <van-uploader :after-read="onRead"  accept="image/gif, image/jpeg" multiple class="fileImage">
                       <van-icon name="photograph" />
                     </van-uploader>
                     <!-- <input id="fileImage" class="fileImage" type="file"  accept="image/*" capture="camera" size="30"> -->
@@ -78,7 +78,7 @@
                       <van-icon name="photograph" />
                     </van-uploader>
                     <img src="../../images/onload.png" alt="上传">
-                    <span class="mark tc" v-text="modelnum">20</span>
+                    <span class="mark tc" v-text="modelnum"></span>
                   </span>
                 </van-col>
                 <van-col span="8">
@@ -109,7 +109,27 @@
         </van-col>
         </van-row>
     </div>
-    
+    <div class="imgnofit_container" v-if="nofitflag">
+      <div class="img_container">
+         <h4 class="tc"><span class="tc" style="color:#ff5547;" v-text="nofitnum"></span><span>张照片像素过低或大小不合格<br>建议删除再重新上传</span></h4>
+         <ul class="img_list">
+           <li v-for="item in 12" :key="item">
+             <img src="../../images/title1.jpg" alt="不合格">
+             
+            </li>
+         </ul>
+         <div class="img_operate w100">
+           <van-row class="w100">
+            <van-col span="12">
+              <van-button class="w100" type="default" bottom-action style="background:none;color:black;" @click="nofitflag=false">取消</van-button >
+            </van-col>
+            <van-col span="12">
+              <van-button  class="w100" type="default"  bottom-action style="background:none;color:#ff5547;" @click="deleteImgFn">删除</van-button >
+            </van-col>
+          </van-row>
+         </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -134,7 +154,9 @@ import { mapState, mapMutations } from "vuex";
         ],
         tabLists:[], //右侧的类型列表
         showflag:true,
-        i:0  //当前选中的列表项
+        i:0 , //当前选中的列表项
+        nofitflag:false, //不合格弹框
+        nofitnum:1 //不合格的数量
       }
     },
     methods:{
@@ -201,6 +223,20 @@ import { mapState, mapMutations } from "vuex";
           console.log(error);
         });
       },
+      //用户选择模板 -- 获取book_id
+      getbookidFn(id,token,bookname,author){
+        var this_ = this;
+        var obj={"service":"addBook","id":id,"stoken":token,"book_name":bookname,"author":author};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.changebookid(res.data.data.book_id);
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
       //查看详情 跳转到详情页面传入模板的id
       jumptodetail(){
         var this_ = this;
@@ -213,20 +249,41 @@ import { mapState, mapMutations } from "vuex";
           }
         })  
       },
+      //上传图片成功的执行函数
       onRead(file) {
-       console.log(file);
        var this_ = this;
-       var obj={"service":"createBook","id":id,"stoken":token};
+       this_.$toast.loading({
+          mask: true,
+          message: '上传图片5/'+file.length
+       });
+       var obj={"service":"createBook","id":this_.vbookid,"stoken":this_.token};
        SERVERUTIL.base.baseurl(obj).then(res => {
+         console.log(res)
         if(res.data.code ==0){
           if(res.data.data){
-            
+            this_.getBookStatusFn(this_.modelid,this_.token);
           }
+        }else{
+          this_.nofitflag = true;
         }
        }).catch(error => {
         console.log(error);
        });
       }, 
+      //查看图片的上传请况
+      getBookStatusFn(id,token){
+        var this_ = this;
+        var obj={"service":"getBookStatus","id":id,"stoken":token};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.modelnum = Number(res.data.data.total_num)-Number(res.data.data.finish_num);
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
       //预览功能
       previewFn(){
         var this_ = this;
@@ -261,7 +318,7 @@ import { mapState, mapMutations } from "vuex";
         }) 
       },
        ...mapMutations([
-        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId"
+        "changeToken","changeNickname","changeModelTypeId","changeModelTypeName","changeModelId","changebookid"
       ])
     },
     mounted(){
@@ -270,10 +327,11 @@ import { mapState, mapMutations } from "vuex";
       this_.photoName = this_.modeltypename;
       this_.userid= this_.$route.params.id;
       this_.detailListsFn(this_.modelid);
+      this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
       this_.modelTypeFn();
     } ,
      computed:{
-        ...mapState(['token',"modeltypeid","modeltypename","modelid"])
+        ...mapState(['token',"vnickname","modeltypeid","modeltypename","modelid","vbookid"])
       }     
   }
 </script>
@@ -282,6 +340,7 @@ import { mapState, mapMutations } from "vuex";
 body{
   // background: lightcyan;
 }
+
  .makeContainer{
    margin-left:0.3rem;
    .titleContainer{
@@ -452,7 +511,60 @@ body{
       }
      }
      
-     } 
+  } 
+  .imgnofit_container{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.4);
+    padding: 1.6rem 0.6rem;
+    box-sizing: border-box;
+    .img_container{
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background:white;
+      padding: 0.3rem;
+      box-sizing: border-box;
+      h4{
+        span{
+          font-size: 0.28rem;
+        }
+      }
+      ul{
+        width: 100%;
+        height: 80%;
+        margin-top: 0.3rem;
+        overflow: hidden;
+        overflow-y:scroll;
+        li{
+          display: inline-block;
+          width: 1.6rem;
+          height:1.6rem;
+          margin: 0.12rem;
+          background: #ccc;
+          border: 1px solid black;
+          img{
+            width: 100%;
+            height: 100%;;
+          }
+        }
+      }
+      .img_operate{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        border-top: 1px solid #f2f2f2;
+        background: white;
+        .w100{
+          width:100%;
+        }
+      }
+    }
+  }
    
  }
 </style>
