@@ -25,24 +25,19 @@
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b">
-                    <!-- <van-uploader :after-read="onRead"  accept="image/gif, image/jpeg" multiple class="fileImage">
+                    <!-- <form ref="form">
+                    <van-uploader :after-read="onRead"  accept="image/gif, image/jpeg" multiple class="fileImage">
                       <van-icon name="photograph" />
-                    </van-uploader> -->
+                    </van-uploader> 
+                    </form> -->
                  
                       <!-- <input id="fileImage" name="file" ref="img_input" class="fileImage" type="file" @change='add_img'  accept="image/*" capture="camera" size="30">
                   -->
                     
                     <img src="../../images/onload.png" alt="上传">
-                        <vue-core-image-upload
-class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0"
-:crop="false"
-@imageuploaded="imageUploded"
-:max-file-size="5242880"
-:multiple="true"
-:multiple-size="4"
-:text="''"
-url="http://192.144.141.33:8081/book/book/uploadImage" >
-</vue-core-image-upload>
+                    <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
+                      @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
+                    </vue-core-image-upload>
                     <span class="mark tc" v-text="modelnum">20</span>
                   </span>
                 </van-col>
@@ -88,10 +83,16 @@ url="http://192.144.141.33:8081/book/book/uploadImage" >
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b" @click="markflag=true;">
-                    <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
-                      <van-icon name="photograph" />
-                    </van-uploader>
+                    <!-- <form ref="form">
+                      <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                        <van-icon name="photograph" />
+                      </van-uploader>
+                    </form> -->
+                    
                     <img src="../../images/onload.png" alt="上传">
+                    <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
+                      @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
+                    </vue-core-image-upload>
                     <span class="mark tc" v-text="modelnum"></span>
                   </span>
                 </van-col>
@@ -123,13 +124,13 @@ url="http://192.144.141.33:8081/book/book/uploadImage" >
         </van-col>
         </van-row>
     </div>
+    <!-- 当图片出现不合格的时候弹框 -->
     <div class="imgnofit_container" v-if="nofitflag">
       <div class="img_container">
          <h4 class="tc"><span class="tc" style="color:#ff5547;" v-text="nofitnum"></span><span>张照片像素过低或大小不合格<br>建议删除再重新上传</span></h4>
          <ul class="img_list">
            <li v-for="item in 12" :key="item">
              <img src="../../images/title1.jpg" alt="不合格">
-             
             </li>
          </ul>
          <div class="img_operate w100">
@@ -139,6 +140,46 @@ url="http://192.144.141.33:8081/book/book/uploadImage" >
             </van-col>
             <van-col span="12">
               <van-button  class="w100" type="default"  bottom-action style="background:none;color:#ff5547;" @click="deleteImgFn">删除</van-button >
+            </van-col>
+          </van-row>
+         </div>
+      </div>
+    </div>
+    <!-- 提示未制作完成， -->
+    <div class="imgnosucce_container" v-if="nosucceeflag">
+      <div class="img_container tip_container">
+         <h4 class="tc">提示</h4>
+         <p class="tc">本书尚未制作完成<br>还需上传<span v-text="9" style="color:#ff5547"></span>张照片</p>
+         <div class="img_operate w100">
+           <van-row class="w100">
+            <van-col span="12">
+              <van-button class=" w100 ft14" type="default" bottom-action style="background:none;font-size:0.28rem;color:black;" @click="savebookFn()">先保存至书架</van-button >
+            </van-col>
+            <van-col span="12">
+              <van-button  class=" w100 ft14" type="default"  bottom-action style="background:none;font-size:0.28rem;color:black;">继续上传</van-button >
+               <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                  <van-icon name="photograph" />
+              </van-uploader>
+            </van-col>
+          </van-row>
+         </div>
+      </div>
+    </div>
+     <!-- 提示照片清晰度不足， -->
+    <div class="imgnosucce_container" v-if="noprefactflag">
+      <div class="img_container tip_container">
+         <h4 class="tc">照片清晰度不足</h4>
+         <p class="tc">像素不足会影响印刷清晰度<br>建议选择清晰度高的<span v-text="9" style="color:#ff5547"></span>照片制作</p>
+         <div class="img_operate w100">
+           <van-row class="w100">
+            <van-col span="12">
+              <van-button class=" w100 ft14" type="default" bottom-action style="background:none;font-size:0.28rem;color:black;" @click="gochangeFn()">去修改</van-button >
+            </van-col>
+            <van-col span="12">
+              <van-button  class=" w100 ft14" type="default"  bottom-action style="background:none;font-size:0.28rem;color:black;" @click="makeModelFn()">继续提交</van-button >
+               <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                  <van-icon name="photograph" />
+              </van-uploader>
             </van-col>
           </van-row>
          </div>
@@ -179,6 +220,8 @@ export default {
       showflag: true,
       i: 0, //当前选中的列表项
       nofitflag: false, //不合格弹框
+      nosucceeflag:false , //没有制作成功的弹框
+      noprefactflag:false,  //清晰度不高的弹框
       nofitnum: 1, //不合格的数量
       imgs: [],
       imgData: {
@@ -316,18 +359,15 @@ export default {
       formData.append("type", "test");
 
       console.log(formData);
-      axios
-        .post("http://192.144.141.33:8081/book/book/uploadImage", formData, {
+      axios.post("http://192.144.141.33:8081/book/book/uploadImage", formData, {
           headers: { "Content-Type": "multipart/form-data" },
           cache: false,
           contentType: false, //不可缺
           processData: false,
           dataType: "json"
-        })
-        .then(response => {
+        }).then(response => {
           console.log(response);
-        })
-        .catch(error => {
+        }).catch(error => {
           alert("上传图片出错！");
         });
     },
@@ -338,14 +378,43 @@ export default {
         mask: true,
         message: "上传图片5/" + file.length
       });
+      let formData = new FormData(this.$refs.form);
+      console.log(file)
+      file.forEach(item =>{
+        formData.append("file", item.file);
+      })
+      
+       console.log(1,formData.get('file'))
+      axios.post("http://192.144.141.33:8081/book/book/uploadImage", formData, {
+         headers: { "Content-Type": "multipart/form-data" },
+          cache: false,
+          contentType: false, //不可缺
+          processData: false,
+          dataType: "json"
+        }).then(response => {
+          console.log(response);
+        }).catch(error => {
+          alert("上传图片出错！");
+        });
+      
+    },
+    //保存至书架
+    savebookFn(){
+
+    },
+    //去修改
+    gochangeFn(){
+
+    },
+    //制作模版
+    makeModelFn(){
+      var this_ = this;
       var obj = {
         service: "createBook",
         id: this_.vbookid,
         stoken: this_.token
       };
-      SERVERUTIL.base
-        .baseurl(obj)
-        .then(res => {
+      SERVERUTIL.base .baseurl(obj) .then(res => {
           console.log(res);
           if (res.data.code == 0) {
             if (res.data.data) {
@@ -624,7 +693,7 @@ body {
       }
     }
   }
-  .imgnofit_container {
+  .imgnofit_container,.imgnosucce_container {
     position: absolute;
     top: 0;
     left: 0;
@@ -674,8 +743,41 @@ body {
         .w100 {
           width: 100%;
         }
+        
+        .fileImage{
+            position: absolute;
+            display: block;
+            width: 50%;
+            height: 100%;
+            background: red;
+            top: 0;
+            opacity: 0;
+          }
+      }
+      .ft14{
+        font-size: 14px;
       }
     }
   }
+  .imgnosucce_container{
+    .tip_container{
+      position: absolute;
+      top: 50%;
+      left: 0;
+      margin:0 10%;
+      margin-top: -25%;
+      width: 80%;
+      height: 24%;
+      h4{
+        font-size: 0.30rem;
+        margin-bottom: 0.1rem;
+      }
+      p{
+        font-size: 0.28rem;
+      }
+    }
+  }
+  
+
 }
 </style>
