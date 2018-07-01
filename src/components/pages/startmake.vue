@@ -409,6 +409,10 @@ export default {
     //制作模版
     makeModelFn(){
       var this_ = this;
+       this_.$toast.loading({
+        mask: true,
+        message: "正在提交模板"
+      });
       var obj = {
         service: "createBook",
         id: this_.vbookid,
