@@ -13,7 +13,11 @@
               <li v-for="(item,index) in modelLists" :key="index">
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
-                 <div><img :src="item.img" alt="1"/></div>
+                 <div>
+                   <img :src="item.img" alt="1"/>
+                   <img :src="item.imgurl " alt="" class="upload_img">
+                 </div>
+                 
               </li>
             </ul>
             <div class="iconcontainer">
@@ -25,19 +29,19 @@
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b">
-                    <!-- <form ref="form">
+                    <!-- <form ref="form"></form> -->
                     <van-uploader :after-read="onRead"  accept="image/gif, image/jpeg" multiple class="fileImage">
                       <van-icon name="photograph" />
                     </van-uploader> 
-                    </form> -->
+                    
                  
-                      <!-- <input id="fileImage" name="file" ref="img_input" class="fileImage" type="file" @change='add_img'  accept="image/*" capture="camera" size="30">
-                  -->
+                     <!-- <input id="fileImage" name="file" ref="img_input" class="fileImage" type="file" @change='add_img'  accept="image/*" capture="camera" size="30"> -->
+                 
                     
                     <img src="../../images/onload.png" alt="上传">
-                    <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
+                    <!-- <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
                       @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
-                    </vue-core-image-upload>
+                    </vue-core-image-upload> -->
                     <span class="mark tc" v-text="modelnum">20</span>
                   </span>
                 </van-col>
@@ -83,16 +87,17 @@
                 </van-col>
                 <van-col span="8">
                   <span class="onload_icon d-i-b" @click="markflag=true;">
-                    <!-- <form ref="form">
+                    <!-- <form ref="form">  </form> -->
                       <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
                         <van-icon name="photograph" />
                       </van-uploader>
-                    </form> -->
+                  
                     
                     <img src="../../images/onload.png" alt="上传">
-                    <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
+                    <!-- <input id="fileImage" name="file" ref="img_input" class="fileImage" type="file" @change='add_img'  accept="image/*" capture="camera" size="30"> -->
+                    <!-- <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
                       @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
-                    </vue-core-image-upload>
+                    </vue-core-image-upload> -->
                     <span class="mark tc" v-text="modelnum"></span>
                   </span>
                 </van-col>
@@ -204,18 +209,7 @@ export default {
       liid: "1",
       userid: "", //相册模板id
       modelnum: "", //模板总共有几张，上传成功之后，剩余多少张需要上传，动态计算
-      modelLists: [
-        //模板的详情页面列表
-        {
-          name: "冬季的旅行",
-          imageLists: [
-            "../../images/model1.jpg",
-            "../../src/images/model2.jpg",
-            "../../src/images/model3.jpg",
-            "../../src/images/model4.jpg"
-          ]
-        }
-      ],
+      modelLists: [],//模板的详情页面列表
       tabLists: [], //右侧的类型列表
       showflag: true,
       i: 0, //当前选中的列表项
@@ -227,7 +221,8 @@ export default {
       imgData: {
         accept: "image/gif, image/jpeg, image/png, image/jpg"
       },
-      fileList: []
+      fileList: [],
+      imgindex:0,
     };
   },
   methods: {
@@ -295,6 +290,9 @@ export default {
           if (res.data.code == 0) {
             if (res.data.data) {
               this_.modelLists = res.data.data;
+              this_.modelLists.forEach(item=>{
+                item.imgurl ="";
+              })
               this_.modelnum = this_.modelLists.length;
             }
           }
@@ -341,7 +339,7 @@ export default {
     add_img(event) {
       // let reader =new FileReader();
       let img1 = document.querySelector("#fileImage").files[0];
-
+      console.log(img1)
       let type = img1.type; //文件的类型，判断是否是图片
       let size = img1.size; //文件的大小，判断图片的大小
       if (this.imgData.accept.indexOf(type) == -1) {
@@ -353,51 +351,97 @@ export default {
         return false;
       }
       var uri = "";
-      console.log(img1);
       let formData = new FormData();
       formData.append("file", img1);
       formData.append("type", "test");
-
-      console.log(formData);
-      axios.post("http://192.144.141.33:8081/book/book/uploadImage", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          cache: false,
-          contentType: false, //不可缺
-          processData: false,
-          dataType: "json"
-        }).then(response => {
-          console.log(response);
-        }).catch(error => {
-          alert("上传图片出错！");
+      $.ajax({
+        url:'http://192.144.141.33:8081/book/book/uploadImage',
+        type:'POST',
+        data:formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success:function(data){
+          console.log(data)
+        }
+      })
+     
+    },
+    //上传图片
+    unloadImg(file){
+      var this_ = this;
+      let formData = new FormData();
+       console.log(file)
+      if (file.type.indexOf('image/jpeg') == -1) {
+        this_.$toast({
+          mask: true,
+          message: "请选择我们支持的图片格式！image/gif, image/jpeg"
         });
+        return false;
+      };
+     
+      if (file.size > 3145728 ) {
+        this_.$toast({
+          mask: true,
+          message: "请选择3M以内的图片或者大于100k的图片"
+        });
+        return false;
+      };
+      formData.append("file", file);
+      $.ajax({
+        url:'http://192.144.141.33:8081/book/book/uploadImage',
+        type:'POST',
+        data:formData,
+        cache: false,
+        contentType: false,
+        processData: false,
+        success:function(res){
+          var imgurl=res.data.url;
+          this_.modelLists[this_.imgindex].imgurl = imgurl;
+          this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
+          this_.$toast.loading({
+            mask: true,
+            message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
+          });
+          this_.modelnum = this_.modelLists.length-this_.imgindex-1;
+          this_.imgindex++;
+        },
+        error:function(){
+          this_.$toast.loading({
+            mask: true,
+            message: "上传图片失败"
+          });
+        }
+      });
     },
     //上传图片成功的执行函数
     onRead(file) {
       var this_ = this;
-      this_.$toast.loading({
-        mask: true,
-        message: "上传图片5/" + file.length
-      });
-      let formData = new FormData(this.$refs.form);
-      console.log(file)
-      file.forEach(item =>{
-        formData.append("file", item.file);
-      })
-      
-       console.log(1,formData.get('file'))
-      axios.post("http://192.144.141.33:8081/book/book/uploadImage", formData, {
-         headers: { "Content-Type": "multipart/form-data" },
-          cache: false,
-          contentType: false, //不可缺
-          processData: false,
-          dataType: "json"
-        }).then(response => {
-          console.log(response);
-        }).catch(error => {
-          alert("上传图片出错！");
-        });
-      
+      if(file.length){
+        if(file.length>9){
+          this_.$toast({
+            mask: true,
+            message: "一次最多上传9张照片"
+          });
+        }else{
+          if(file.length>this_.modelLists.length){
+            this_.$toast({
+              mask: true,
+              message: '该模板最多上传'+this_.modelLists.length+'张照片,请重新选择'
+            });
+          }else{
+            this_.fileList=[];
+            file.forEach((item,index)=>{
+              this_.unloadImg(item.file);
+            });
+          }
+        }
+      }else{
+        this_.fileList=[];
+        this_.unloadImg(file.file);
+      };
     },
+
     //保存至书架
     savebookFn(){
 
@@ -407,7 +451,7 @@ export default {
 
     },
     //制作模版
-    makeModelFn(){
+    makeModelFn(url){
       var this_ = this;
        this_.$toast.loading({
         mask: true,
@@ -416,40 +460,43 @@ export default {
       var obj = {
         service: "createBook",
         id: this_.vbookid,
-        stoken: this_.token
+        stoken: this_.token,
+        url:url
       };
       SERVERUTIL.base .baseurl(obj) .then(res => {
-          console.log(res);
-          if (res.data.code == 0) {
-            if (res.data.data) {
-              this_.getBookStatusFn(this_.modelid, this_.token);
-            }
-          } else {
-            this_.nofitflag = true;
+        console.log(res);
+        if (res.data.code == 0) {
+          this_.getBookStatusFn(this_.modelid, this_.token);
+          if (res.data.data) {
+            this.$router.push({
+              path: "/savesuccess",
+              name: "SAVESUCCESS",
+              params: {
+                id: this_.$route.params.id,
+                flag: true
+              }
+            });  
           }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        } else {
+          this_.nofitflag = true;
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //查看图片的上传请况
     getBookStatusFn(id, token) {
       var this_ = this;
       var obj = { service: "getBookStatus", id: id, stoken: token };
-      SERVERUTIL.base
-        .baseurl(obj)
-        .then(res => {
-          if (res.data.code == 0) {
-            if (res.data.data) {
-              this_.modelnum =
-                Number(res.data.data.total_num) -
-                Number(res.data.data.finish_num);
-            }
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if (res.data.code == 0) {
+          if (res.data.data) {
+             this_.modelnum =Number(res.data.data.total_num) -Number(res.data.data.finish_num);
           }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //预览功能
     previewFn() {
@@ -471,18 +518,7 @@ export default {
     saveFn() {
       var this_ = this;
       //这里有一个调用保存的数据接口，成功后进入保存成功页面
-      this.$router.push({
-        path: "/savesuccess",
-        name: "SAVESUCCESS",
-        params: {
-          id: this_.$route.params.id,
-          flag: true
-        }
-        // query: {
-        //   name:name,
-        //   id: id
-        // }
-      });
+      this_.makeModelFn(this_.modelLists[0].imgurl);
     },
     ...mapMutations([
       "changeToken",
@@ -651,6 +687,14 @@ body {
             img {
               width: 90%;
               height: 90%;
+              margin-left: 0.2rem;
+            }
+            .upload_img{
+              position: relative;
+              width: 80%;
+              height: 70%;
+              top: -90%;
+              left: 5%;
             }
           }
         }
