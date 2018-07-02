@@ -42,7 +42,7 @@
                     <!-- <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
                       @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
                     </vue-core-image-upload> -->
-                    <span class="mark tc" v-text="modelnum">20</span>
+                    <span class="mark tc" v-text="modelnum"></span>
                   </span>
                 </van-col>
                 <van-col span="8">
@@ -75,7 +75,10 @@
               <li v-for="(item,index) in modelLists" :key="index">
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
-                 <div><img :src="item.img" alt="1"/></div>
+                 <div>
+                   <img :src="item.img" alt="1"/>
+                   <img :src="item.imgurl " alt="" class="upload_img">
+                </div>
               </li>
             </ul>
             <div class="iconcontainer iconcontainershow">
@@ -223,22 +226,30 @@ export default {
       },
       fileList: [],  //不合格的图片的数据集
       imgindex:0,  // 上传的图片的index
-      allsuccess:false  //所有都上传成功，就可以点击保存按钮
+      allsuccess:false,  //所有都上传成功，就可以点击保存按钮
+      loadflag:false,  //判断是否点击了上传按钮
     };
   },
   methods: {
-    imageUploded(res) {
-    
-    },
-    //右侧的点击每一项
+    //右侧的点击每一项更换模板 - 查询上一本书的制作情况，确认更换后 调用选择模板的接口获取新的bookid
     selectPrewImgFn(index, obj) {
       var this_ = this;
-      this_.i = index;
-      this_.detailListsFn(obj.id);
-      this_.photoName = obj.title;
-      this_.userid = obj.id;
-      this_.changeModelId(obj.id);
-      this_.changeModelTypeName(obj.title);
+      //如果loadflag为false，说明就没有点击上传，那就可以直接更换模板
+      if(this_.loadflag){
+        this_.getBookStatusFn(this_.modelid,this_.token,index, obj); 
+      }else{
+        this_.i = index;
+        this_.detailListsFn(obj.id);
+        this_.photoName = obj.title;
+        this_.userid = obj.id;
+        this_.changeModelId(obj.id);
+        this_.changeModelTypeName(obj.title);
+        this_.modelLists.forEach(item=>{
+          item.imgurl ="";
+        });
+        //获取新的book_id
+        this_.getbookidFn(obj.id,this_.token,obj.title,this_.vnickname);
+     }
     },
     //获取模板类型
     modelTypeFn() {
@@ -262,17 +273,13 @@ export default {
     modelListFn(typeId) {
       var this_ = this;
       var obj = { service: "getTemplateList", type_id: typeId };
-      SERVERUTIL.base
-        .baseurl(obj)
-        .then(res => {
+      SERVERUTIL.base.baseurl(obj).then(res => {
           if (res.data.code == 0) {
             if (res.data.data) {
               this_.tabLists = res.data.data;
-              console.log(this_.tabLists);
             }
           }
-        })
-        .catch(error => {
+        }).catch(error => {
           console.log(error);
         });
     },
@@ -286,18 +293,31 @@ export default {
       var this_ = this;
       var obj = { service: "getTemplateDetailInfo", id: id };
       SERVERUTIL.base.baseurl(obj).then(res => {
-          if (res.data.code == 0) {
-            if (res.data.data) {
-              this_.modelLists = res.data.data;
-              this_.modelLists.forEach(item=>{
-                item.imgurl ="";
+        if (res.data.code == 0) {
+          if (res.data.data) {
+            this_.modelLists = res.data.data;
+            this_.modelLists.forEach(item=>{
+              item.imgurl ="";
+            });
+            if(this_.vloadimg.length){
+              var  num = 0;
+              this_.vloadimg.forEach(item =>{
+                if(item.length){
+                  num++;
+                }
               })
+              this_.modelLists.forEach((item,index)=>{
+                item.imgurl =this_.vloadimg[index];
+              });
+              this_.modelnum = this_.modelLists.length-num;
+            }else{
               this_.modelnum = this_.modelLists.length;
             }
           }
-        }).catch(error => {
-          console.log(error);
-        });
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //用户选择模板 -- 获取book_id
     getbookidFn(id, token, bookname, author) {
@@ -309,70 +329,25 @@ export default {
         book_name: bookname,
         author: author
       };
-      SERVERUTIL.base
-        .baseurl(obj)
-        .then(res => {
-          if (res.data.code == 0) {
-            if (res.data.data) {
-              this_.changebookid(res.data.data.book_id);
-            }
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if (res.data.code == 0) {
+          if (res.data.data) {
+            this_.changebookid(res.data.data.book_id);
           }
-        })
-        .catch(error => {
-          console.log(error);
-        });
-    },
-    //查看详情 跳转到详情页面传入模板的id
-    jumptodetail() {
-      var this_ = this;
-      this_.$router.push({
-        path: "detail",
-        name: "DETAIL",
-        params: {
-          name: this_.photoName,
-          id: this_.modelid
         }
+      }).catch(error => {
+        console.log(error);
       });
-    },
-    add_img(event) {
-      // let reader =new FileReader();
-      let img1 = document.querySelector("#fileImage").files[0];
-      console.log(img1)
-      let type = img1.type; //文件的类型，判断是否是图片
-      let size = img1.size; //文件的大小，判断图片的大小
-      if (this.imgData.accept.indexOf(type) == -1) {
-        alert("请选择我们支持的图片格式！");
-        return false;
-      }
-      if (size > 3145728) {
-        alert("请选择3M以内的图片！");
-        return false;
-      }
-      var uri = "";
-      let formData = new FormData();
-      formData.append("file", img1);
-      formData.append("type", "test");
-      $.ajax({
-        url:'http://192.144.141.33:8081/book/book/uploadImage',
-        type:'POST',
-        data:formData,
-        cache: false,
-        contentType: false,
-        processData: false,
-        success:function(data){
-          console.log(data)
-        }
-      })
-     
     },
     //上传图片
     unloadImg(file){
       var this_ = this;
+      this_.loadflag = true;
       let formData = new FormData();
       if (file.type.indexOf('image/jpeg') == -1) {
         this_.$toast({
           mask: true,
-          message: "请选择我们支持的图片格式！image/gif, image/jpeg",
+          message: "请选择我们支持的图片格式！image/jpeg",
           duration: 0,  
         });
         return false;
@@ -388,19 +363,24 @@ export default {
         success:function(res){
           this_.$toast.clear();
           var imgurl=res.data.url;
-          if (file.size > 3145728|| file.size<50000) {
+          if (file.size > 3145728) {
             this_.fileList.push(imgurl);
             return false;
           };
-          
           this_.modelLists[this_.imgindex].imgurl = imgurl;
           this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
           this_.$toast.loading({
             mask: true,
             message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
           });
-          this_.modelnum = this_.modelLists.length-this_.imgindex-1;
+          if(this_.vloadimg){
+            this_.modelnum = this_.modelLists.length-this_.vloadimg.length;
+          }else{
+            this_.modelnum = this_.modelLists.length-this_.imgindex-1;
+          }
+          
           this_.imgindex++;
+          //每上传一张图片，创建一次图书
           this_.makeModelFn(imgurl);
         },
         error:function(){
@@ -411,14 +391,24 @@ export default {
         }
       });
     },
-    //上传图片成功的执行函数
+     //上传图片成功的执行函数
     onRead(file) {
       var this_ = this;
+      var morenum=9;
+      var meassage="一次最多上传9张照片";
+      if(this_.vloadimg){
+        morenum = this_.modelLists.length-this_.vloadimg;
+        meassage = "还可以上传"+(this_.modelLists.length-this_.vloadimg)+'照片';
+        this_.$toast({
+          mask: true,
+          message: meassage
+        });
+      };
       if(file.length){
-        if(file.length>9){
+        if(file.length>morenum){
           this_.$toast({
             mask: true,
-            message: "一次最多上传9张照片"
+            message: meassage
           });
         }else{
           if(file.length>this_.modelLists.length){
@@ -436,7 +426,75 @@ export default {
         this_.unloadImg(file.file);
       };
     },
-
+     //制作模版
+    makeModelFn(url){
+      var this_ = this;
+      var obj = {
+        service: "createBook",
+        id: this_.vbookid,
+        stoken: this_.token,
+        url:url
+      };
+      SERVERUTIL.base .baseurl(obj) .then(res => {
+        if (res.data.code == 0) {
+          this_.$toast.clear();
+          if (res.data.data) {
+            this_.allsuccess = res.data.data;
+               
+          }
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    //查看图片的上传请况  
+    getBookStatusFn(id, token,index, objparams) {
+      var this_ = this;
+      var obj = { service: "getBookStatus", id: id, stoken: token };
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if (res.data.code == 0) {
+          if (res.data.data) {
+             var content = "当前图书未制作完成";
+            if(res.data.data.finish_num<res.data.data.total_num){
+              content = "当前模板中图片未全部上传，确定更换模板";
+            };
+              this_.$dialog.confirm({
+                title: '确认更换',
+                message: content
+              }).then(() => {
+                this_.modelLists.forEach(item=>{
+                  item.imgurl ="";
+                });
+                this_.i = index;
+                this_.detailListsFn(objparams.id);
+                this_.photoName = objparams.title;
+                this_.userid = objparams.id;
+                this_.changeModelId(objparams.id);
+                this_.changeModelTypeName(objparams.title);
+                //获取新的book_id
+                this_.getbookidFn(objparams.id,this_.token,objparams.title,this_.vnickname);
+              }).catch(() => {
+                  // on cancel
+              });
+            
+          }
+        }
+      }).catch(error => {
+        console.log(error);
+      });
+    },
+    //查看详情 跳转到详情页面传入模板的id
+    jumptodetail() {
+      var this_ = this;
+      this_.$router.push({
+        path: "detail",
+        name: "DETAIL",
+        params: {
+          name: this_.photoName,
+          id: this_.modelid
+        }
+      });
+    },
     //保存至书架
     savebookFn(){
 
@@ -450,45 +508,6 @@ export default {
       var this_ = this;
       this_.fileList=[];
       this_.nofitflag = false;
-    },
-    //制作模版
-    makeModelFn(url){
-      var this_ = this;
-      var obj = {
-        service: "createBook",
-        id: this_.vbookid,
-        stoken: this_.token,
-        url:url
-      };
-      SERVERUTIL.base .baseurl(obj) .then(res => {
-        if (res.data.code == 0) {
-          this_.$toast.clear();
-          this_.getBookStatusFn(this_.modelid, this_.token);
-          if (res.data.data) {
-            this_.allsuccess = res.data.data;
-               
-          }
-        }
-      }).catch(error => {
-        console.log(error);
-      });
-      
-     
-    },
-    //查看图片的上传请况
-    getBookStatusFn(id, token) {
-      var this_ = this;
-      var obj = { service: "getBookStatus", id: id, stoken: token };
-      SERVERUTIL.base.baseurl(obj).then(res => {
-        console.log(res)
-        if (res.data.code == 0) {
-          if (res.data.data) {
-            //this_.modelnum =Number(res.data.data.total_num) -Number(res.data.data.finish_num);
-          }
-        }
-      }).catch(error => {
-        console.log(error);
-      });
     },
     //预览功能
     previewFn() {
@@ -509,30 +528,37 @@ export default {
     //保存功能并跳到保存成功页面
     saveFn() {
       var this_ = this;
-      this_.$toast.loading({
-        mask: true,
-        message: "正在提交模板",
-      });
-      //判断是否有不合格的图片，如果有，显示
-      if(this_.fileList.length){
-        this_.nofitflag = true;
-        return;
-      }else{  
-      //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
-        if(this_.allsuccess){
-          this.$router.push({
-            path: "/savesuccess",
-            name: "SAVESUCCESS",
-            params: {
-              id: this_.$route.params.id,
-              flag: true
-            }
-          }); 
-        }else{
-          this_.noprefactflag = true;
-        }
+      if(this_.loadflag){
+        this_.$toast.loading({
+          mask: true,
+          message: "正在提交模板",
+        });
+        //判断是否有不合格的图片，如果有，显示
+        if(this_.fileList.length){
+          this_.nofitflag = true;
+          return;
+        }else{  
+        //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
+          if(this_.allsuccess){
+            this.$router.push({
+              path: "/savesuccess",
+              name: "SAVESUCCESS",
+              params: {
+                id: this_.$route.params.id,
+                flag: true
+              }
+            }); 
+          }else{
+          // this_.noprefactflag = true;
+          }
+        };
+      }else{
+         this_.$toast({
+          mask: false,
+          message: "请选择上传图片",
+        });
       }
-      this_.makeModelFn(this_.modelLists[0].imgurl);
+     
     },
     ...mapMutations([
       "changeToken",
@@ -540,7 +566,7 @@ export default {
       "changeModelTypeId",
       "changeModelTypeName",
       "changeModelId",
-      "changebookid"
+      "changebookid","changeimg"
     ])
   },
   mounted() {
@@ -549,12 +575,8 @@ export default {
     this_.photoName = this_.modeltypename;
     this_.userid = this_.$route.params.id;
     this_.detailListsFn(this_.modelid);
-    this_.getbookidFn(
-      this_.modelid,
-      this_.token,
-      this_.modeltypename,
-      this_.vnickname
-    );
+    this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
+    
     this_.modelTypeFn();
   },
   computed: {
@@ -564,7 +586,7 @@ export default {
       "modeltypeid",
       "modeltypename",
       "modelid",
-      "vbookid"
+      "vbookid","vloadimg"
     ])
   }
 };

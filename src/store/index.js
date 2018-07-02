@@ -19,6 +19,7 @@ const state = {
   vaddress:"",  //最后收货地址
   vbuynum:1, //购买数量
   vbookid:"", //获取book_id
+  vloadimg:[],//上传的图片
 
 
 }
@@ -71,6 +72,10 @@ const mutations = {
   //获取book_id 在立即支付的时候使用
   changebookid(state,value){
     state.vbookid=value;
+  },
+  //获取上传成功的图片
+  changeimg(state,value){
+    state.vloadimg=value;
   }
 }
 

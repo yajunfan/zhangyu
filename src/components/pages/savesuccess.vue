@@ -2,12 +2,12 @@
   <div class="save_container">
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="ifedit">
         <li v-for="item in modelLists">
-           <img :src="item.img" alt="muban">
+           <img :src="item.result_img" alt="muban">
         </li>
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
         <li v-for="item in modelLists" @dblclick="editBookFn">
-           <img :src="item.img" alt="muban">
+           <img :src="item.result_img" alt="muban">
         </li>
         
      </ul>
@@ -91,6 +91,26 @@ import { mapState, mapMutations } from "vuex";
        }
      },
      methods:{
+      //获取图书页面的详情
+      getBookDetailInfoFn(token,id){
+        var this_ = this;
+        var obj={"service":"getBookDetailInfo","id":id,"stoken": token,};
+        SERVERUTIL.base.baseurl(obj).then(res => {
+          if(res.data.code ==0){
+            if(res.data.data){
+              this_.modelLists = res.data.data;
+              var imgary = [];
+              console.log(this_.modelLists)
+              this_.modelLists.forEach(item =>{
+                imgary.push(item.source_img)
+              });
+              this_.changeimg(imgary);
+            }
+          }
+        }).catch(error => {
+          console.log(error);
+        });
+      },
       //选规格
       selectTypeFn(index,obj){
          var this_ = this;
@@ -102,21 +122,7 @@ import { mapState, mapMutations } from "vuex";
          this_.selectItem.title = this_.detailinfo.title;
          this_.selectItem.modelimg = this_.detailImg[index];
        },
-      //获取详情列表  -- getTemplateDetailInfo
-      detailListsFn(id){
-        var this_ = this;
-        var obj={"service":"getTemplateDetailInfo","id":id};
-        SERVERUTIL.base.baseurl(obj).then(res => {
-          if(res.data.code ==0){
-            if(res.data.data){
-              this_.modelLists = res.data.data;
-            }
-          }
-        })
-        .catch(error => {
-          console.log(error);
-        });
-      },
+     
       //获取制作图书的规格信息 -- getTemplateInfo
       modelDetailFn(id){
         var this_ = this;
@@ -159,7 +165,7 @@ import { mapState, mapMutations } from "vuex";
          var this_ = this;
        },
        ...mapMutations([
-        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId","changeObj"
+        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId","changeObj","changebookid","changeimg"
        ])
      },
      mounted(){
@@ -170,11 +176,12 @@ import { mapState, mapMutations } from "vuex";
          document.title = '预览';
       };
       this_.ifedit = this_.$route.params.flag;
-      this_.detailListsFn(this_.modelid);
+      this_.getBookDetailInfoFn(this_.token,this_.vbookid);
       this_.modelDetailFn(this_.modelid);
+      
     },
     computed:{
-      ...mapState(['token',"modeltypeid","modeltypename","modelid","bookinfo"])
+      ...mapState(['token',"modeltypeid","modeltypename","modelid","bookinfo","vbookid","vloadimg"])
     }       
   }
 </script>
@@ -186,10 +193,17 @@ import { mapState, mapMutations } from "vuex";
     padding: 0.94rem 0.78rem 0;
     box-sizing: border-box;
     li{
+      position: relative;
       margin-bottom:0.8rem;
       img{
         width: 5.94rem;
         height: 8.20rem;
+      }
+      .load_img{
+        width: 3.94rem;
+        height: 6.20rem;
+        position: absolute;
+        top:0;
       }
     } 
   }
