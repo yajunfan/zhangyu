@@ -153,8 +153,6 @@ import { mapState, mapMutations } from "vuex";
        //点击下一步跳到付款页面
        jumptopay(obj){
         var this_ = this;
-        console.log(obj)
-        
         this_.changeObj(obj);
         this.$router.push({  
           path: '/confirmpay',
@@ -180,7 +178,6 @@ import { mapState, mapMutations } from "vuex";
          document.title = '预览';
       };
       this_.ifedit = this_.$route.params.flag;
-      console.log(this_.vbookid)
       this_.getBookDetailInfoFn(this_.token,this_.vbookid);
       this_.modelDetailFn(this_.modelid);
       
