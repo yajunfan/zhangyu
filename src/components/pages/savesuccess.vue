@@ -100,7 +100,6 @@ import { mapState, mapMutations } from "vuex";
             if(res.data.data){
               this_.modelLists = res.data.data;
               var imgary = [];
-              console.log(this_.modelLists)
               this_.modelLists.forEach(item =>{
                 imgary.push(item.source_img);
                 item.liflag=false;

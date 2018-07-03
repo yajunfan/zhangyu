@@ -123,7 +123,7 @@
              </div>
              <ul class="prewimg">
                <li v-for="(item,index) in tabLists" :key="index">
-                 <div @click="selectPrewImgFn(index,item)" :class="index==i?'selDiv':''">
+                 <div @click="selectPrewImgFn(index,item)" :class="item.id==modelid?'selDiv':''">
                    <img :src="item.img" alt="1" />
                  </div>
                </li>
@@ -225,12 +225,14 @@ export default {
         accept: "image/gif, image/jpeg, image/png, image/jpg"
       },
       fileList: [],  //不合格的图片的数据集
-      imgindex:0,  // 上传的图片的index
+      imgindex:0,  // 上传的图片的数量 执行一次上传，增加1
       allsuccess:false,  //所有都上传成功，就可以点击保存按钮
       loadflag:false,  //判断是否点击了上传按钮
       canusenum:0, //从制作成功返回的可用的图片张数
-      makenum:0,  //制作成功的co数量
-      filenum:1, //每次上传的图片数量
+      makenum:0,  //制作成功的数量
+      totalnum:0, //获取当前模板可以上传的最大图片数
+      finishnum:0, //获取当前模板已经上传成功的图片数量
+      maxnum:0  //最大值
     };
   },
   methods: {
@@ -239,14 +241,13 @@ export default {
       var this_ = this;
       //如果loadflag为false，说明就没有点击上传，那就可以直接更换模板
       if(this_.loadflag){
-        this_.getBookStatusFn(this_.modelid,this_.token,index, obj); 
+        this_.getBookStatusFn(this_.vbookid,this_.token,index, obj); 
       }else{
-        this_.i = index;
+        this_.changeModelId(obj.id);
+        this_.changeModelTypeName(obj.title);
         this_.detailListsFn(obj.id);
         this_.photoName = obj.title;
         this_.userid = obj.id;
-        this_.changeModelId(obj.id);
-        this_.changeModelTypeName(obj.title);
         this_.modelLists.forEach(item=>{
           item.imgurl ="";
         });
@@ -272,7 +273,12 @@ export default {
           console.log(error);
         });
     },
-    //获取模板列表
+    //更改右侧模板类型下拉对应的模板列表变化
+    changeTypsFn() {
+      var this_ = this;
+      this_.modelListFn(this.liid);
+    },
+    //获取右侧不同模板类型下不同模板列表
     modelListFn(typeId) {
       var this_ = this;
       var obj = { service: "getTemplateList", type_id: typeId };
@@ -286,38 +292,39 @@ export default {
           console.log(error);
         });
     },
-    //更改右侧模板对应的模板列表变化
-    changeTypsFn() {
-      var this_ = this;
-      this_.modelListFn(this.liid);
-    },
-    //获取详情列表
+    //获取左侧的模板每一页详情列表 -- 获取模板详情列表
     detailListsFn(id) {
       var this_ = this;
       var obj = { service: "getTemplateDetailInfo", id: id };
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
-          if (res.data.data) {
+          if (res.data.data.length) {
             this_.modelLists = res.data.data;
+            // 给每个页面增加一个上传图片的url属性
             this_.modelLists.forEach(item=>{
               item.imgurl ="";
             });
+            //判断是否有从保存页面返回的图片数组
             if(this_.vloadimg.length){
               this_.canusenum = 0;
-              this_.vloadimg.forEach(item =>{
+              this_.vloadimg.forEach((item,index) =>{
                 if(item.length){
-                  this_.canusenum++;
+                  if(index < this_.modelLists.length){
+                    this_.modelLists[index].imgurl = item;
+                    this_.canusenum++;
+                  }
+                  
                 }
-              })
-              this_.modelLists.forEach((item,index)=>{
-                item.imgurl =this_.vloadimg[index];
               });
+              //给已经上传了的图片算总数，以便计算还可以上传几张
               this_.imgindex =this_.canusenum;
-              this_.modelnum = this_.modelLists.length-this_.canusenum;
+              //计算出可以
+              this_.modelnum = this_.totalnum-this_.finishnum;
             }else{
               this_.modelnum = this_.modelLists.length;
             };
-            console.log(this_.modelLists)
+          }else{
+            this_.modelLists = [];
           }
         }
       }).catch(error => {
@@ -359,7 +366,7 @@ export default {
       };
       formData.append("file", file);
       $.ajax({
-        url:'http://192.144.141.33:8081/book/book/uploadImage',
+        url:'http://192.144.141.33:8081/book/upload/uploadImage',
         type:'POST',
         data:formData,
         cache: false,
@@ -367,21 +374,28 @@ export default {
         processData: false,
         success:function(res){
           this_.$toast.clear();
-          var imgurl=res.data.url;
-          if (file.size > 3145728) {
-            this_.fileList.push(imgurl);
-            return false;
-          };
-          this_.modelLists[this_.imgindex].imgurl = imgurl;
-          this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
-          this_.$toast.loading({
-            mask: true,
-            message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
-          });
-          this_.modelnum--;
-          this_.imgindex++;
-          //每上传一张图片，创建一次图书
-           this_.makeModelFn(imgurl);
+          if(res.data.url){
+            var imgurl=res.data.url;
+            if (file.size > 3145728) {
+              this_.fileList.push(imgurl);
+              return false;
+            };
+            this_.modelLists[this_.imgindex].imgurl = imgurl;
+            this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
+            this_.$toast.loading({
+              mask: true,
+              message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
+            });
+            this_.modelnum--;
+            this_.imgindex++;
+            //每上传一张图片，创建一次图书
+            // this_.makeModelFn(imgurl);
+          }else{
+            this_.$toast({
+              mask: false,
+              message: res.message
+            });
+          }
         },
         error:function(){
           this_.$toast.loading({
@@ -396,7 +410,7 @@ export default {
       var this_ = this;
       var morenum=9;
       var meassage="一次最多上传9张照片";
-     
+      //如果是从保存页面返回的，有之前保存的图片的情况
       if(this_.vloadimg){
         morenum = this_.modelLists.length - this_.canusenum;
         meassage = "还可以上传"+morenum+'照片';
@@ -405,15 +419,15 @@ export default {
           message: meassage
         });
       };
-      if(file.length){
-        this_.filenum = file.length;
+      if(file.length){//不止上传一张
+        //判断上传的张数和最多可以上传的张数之间的差异
         if(file.length>morenum){
           this_.$toast({
             mask: true,
             message: meassage
           });
-        }else{
-          if(file.length>this_.modelLists.length){
+        }else{ //正常情况下，多张上传，并且上传的张数没有超出最多可上传的张数
+          if(file.length>morenum){
             this_.$toast({
               mask: true,
               message: '该模板最多上传'+this_.modelLists.length+'张照片,请重新选择'
@@ -424,19 +438,13 @@ export default {
             });
           }
         }
-      }else{
-         this_.filenum = 1;
+      }else{  //只上传一张
         this_.unloadImg(file.file);
       };
     },
      //制作模版
-    makeModelFn(url){
+    makeModelFn(url,index){
       var this_ = this;
-      this_.$toast({
-        mask: true,
-        message: '正在上传图片...',
-        duration:0
-      });
       var obj = {
         service: "createBook",
         id: this_.vbookid,
@@ -446,9 +454,13 @@ export default {
       SERVERUTIL.base .baseurl(obj) .then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
-            this_.$toast.clear();
             this_.allsuccess = res.data.data; 
-            this_.makenum ++;  
+            this_.makenum = index;  
+            this_.makenum++;
+            console.log(this_.makenum)
+            if(this_.maxnum<this_.makenum){
+              this_.maxnum = this_.makenum;
+            }
           }
         }
       }).catch(error => {
@@ -462,10 +474,13 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+             this_.totalnum = res.data.data.total_num;
+             this_.finishnum = res.data.data.finish_num;
              var content = "当前图书未制作完成";
             if(res.data.data.finish_num<res.data.data.total_num){
               content = "当前模板中图片未全部上传，确定更换模板";
             };
+            if(objparams){
               this_.$dialog.confirm({
                 title: '确认更换',
                 message: content
@@ -484,7 +499,7 @@ export default {
               }).catch(() => {
                   // on cancel
               });
-            
+            }
           }
         }
       }).catch(error => {
@@ -533,70 +548,84 @@ export default {
     saveFn() {
       var this_ = this;
       var flag=false,num=0;
+      // 对列表中有上传图片的进行计算总数
       this_.modelLists.forEach(item=>{
         if(item.imgurl.length){
           flag = true;
           num++;
         }
       });
-      if(this_.makenum == this_.filenum || this_.modelnum<1){
-        if(!flag){
-          this_.$toast({
+      //判断是都有图片上传
+      if(this_.imgindex < 0 || this_.imgindex === 0){
+        this_.$toast({
+          mask: false,
+          message: "请先选择上传图片",
+        });
+      }else{
+        // 判断是否是模板中的所有图片都已上传，这是等于的情况
+        if(num == this_.modelLists.length){
+          this_.$toast.loading({
             mask: false,
-            message: "请先选择上传图片",
+            message: "正在提交模板",
+            duration:0
           });
-        }else{
-          if(num == this_.modelLists.length){
-            this_.$toast.loading({
-              mask: true,
-              message: "正在提交模板",
-              duration:0
-            });
-            //判断是否有不合格的图片，如果有，显示
-            if(this_.fileList.length){
+          //判断是否有不合格的图片，如果有，显示
+          if(this_.fileList.length){
+              this_.$toast.clear();
               this_.nofitflag = true;
               return;
-            }else{  
-              //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
-              this_.$toast.loading({
-                mask: true,
-                message: "正在提交模板",
-                duration:0
-              });
+          }else{  
+            //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
+            //执行制作的调用
+            if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
               this_.modelLists.forEach((item,index)=>{
-               this_.makeModelFn(this_.vloadimg[index]);
-               
+                this_.makeModelFn(item.imgurl,index);
               });
-              //console.log(this_.makenum ,this_.filenum ,this_.vloadimg.length,this_.makenum == this_.filenum,this_.makenum == this_.vloadimg.length)
-              if(this_.makenum == this_.filenum || this_.makenum == this_.vloadimg.length){
-                this_.$toast.clear();
-                this_.$router.push({
-                  path: "/savesuccess",
-                  name: "SAVESUCCESS",
-                  params: {
-                    id: this_.$route.params.id,
-                    flag: true
-                  }
-                });  
-              }else{
-                // this_.noprefactflag = true;
-              }
             };
-          }else{
-            this_.$toast({
-              mask: true,
-              message: "需要将所有图片上传，方可保存",
-            });
-          }
-        
-        };
-      }else{
-        this_.$toast({
-          mask: true,
-          message: "还未制作完，请稍后",
-          duration:1000
-        });
+            //判断当所有的图片都已经制作成功了，就可以跳转到成功页面 -- 分为就在当前页面上传和从成功页面返回来两种情况
+            //判断制作的num和我上传的图片的总数是一样的时候，就可以跳转
+           
+            if(this_.maxnum == this_.imgindex){
+              this_.$router.push({
+                path: "/savesuccess",
+                name: "SAVESUCCESS",
+                params: {
+                  id: this_.$route.params.id,
+                  flag: true
+                }
+              });
+              this_.$toast.clear();
+            }else{
+              this_.$toast.clear();
+              this_.$toast({
+                mask: false,
+                message: "尚未制作完成，请稍后再次点击保存",
+                duration:1000
+              });
+            };
+          };
+        }else{
+          this_.$toast.clear();
+          this_.$toast({
+            mask: false,
+            message: "需要将所有图片上传，方可保存",
+            duration:1000
+          });
+        }
       }
+      // 判断制作成功的数量是否和上传的数量保持一致或者这个上传数量为0的时候，
+      // if(this_.imgindex < 0 || this_.modelnum<1){
+      //   //判断是否有图片上传，没有的情况
+      //   if(!flag){
+      //     this_.$toast({
+      //       mask: false,
+      //       message: "请先选择上传图片",
+      //     });
+      //   }else{ //判断是否有图片上传，有的情况
+        
+        
+      //   };
+      // }
      
     },
     ...mapMutations([
@@ -611,15 +640,15 @@ export default {
   mounted() {
     var this_ = this;
     document.title = "马上制作";
-    this_.changeimg([]);
+    //this_.changeimg([]);
     this_.photoName = this_.modeltypename;
     this_.userid = this_.$route.params.id;
     this_.detailListsFn(this_.modelid);
     //if(!this_.vloadimg.length){
       this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
     //}
-    
     this_.modelTypeFn();
+    console.log(this_.makenum )
     
   },
   computed: {
