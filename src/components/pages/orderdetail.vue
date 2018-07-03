@@ -144,7 +144,6 @@ import { mapState, mapMutations } from "vuex";
                     token: this_.token
                   }
                 }) ;
-                
               }
             },1000);
          };

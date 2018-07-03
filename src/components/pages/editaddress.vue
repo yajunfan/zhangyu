@@ -130,15 +130,10 @@ import UTILS from "../../lib/utils";
               name: 'NEWADDRESS',
               params: {   
                 data: obj
-              }, 
-              // query: {  
-              //   name:name,   
-              //   id: id
-              // }
+              }
             });
           }
-        })
-        .catch(error => {
+        }).catch(error => {
           console.log(error);
         });
       },

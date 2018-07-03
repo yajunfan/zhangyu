@@ -228,6 +228,7 @@ export default {
       imgindex:0,  // 上传的图片的index
       allsuccess:false,  //所有都上传成功，就可以点击保存按钮
       loadflag:false,  //判断是否点击了上传按钮
+      canusenum:0, //从制作成功返回的可用的图片张数
     };
   },
   methods: {
@@ -300,19 +301,21 @@ export default {
               item.imgurl ="";
             });
             if(this_.vloadimg.length){
-              var  num = 0;
+              this_.canusenum = 0;
               this_.vloadimg.forEach(item =>{
                 if(item.length){
-                  num++;
+                  this_.canusenum++;
                 }
               })
               this_.modelLists.forEach((item,index)=>{
                 item.imgurl =this_.vloadimg[index];
               });
-              this_.modelnum = this_.modelLists.length-num;
+              this_.imgindex =this_.canusenum;
+              this_.modelnum = this_.modelLists.length-this_.canusenum;
             }else{
               this_.modelnum = this_.modelLists.length;
-            }
+            };
+            console.log(this_.modelLists)
           }
         }
       }).catch(error => {
@@ -373,15 +376,10 @@ export default {
             mask: true,
             message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
           });
-          if(this_.vloadimg){
-            this_.modelnum = this_.modelLists.length-this_.vloadimg.length;
-          }else{
-            this_.modelnum = this_.modelLists.length-this_.imgindex-1;
-          }
-          
+          this_.modelnum--;
           this_.imgindex++;
           //每上传一张图片，创建一次图书
-          this_.makeModelFn(imgurl);
+           this_.makeModelFn(imgurl);
         },
         error:function(){
           this_.$toast.loading({
@@ -396,9 +394,10 @@ export default {
       var this_ = this;
       var morenum=9;
       var meassage="一次最多上传9张照片";
+      console.log(this_.vloadimg)
       if(this_.vloadimg){
-        morenum = this_.modelLists.length-this_.vloadimg;
-        meassage = "还可以上传"+(this_.modelLists.length-this_.vloadimg)+'照片';
+        morenum = this_.modelLists.length - this_.canusenum;
+        meassage = "还可以上传"+morenum+'照片';
         this_.$toast({
           mask: true,
           message: meassage
@@ -528,37 +527,58 @@ export default {
     //保存功能并跳到保存成功页面
     saveFn() {
       var this_ = this;
-      if(this_.loadflag){
-        this_.$toast.loading({
-          mask: true,
-          message: "正在提交模板",
-        });
-        //判断是否有不合格的图片，如果有，显示
-        if(this_.fileList.length){
-          this_.nofitflag = true;
-          return;
-        }else{  
-        //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
-          if(this_.allsuccess){
-            this.$router.push({
-              path: "/savesuccess",
-              name: "SAVESUCCESS",
-              params: {
-                id: this_.$route.params.id,
-                flag: true
-              }
-            }); 
-          }else{
-          // this_.noprefactflag = true;
-          }
-        };
-      }else{
-         this_.$toast({
+      var flag=false,num=0;
+      this_.modelLists.forEach(item=>{
+        if(item.imgurl.length){
+          flag = true;
+          num++;
+        }
+      });
+      if(!flag){
+        this_.$toast({
           mask: false,
-          message: "请选择上传图片",
+          message: "请先选择上传图片",
         });
-      }
-     
+      }else{
+        this_.allsuccess = true;
+        if(num == this_.modelLists.length){
+           this_.$toast.loading({
+            mask: true,
+            message: "正在提交模板",
+            duration:0
+          });
+          //判断是否有不合格的图片，如果有，显示
+          if(this_.fileList.length){
+            this_.nofitflag = true;
+            return;
+          }else{  
+            //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
+            // this_.modelLists.forEach((item,index) =>{
+            //   console.log(index)
+            //   this_.makeModelFn(item.imgurl);
+            // })
+            if(this_.allsuccess){
+               this_.$toast.clear();
+              this.$router.push({
+                path: "/savesuccess",
+                name: "SAVESUCCESS",
+                params: {
+                  id: this_.$route.params.id,
+                  flag: true
+                }
+              }); 
+            }else{
+              // this_.noprefactflag = true;
+            }
+          };
+        }else{
+          this_.$toast({
+            mask: true,
+            message: "需要将所有图片上传，方可保存",
+          });
+        }
+       
+      };
     },
     ...mapMutations([
       "changeToken",

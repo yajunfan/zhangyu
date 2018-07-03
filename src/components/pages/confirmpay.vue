@@ -112,6 +112,9 @@ import { mapState, mapMutations } from "vuex";
                     this_.defaultinfo = item;
                   }
                 })
+                if(this_.vaddress){
+                  this_.defaultinfo = this_.vaddress;
+                }
               }else{
                 this_.addressflag = false;
               }
@@ -183,31 +186,30 @@ import { mapState, mapMutations } from "vuex";
                 }
               }else{
                 //this_.$toast('支付失败，原因是：'+res.data.message);
-                const toast = this_.$toast.loading({
-                  duration: 0,       // 持续展示 toast
+                const toast = this_.$toast({
                   forbidClick: true, // 禁用背景点击
                   loadingType: 'spinner',
                   message: '支付失败：'+res.data.message
                 });
 
-                let second = 4;
-                const timer = setInterval(() => {
-                  second--;
-                  if (second) {
-                    toast.message = `倒计时 ${second} 秒`;
-                  } else {
-                    clearInterval(timer);
-                    this_.$toast.clear();
-                    this.$router.push({  
-                      path: '/orderdetail',
-                      name: 'ORDERDETAIL', 
-                      params: {   
-                        status: 1,
-                        data:obj
-                      }
-                    }) ;
-                  }
-                }, 1000);
+                // let second = 4;
+                // const timer = setInterval(() => {
+                //   second--;
+                //   if (second) {
+                //     toast.message = `倒计时 ${second} 秒`;
+                //   } else {
+                //     clearInterval(timer);
+                //     this_.$toast.clear();
+                //     this.$router.push({  
+                //       path: '/orderdetail',
+                //       name: 'ORDERDETAIL', 
+                //       params: {   
+                //         status: 1,
+                //         data:obj
+                //       }
+                //     }) ;
+                //   }
+                // }, 1000);
               }
             }).catch(error => {
               console.log(error);
@@ -292,7 +294,6 @@ import { mapState, mapMutations } from "vuex";
           this_.total = totalmoney;
         }
       };
-      
     },
     computed:{
         ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag","vgiftflag","vaddress","vbookid","vbuynum"])

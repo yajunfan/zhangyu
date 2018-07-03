@@ -6,7 +6,7 @@
         </li>
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
-        <li v-for="item in modelLists" @dblclick="editBookFn">
+        <li v-for="item in modelLists" @dblclick="editBookFn" v-if="item.liflag">
            <img :src="item.result_img" alt="muban">
         </li>
         
@@ -102,7 +102,11 @@ import { mapState, mapMutations } from "vuex";
               var imgary = [];
               console.log(this_.modelLists)
               this_.modelLists.forEach(item =>{
-                imgary.push(item.source_img)
+                imgary.push(item.source_img);
+                item.liflag=false;
+                if(item.result_img.length){
+                  item.liflag=true;
+                }
               });
               this_.changeimg(imgary);
             }
@@ -176,6 +180,7 @@ import { mapState, mapMutations } from "vuex";
          document.title = '预览';
       };
       this_.ifedit = this_.$route.params.flag;
+      console.log(this_.vbookid)
       this_.getBookDetailInfoFn(this_.token,this_.vbookid);
       this_.modelDetailFn(this_.modelid);
       

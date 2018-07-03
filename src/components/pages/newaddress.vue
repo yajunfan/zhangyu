@@ -9,7 +9,7 @@
      </div>
      <div  class="has_add" v-else>
        <ul class="address_manager">
-          <li v-for="(item,index) in addressLists" :key="index">
+          <li v-for="(item,index) in addressLists" :key="index" @click="selectaddressFn(item)">
              <div class="address_info">
                <van-row>
                   <van-col span="12" class="name_left"><span v-text="item.name"></span></van-col>
@@ -57,6 +57,25 @@ import { mapState, mapMutations } from "vuex";
       });
       this_.addressLists[index].is_default = true;
       this_.$set(this_.addressLists,index,this_.addressLists[index]);
+      console.log(item)
+      var obj={
+          "service":"setAddress",
+          "stoken":this_.token,
+          "link_name":item.name,
+          "link_tel":item.tel,
+          "district":item.province+"-"+item.city+"-"+ item.county,
+          "address":item.address_detail,
+          "district_id":item.area_code,
+          "default_status":1,
+          "id" :item.id
+      };
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        console.log(res)
+        if(res.data.code == 0){
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //获取收货地址列表
     getAddressListFn(token){
@@ -92,7 +111,24 @@ import { mapState, mapMutations } from "vuex";
     getAddressInfo(){
       
     },
-     //添加新地址-跳转到地址编辑页面
+    //选择完地址回到支付页面
+    selectaddressFn(obj){
+      var this_ = this;
+      console.log(obj)
+      if(!this_.vaddressenterflag){
+        this_.changeaddress(obj);
+        this_.$router.push({  
+          path: '/confirmpay',
+          name: 'CONFIRMPAY',  
+          params: {   
+            data: obj
+          }
+        }); 
+      }else{
+        return;
+      }
+    },
+    //添加新地址-跳转到地址编辑页面
     addAddressFn(flag,obj){
       var this_ = this;
       var useobj={};
@@ -143,17 +179,16 @@ import { mapState, mapMutations } from "vuex";
        });
      },
      ...mapMutations([
-        "changeToken","changeObj","changeGiftlist","changeEnter"
+        "changeToken","changeObj","changeGiftlist","changeEnter","changeaddress"
       ])
     },
     mounted() {
       var this_ = this;
       document.title = "地址管理";
-      //this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
       this_.getAddressListFn(this_.token);
     },
     computed:{
-      ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag"])
+      ...mapState(['token',"bookinfo","vgiftuserlist","vaddressenterflag","vaddress"])
     } ,    
   }
 </script>
