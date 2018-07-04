@@ -9,7 +9,7 @@
           <div class="opearte_container">
             <span class="delete_photo d-i-b" @click="operatebookFn(item,10)"></span>
             <span class="preview_photo d-i-b" @click="previewFn(item)"></span>
-            <span class="edit_photo d-i-b" @click="operatebookFn(item)"></span>
+            <span class="edit_photo d-i-b" @click="jumptosave(item)"></span>
           </div>
           <div class="use_photo tc" @click="jumptostartmakeFn(item.book_name,item.id)">制作相册</div>
         </van-col>
@@ -36,17 +36,15 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.booklists=res.data.data;
-              console.log(this_.booklists)
             }
           }
         }).catch(error => {
           console.log(error);
         });
       },
-      //修改和删除图书信息
+      //删除图书信息
       operatebookFn(item,status){
         var this_ = this;
-        var status = status || "";
         var paramsobj={};
         this_.changeModelId(item.template_id);
         paramsobj={
@@ -78,20 +76,33 @@ import { mapState, mapMutations } from "vuex";
         }) ;
       },
       //预览图书
-    previewFn(obj){
-      var this_ = this;
-      this_.changeModelId(obj.template_id);
-      this.$router.push({  
-        path: '/savesuccess',
-        name: 'SAVESUCCESS',  
-        params: {   
-          id:obj.id,
-          title:"预览"
-        }
-      }) 
-    },
+      previewFn(obj){
+        var this_ = this;
+        this_.changeModelId(obj.template_id);
+        this.$router.push({  
+          path: '/savesuccess',
+          name: 'SAVESUCCESS',  
+          params: {   
+            id:obj.id,
+            title:"预览"
+          }
+        }) 
+      },
+      //编辑图书 -- 跳转到保存页面，不过是可以编辑
+      jumptosave(obj){
+        var this_ = this;
+        this_.changebookid(obj.id);
+        this_.$router.push({  
+          path: '/savesuccess',
+          name: 'SAVESUCCESS',  
+          params: {   
+            id:obj.id,
+            flag:false
+          }, 
+        });
+      },
       ...mapMutations([
-        "changeToken","changeModelId","changeEnter","changeGift"
+        "changeToken","changeModelId","changeEnter","changeGift","changebookid"
       ])
 
     },
@@ -104,7 +115,7 @@ import { mapState, mapMutations } from "vuex";
 
     } ,
     computed:{
-      ...mapState(['token',"modelid","vaddressenterflag","vgiftflag"])
+      ...mapState(['token',"modelid","vaddressenterflag","vgiftflag","vbookid"])
     }   
   }
 </script>

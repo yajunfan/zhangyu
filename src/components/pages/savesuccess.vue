@@ -97,7 +97,6 @@ import { mapState, mapMutations } from "vuex";
         var obj={"service":"getBookDetailInfo","id":id,"stoken": token,};
         SERVERUTIL.base.baseurl(obj).then(res => {
           if(res.data.code ==0){
-            console.log(res)
             if(res.data.data){
               this_.modelLists = res.data.data;
               var imgary = [];

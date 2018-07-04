@@ -506,7 +506,6 @@ export default {
             this_.allsuccess = res.data.data; 
             this_.makenum = index;  
             this_.makenum++;
-            console.log(this_.makenum)
             if(this_.maxnum<this_.makenum){
               this_.maxnum = this_.makenum;
             }

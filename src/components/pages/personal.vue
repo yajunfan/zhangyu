@@ -43,7 +43,7 @@
             <div class="opearte_container">
               <span class="delete_photo d-i-b" @click="operatebookFn(10)"></span>
               <span class="preview_photo d-i-b" @click="previewFn()"></span>
-              <span class="edit_photo d-i-b" @click="jumptosave"></span>
+              <span class="edit_photo d-i-b" @click="jumptosave(bookOne)"></span>
             </div>
             <div class="use_photo tc" @click="jumptostartmakeFn">制作相册</div>
           </van-col>
@@ -100,7 +100,6 @@ export default {
       var this_ = this;
       var obj={"service":"getBookList","stoken":token};
       SERVERUTIL.base.baseurl(obj).then(res => {
-        console.log(res)
         if(res.data.code ==0){
           if(res.data.data){
             this_.booklists=res.data.data;
@@ -171,13 +170,14 @@ export default {
       }) 
     },
     //编辑图书 -- 跳转到保存页面，不过是可以编辑
-    jumptosave(){
+    jumptosave(obj){
       var this_ = this;
+      this_.changebookid(obj.id);
       this_.$router.push({  
         path: '/savesuccess',
         name: 'SAVESUCCESS',  
         params: {   
-          id:this_.$route.params.id,
+          id:obj.id,
           flag:false
         }, 
       });
@@ -270,7 +270,7 @@ export default {
      this.editflag =true;
     },
     ...mapMutations([
-      "changeToken","changeModelId","changeEnter","changeGift"
+      "changeToken","changeModelId","changeEnter","changeGift","changebookid"
     ])
   },
   mounted() {
@@ -281,7 +281,7 @@ export default {
     this_.getUserCardFn(this_.token);
   },
   computed:{
-    ...mapState(['token',"modelid","vaddressenterflag","vgiftflag"])
+    ...mapState(['token',"modelid","vaddressenterflag","vgiftflag","vbookid"])
   }
 };
 </script>
