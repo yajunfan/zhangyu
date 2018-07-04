@@ -19,4 +19,12 @@ export default {
 .van-dialog__message{
   text-align: center;
 }
+.van-switch__node{
+  width: 0.6rem;
+  height: 0.6rem;
+}
+.van-switch--on .van-switch__node {
+  -webkit-transform: translateX(.6em);
+  transform: translateX(1.6em);
+}
 </style>

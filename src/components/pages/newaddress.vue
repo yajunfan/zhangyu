@@ -24,7 +24,7 @@
                     <span :style="{'opacity':vaddressenterflag?'1':'0'}" v-text="item.is_default?'默认地址':'设为默认'"></span></van-col>
                     
                   <van-col span="12" class="tel_right tr" >
-                    <span class="ad_edit d-i-b" @click="addAddressFn(true,item)"><i class="d-i-b"></i>编辑</span>
+                    <span class="ad_edit d-i-b" @click="addAddressFn(false,item)"><i class="d-i-b"></i>编辑</span>
                     <span class="ad_delete d-i-b" @click="deleteaddressFn(item)"><i class="d-i-b"></i>删除</span>
                   </van-col>
                </van-row>  
@@ -114,7 +114,6 @@ import { mapState, mapMutations } from "vuex";
     //选择完地址回到支付页面
     selectaddressFn(obj){
       var this_ = this;
-      console.log(obj)
       if(!this_.vaddressenterflag){
         this_.changeaddress(obj);
         this_.$router.push({  
@@ -135,7 +134,7 @@ import { mapState, mapMutations } from "vuex";
       if(obj){
         useobj={   
           flag: flag,
-          id:obj.id
+          data:obj
         }
       }else{
         useobj={   

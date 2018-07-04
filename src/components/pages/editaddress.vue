@@ -2,6 +2,7 @@
   <div class="editaddress_container">
     <div class="edit_container">
       <van-address-edit :area-list="areaList"  :address-info = "addressIinfo"  :show-set-default="defaultflag"  @save="onSave"/>
+      
       <!-- <ul>
         <li>
           <van-cell-group class="h88">
@@ -54,6 +55,7 @@
 import SERVERUTIL from "../../lib/SeviceUtil";
 import AREALIST from "../../data/areaList"
 import UTILS from "../../lib/utils";
+import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
@@ -67,7 +69,6 @@ import UTILS from "../../lib/utils";
         telerrmessage:"",  //电话错误提示
         info:{},
         addressIinfo:{},
-        token:"",
         defaultflag:false
 
       }
@@ -137,19 +138,34 @@ import UTILS from "../../lib/utils";
           console.log(error);
         });
       },
+      ...mapMutations([
+        "changeToken"
+      ])
     },
     mounted() {
       var this_ = this;
       document.title = "编辑收货地址";
       this_.addressflag = this_.$route.params.flag;
       this_.areaList = AREALIST.areaList;
-      this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
-      if(this_.$route.params.id){
-        this_.userid = this_.$route.params.id;
+      
+      if(this_.$route.params.data){
+        this_.userid = this_.$route.params.data.id;
         this_.getAddressInfoFn(this_.userid,this_.token);
         this_.defaultflag=true;
       };
+      
+      if(this_.$route.params.data){
+        this_.addressIinfo = this_.$route.params.data;
+      }
+      if(!this_.addressflag){
+        
+      }
     }, 
+    computed: {
+    ...mapState([
+      "token"
+    ])
+  }
   }
 </script>
 
