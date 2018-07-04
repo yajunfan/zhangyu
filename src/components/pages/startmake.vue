@@ -242,6 +242,11 @@ export default {
     //右侧的点击每一项更换模板 - 查询上一本书的制作情况，确认更换后 调用选择模板的接口获取新的bookid
     selectPrewImgFn(index, obj) {
       var this_ = this;
+      this_.$toast.loading({
+        mask: false,
+        message: "正在更换模板，请稍等...",
+        duration:0
+      });
       //如果loadflag为false，说明就没有点击上传，那就可以直接更换模板
       if(this_.loadflag){
         this_.getBookStatusFn(this_.vbookid,this_.token,index, obj); 
@@ -279,6 +284,11 @@ export default {
     //更改右侧模板类型下拉对应的模板列表变化
     changeTypsFn() {
       var this_ = this;
+      this_.$toast.loading({
+        mask: false,
+        message: "正在更换模板类型，请稍等...",
+        duration:0
+      });
       this_.modelListFn(this.liid);
     },
     //获取右侧不同模板类型下不同模板列表
@@ -287,6 +297,7 @@ export default {
       var obj = { service: "getTemplateList", type_id: typeId };
       SERVERUTIL.base.baseurl(obj).then(res => {
           if (res.data.code == 0) {
+            this_.$toast.clear();
             if (res.data.data) {
               this_.tabLists = res.data.data;
             }
@@ -301,6 +312,7 @@ export default {
       var obj = { service: "getTemplateDetailInfo", id: id };
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
+          this_.$toast.clear();
           if (res.data.data.length) {
             this_.modelLists = res.data.data;
             // 给每个页面增加一个上传图片的url属性
@@ -375,6 +387,7 @@ export default {
       if (file.type.indexOf('image/jpeg') == -1) {
         this_.$toast({
           mask: true,
+          forbidClick:true,
           message: "请选择我们支持的图片格式！image/jpeg",
           duration: 0,  
         });
@@ -441,6 +454,7 @@ export default {
      
       this_.$toast({
         mask: true,
+        forbidClick:true,
         message: meassage
       });
       if(file.length){//不止上传一张
@@ -448,12 +462,14 @@ export default {
         if(file.length>morenum){
           this_.$toast({
             mask: true,
+            forbidClick:true,
             message: meassage
           });
         }else{ //正常情况下，多张上传，并且上传的张数没有超出最多可上传的张数
           if(file.length>morenum){
             this_.$toast({
               mask: true,
+              forbidClick:true,
               message: '该模板最多上传'+this_.modelLists.length+'张照片,请重新选择'
             });
           }else{
@@ -518,6 +534,11 @@ export default {
                 title: '确认更换',
                 message: content
               }).then(() => {
+                this_.$toast.loading({
+                  mask: false,
+                  message: "正在更换模板，请稍等...",
+                  duration:0
+                });
                 this_.modelLists.forEach(item=>{
                   item.imgurl ="";
                 });
