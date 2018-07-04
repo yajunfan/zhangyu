@@ -139,9 +139,9 @@ export default {
                 this_.vailableList.push(item);
                 item.iconflag = false;
               }else if(item.status == 2){
-                if(item.card_type_id ==1){
+                if(item.left_price == "0"){
                   item.flag=false;
-                }else if(item.card_type_id == 2){
+                }else{
                   item.flag=true;
                 };
                 this_.notAvailableList.push(item);
