@@ -16,6 +16,7 @@
                  <div>
                    <img :src="item.img" alt="1"/>
                    <img :src="item.imgurl " alt="" class="upload_img">
+                   <i class="warning_icon" v-if="item.warnflag" ></i>
                  </div>
                  
               </li>
@@ -137,14 +138,14 @@
       <div class="img_container">
          <h4 class="tc"><span class="tc" style="color:#ff5547;" v-text="nofitnum"></span><span>张照片像素过低或大小不合格<br>建议删除再重新上传</span></h4>
          <ul class="img_list">
-           <li v-for="item in fileList" :key="item">
-             <img :src="item" alt="不合格">
+           <li v-for="(item,index) in fileList" :key="index">
+             <img :src="item.url" alt="不合格">
             </li>
          </ul>
          <div class="img_operate w100">
            <van-row class="w100">
             <van-col span="12">
-              <van-button class="w100" type="default" bottom-action style="background:none;color:black;" @click="nofitflag=false">取消</van-button >
+              <van-button class="w100" type="default" bottom-action style="background:none;color:black;" @click="cancleImgFn">取消</van-button >
             </van-col>
             <van-col span="12">
               <van-button  class="w100" type="default"  bottom-action style="background:none;color:#ff5547;" @click="deleteImgFn">删除</van-button >
@@ -157,7 +158,7 @@
     <div class="imgnosucce_container" v-if="nosucceeflag">
       <div class="img_container tip_container">
          <h4 class="tc">提示</h4>
-         <p class="tc">本书尚未制作完成<br>还需上传<span v-text="9" style="color:#ff5547"></span>张照片</p>
+         <p class="tc">本书尚未制作完成<br>还需上传<span v-text="modelnum" style="color:#ff5547"></span>张照片</p>
          <div class="img_operate w100">
            <van-row class="w100">
             <van-col span="12">
@@ -165,7 +166,7 @@
             </van-col>
             <van-col span="12">
               <van-button  class=" w100 ft14" type="default"  bottom-action style="background:none;font-size:0.28rem;color:black;">继续上传</van-button >
-               <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+               <van-uploader :after-read="nextonRead" accept="image/gif, image/jpeg" multiple class="fileImage">
                   <van-icon name="photograph" />
               </van-uploader>
             </van-col>
@@ -232,7 +233,9 @@ export default {
       makenum:0,  //制作成功的数量
       totalnum:0, //获取当前模板可以上传的最大图片数
       finishnum:0, //获取当前模板已经上传成功的图片数量
-      maxnum:0  //最大值
+      maxnum:0, //最大值
+      failimgflag:false , //当图片大小不合格的时候，仍然坚持上传
+      savebookflag:false , //未制作完成，先保存到书架
     };
   },
   methods: {
@@ -312,14 +315,24 @@ export default {
                   if(index < this_.modelLists.length){
                     this_.modelLists[index].imgurl = item;
                     this_.canusenum++;
-                  }
+                  };
                   
                 }
+              });
+              //给不合格的加上标记
+              console.log(this_.fileList)
+              this_.modelLists.forEach((item,index)=>{
+                   // if(item.url)
               });
               //给已经上传了的图片算总数，以便计算还可以上传几张
               this_.imgindex =this_.canusenum;
               //计算出可以
               this_.modelnum = this_.totalnum-this_.finishnum;
+              if(this_.modelnum>0){
+                this_.savebookflag = false;
+              }else{
+                this_.savebookflag = true;
+              }
             }else{
               this_.modelnum = this_.modelLists.length;
             };
@@ -372,13 +385,14 @@ export default {
         cache: false,
         contentType: false,
         processData: false,
+        async: false,
         success:function(res){
           this_.$toast.clear();
           if(res.data.url){
             var imgurl=res.data.url;
-            if (file.size > 3145728) {
-              this_.fileList.push(imgurl);
-              return false;
+            if (file.size > 3145728 || file.size < 102400) {
+              this_.fileList.push({url:imgurl,index:this_.imgindex});
+              //return false;
             };
             this_.modelLists[this_.imgindex].imgurl = imgurl;
             this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
@@ -404,21 +418,28 @@ export default {
           });
         }
       });
+      
     },
      //上传图片成功的执行函数
-    onRead(file) {
+    onRead(file,nextflag) {
       var this_ = this;
       var morenum=9;
       var meassage="一次最多上传9张照片";
       //如果是从保存页面返回的，有之前保存的图片的情况
-      if(this_.vloadimg){
+      if(this_.vloadimg.length){
         morenum = this_.modelLists.length - this_.canusenum;
         meassage = "还可以上传"+morenum+'照片';
-        this_.$toast({
-          mask: true,
-          message: meassage
-        });
+      }else{
+        if(nextflag){
+          morenum = this_.modelnum;
+          meassage = "还可以上传"+morenum+'照片';
+        }
       };
+     
+      this_.$toast({
+        mask: true,
+        message: meassage
+      });
       if(file.length){//不止上传一张
         //判断上传的张数和最多可以上传的张数之间的差异
         if(file.length>morenum){
@@ -441,6 +462,15 @@ export default {
       }else{  //只上传一张
         this_.unloadImg(file.file);
       };
+     
+      
+    },
+     //当上传的图片数未满时，继续上传的操作   这里需要设置最多还能上传几张的提示
+    nextonRead(file){
+      var this_ = this;
+      this_.nosucceeflag = false; 
+      this_.onRead(file,true);
+      this_.nosucceeflag = false; 
     },
      //制作模版
     makeModelFn(url,index){
@@ -520,17 +550,37 @@ export default {
     },
     //保存至书架
     savebookFn(){
-
+     var this_ = this;
+     this_.savebookflag=true;
+     this_.saveFn();
     },
+   
     //去修改
     gochangeFn(){
 
     },
+    //大小不合格的取消操作
+    cancleImgFn(){
+      var this_ = this;
+      this_.nofitflag=false;
+      this_.fileList.forEach((item,index)=>{
+        this_.modelLists[item.index].warnflag =true;
+      });
+      this_.failimgflag = true;
+      this_.changefailimg(this_.fileList);
+      this_.saveFn();
+    },
     //删除图片
     deleteImgFn(){
       var this_ = this;
-      this_.fileList=[];
       this_.nofitflag = false;
+      this_.fileList.forEach((item,index)=>{
+        this_.modelLists[item.index].imgurl ="";
+        this_.modelnum++;
+        this_.imgindex--;
+      });
+      this_.fileList=[];
+      this_.changefailimg(this_.fileList);
     },
     //预览功能
     previewFn() {
@@ -543,6 +593,37 @@ export default {
           title: "预览"
         }
       });
+    },
+    //保存公共部分
+    savecommonFn(){
+      var this_ = this;
+      var timer;
+      //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
+      //执行制作的调用
+       // 判断是否是模板中的所有图片都已上传，这是等于的情况
+      this_.$toast.loading({
+        mask: false,
+        message: "正在提交模板",
+        duration:0
+      });
+      if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
+        this_.modelLists.forEach((item,index)=>{
+          this_.makeModelFn(item.imgurl,index);
+        });
+      };
+      //判断当所有的图片都已经制作成功了，就可以跳转到成功页面 -- 分为就在当前页面上传和从成功页面返回来两种情况
+      //判断制作的num和我上传的图片的总数是一样的时候，就可以跳转
+     timer = setTimeout(function(){
+        this_.$router.push({
+          path: "/savesuccess",
+          name: "SAVESUCCESS",
+          params: {
+            id: this_.$route.params.id,
+            flag: true
+          }
+        });
+        this_.$toast.clear();
+      },this_.imgindex*1000);
     },
     //保存功能并跳到保存成功页面
     saveFn() {
@@ -562,71 +643,40 @@ export default {
           message: "请先选择上传图片",
         });
       }else{
-        // 判断是否是模板中的所有图片都已上传，这是等于的情况
         if(num == this_.modelLists.length){
-          this_.$toast.loading({
-            mask: false,
-            message: "正在提交模板",
-            duration:0
-          });
           //判断是否有不合格的图片，如果有，显示
           if(this_.fileList.length){
-              this_.$toast.clear();
+            this_.nofitnum = this_.fileList.length;
+            if(!this_.failimgflag){
               this_.nofitflag = true;
               return;
-          }else{  
-            //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
-            //执行制作的调用
-            if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
-              this_.modelLists.forEach((item,index)=>{
-                this_.makeModelFn(item.imgurl,index);
-              });
-            };
-            //判断当所有的图片都已经制作成功了，就可以跳转到成功页面 -- 分为就在当前页面上传和从成功页面返回来两种情况
-            //判断制作的num和我上传的图片的总数是一样的时候，就可以跳转
-           
-            if(this_.maxnum == this_.imgindex){
-              this_.$router.push({
-                path: "/savesuccess",
-                name: "SAVESUCCESS",
-                params: {
-                  id: this_.$route.params.id,
-                  flag: true
-                }
-              });
-              this_.$toast.clear();
             }else{
-              this_.$toast.clear();
-              this_.$toast({
-                mask: false,
-                message: "尚未制作完成，请稍后再次点击保存",
-                duration:1000
-              });
-            };
+              this_.savecommonFn();
+            }
+          }else{  
+            this_.savecommonFn();
           };
         }else{
           this_.$toast.clear();
-          this_.$toast({
-            mask: false,
-            message: "需要将所有图片上传，方可保存",
-            duration:1000
-          });
+          if(this_.savebookflag){
+            this_.nosucceeflag=false;
+            //判断是否有不合格的图片，如果有，显示
+            if(this_.fileList.length){
+              this_.nofitnum = this_.fileList.length;
+              if(!this_.failimgflag){
+                this_.nofitflag = true;
+                return;
+              }else{
+                this_.savecommonFn();
+              }
+            }else{  
+              this_.savecommonFn();
+            };
+          }else{
+             this_.nosucceeflag=true;
+          }
         }
-      }
-      // 判断制作成功的数量是否和上传的数量保持一致或者这个上传数量为0的时候，
-      // if(this_.imgindex < 0 || this_.modelnum<1){
-      //   //判断是否有图片上传，没有的情况
-      //   if(!flag){
-      //     this_.$toast({
-      //       mask: false,
-      //       message: "请先选择上传图片",
-      //     });
-      //   }else{ //判断是否有图片上传，有的情况
-        
-        
-      //   };
-      // }
-     
+      };
     },
     ...mapMutations([
       "changeToken",
@@ -634,7 +684,7 @@ export default {
       "changeModelTypeId",
       "changeModelTypeName",
       "changeModelId",
-      "changebookid","changeimg"
+      "changebookid","changeimg","changefailimg"
     ])
   },
   mounted() {
@@ -648,8 +698,6 @@ export default {
       this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
     //}
     this_.modelTypeFn();
-    console.log(this_.makenum )
-    
   },
   computed: {
     ...mapState([
@@ -658,7 +706,7 @@ export default {
       "modeltypeid",
       "modeltypename",
       "modelid",
-      "vbookid","vloadimg"
+      "vbookid","vloadimg","vfailimgary"
     ])
   }
 };
@@ -787,6 +835,7 @@ body {
             border-radius: 0.2rem;
           }
           div {
+            position: relative;
             width: 3.86rem;
             height: 5.19rem;
             background: url(../../images/coverbg.png) no-repeat;
@@ -803,6 +852,16 @@ body {
               height: 70%;
               top: -90%;
               left: 5%;
+            }
+            .warning_icon{
+              display: inline-block;
+              position: absolute;
+              width: 0.64rem;
+              height: 0.64rem;
+              top:0;
+              right: 14px;
+              background: url(../../images/warning.png) no-repeat;
+              background-size: 100% 100%;
             }
           }
         }
