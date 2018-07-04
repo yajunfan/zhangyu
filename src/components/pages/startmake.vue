@@ -320,9 +320,12 @@ export default {
                 }
               });
               //给不合格的加上标记
-              console.log(this_.fileList)
               this_.modelLists.forEach((item,index)=>{
-                   // if(item.url)
+                this_.vfailimgary.forEach(itemfail=>{
+                  if(item.imgurl == itemfail.url){
+                    item.warnflag = true;
+                  }
+                })
               });
               //给已经上传了的图片算总数，以便计算还可以上传几张
               this_.imgindex =this_.canusenum;
