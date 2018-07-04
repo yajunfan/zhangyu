@@ -100,14 +100,17 @@ import { mapState, mapMutations } from "vuex";
             if(res.data.data){
               this_.modelLists = res.data.data;
               var imgary = [];
-              this_.modelLists.forEach(item =>{
-                imgary.push(item.source_img);
-                item.liflag=false;
-                if(item.result_img.length){
-                  item.liflag=true;
-                }
-              });
-              this_.changeimg(imgary);
+              if(this_.modelLists.length){
+                this_.modelLists.forEach(item =>{
+                  imgary.push(item.source_img);
+                  item.liflag=false;
+                  if(item.result_img.length){
+                    item.liflag=true;
+                  }
+                });
+                this_.changeimg(imgary);
+              }
+              
             }
           }
         }).catch(error => {
@@ -118,12 +121,12 @@ import { mapState, mapMutations } from "vuex";
       selectTypeFn(index,obj){
          var this_ = this;
          this_.i = index;
-         this_.modelprice = this_.paytypelist[index].price;
-         this_.modelimg = this_.detailImg[index];
-         this_.selectItem = obj;
-         this_.selectItem.size=this_.detailinfo.size;
-         this_.selectItem.title = this_.detailinfo.title;
-         this_.selectItem.modelimg = this_.detailImg[index];
+          this_.modelprice = this_.paytypelist[index].price;
+          this_.modelimg = this_.detailImg[index];
+          this_.selectItem = obj;
+          this_.selectItem.size=this_.detailinfo.size;
+          this_.selectItem.title = this_.detailinfo.title;
+          this_.selectItem.modelimg = this_.detailImg[index];
        },
      
       //获取制作图书的规格信息 -- getTemplateInfo
@@ -134,15 +137,20 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.detailinfo = res.data.data;
-              this_.paytypelist = JSON.parse(this_.detailinfo.price);
-              this_.detailImg = this_.detailinfo.img_detail.split(",");
-              this_.selectItem = this_.paytypelist[0];
-              this_.selectItem.size = this_.detailinfo.size;
-              this_.selectItem.title = this_.detailinfo.title;
-              this_.selectItem.modelimg = this_.detailImg[0];
-             
-              this_.modelprice = this_.paytypelist[0].price;
-              this_.modelimg = this_.detailImg[0];
+              if(this_.detailinfo.hasOwnProperty('size')){
+                this_.paytypelist = JSON.parse(this_.detailinfo.price);
+                this_.detailImg = this_.detailinfo.img_detail.split(",");
+                if(typeof(this_.paytypelist)== 'object'){
+                  this_.selectItem = this_.paytypelist[0];
+                  this_.selectItem.size = this_.detailinfo.size;
+                  this_.selectItem.title = this_.detailinfo.title;
+                  this_.selectItem.modelimg = this_.detailImg[0];
+                  this_.modelprice = this_.paytypelist[0].price;
+                }
+                
+                this_.modelimg = this_.detailImg[0];
+                
+              } 
             }
           }
         }).catch(error => {
