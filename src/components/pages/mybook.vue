@@ -2,13 +2,13 @@
  <div class="book_container">
     <van-row class="book_item"  v-for="(item,index) in booklists" :key="index">
         <van-col span="10" class="title_left">
-          <img src="../../images/yunnan1.jpg" alt="相册">
+          <img :src="item.img" alt="相册">
           <i class=" d-i-b " :class="item.status == 1?'book_ststus':(item.status == 2?'fail_status':'')"></i>
         </van-col>
         <van-col span="14" class="content-right">
           <div class="opearte_container">
             <span class="delete_photo d-i-b" @click="operatebookFn(item,10)"></span>
-            <span class="preview_photo d-i-b" @click="previewFn()"></span>
+            <span class="preview_photo d-i-b" @click="previewFn(item)"></span>
             <span class="edit_photo d-i-b" @click="operatebookFn(item)"></span>
           </div>
           <div class="use_photo tc" @click="jumptostartmakeFn(item.book_name,item.id)">制作相册</div>
@@ -77,6 +77,19 @@ import { mapState, mapMutations } from "vuex";
           } 
         }) ;
       },
+      //预览图书
+    previewFn(obj){
+      var this_ = this;
+      this_.changeModelId(obj.template_id);
+      this.$router.push({  
+        path: '/savesuccess',
+        name: 'SAVESUCCESS',  
+        params: {   
+          id:obj.id,
+          title:"预览"
+        }
+      }) 
+    },
       ...mapMutations([
         "changeToken","changeModelId","changeEnter","changeGift"
       ])
@@ -85,7 +98,7 @@ import { mapState, mapMutations } from "vuex";
     mounted() {
      var this_ = this;
      document.title = "我的书架";
-     this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
+    // this_.token = UTILS.SESSIONOPERATE.getStorage("stoken");
      this_.getBookListFn(this_.token);
      //this_.booklists=this_.$route.params.booklist;
 

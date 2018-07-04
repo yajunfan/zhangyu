@@ -37,7 +37,7 @@
       <div v-if="bookflag">
         <van-row class="edit_item" style="border:none;">
           <van-col span="10" class="title_left">
-            <img src="../../images/yunnan1.jpg" alt="相册">
+            <img :src="bookOne.img" alt="相册">
           </van-col>
           <van-col span="14" class="content-right">
             <div class="opearte_container">
@@ -66,6 +66,7 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import { mapState, mapMutations } from "vuex";
+import { ImagePreview } from 'vant';
 export default {
   data(){
     return{
@@ -74,7 +75,8 @@ export default {
       editflag:false, //不可编辑
       username:"", 
       userInfo:{}, //用户信息
-      booklists:[]
+      booklists:[] , //书架图书列表
+      bookOne:{}, //展示的第一个
     }
   },
   methods:{
@@ -98,10 +100,13 @@ export default {
       var this_ = this;
       var obj={"service":"getBookList","stoken":token};
       SERVERUTIL.base.baseurl(obj).then(res => {
+        console.log(res)
         if(res.data.code ==0){
           if(res.data.data){
             this_.booklists=res.data.data;
+            
             if(this_.booklists.length){
+              this_.bookOne=this_.booklists[0];
               if(this_.booklists.length>1){
                 this_.bookflag2 = true;
               }else{
@@ -160,7 +165,7 @@ export default {
         path: '/savesuccess',
         name: 'SAVESUCCESS',  
         params: {   
-          id:this_.booklists[0].template_id,
+          id:this_.bookOne.id,
           title:"预览"
         }
       }) 

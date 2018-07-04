@@ -10,8 +10,10 @@
        <li><span class="d-i-b mr10" v-text="defaultinfo.link_name"></span><span v-text="defaultinfo.link_tel"></span></li>
        <li class="ad"><span v-text="defaultinfo.district+defaultinfo.address"></span><img src="../../images/rightjt.png" alt="无"></li>
      </ul>
+    
      <div class="clear"></div>
    </div>
+    <div class="line" v-if="addressflag"></div>
    <div class="order_container">
      <div class="order_title">
        <span><i></i>订单信息</span>
@@ -326,7 +328,6 @@ import { mapState, mapMutations } from "vuex";
      height: 0.8rem;
      padding: 0.3rem 0.2rem;
      background: white;
-     border-bottom:1px solid red;
      li{
        color: #111;
        span{
@@ -347,7 +348,14 @@ import { mapState, mapMutations } from "vuex";
          margin-top: -8px;
        }
      }
+     
 
+   }
+   .line{
+      width: 100%;
+      height: 2px;
+      background: url(../../images/blueline.png);
+      background-size: 100% 100%;  
    }
    .order_container{
      .order_title{
