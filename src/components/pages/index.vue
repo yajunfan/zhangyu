@@ -2,10 +2,10 @@
     <div class="indexContainer">
       <div class="tabcontent">
           <ul class="tablist">
-            <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(index,items);" :class="active==index?'selecta':''" ></a></li>
+            <li v-for="(items,index) in tabarys"><a href="javascript:;" v-text="items.name" @click="tabchange(items.id,items);" :class="active==items.id?'selecta':''" ></a></li>
           </ul>
           <div class="tabListcontent">
-            <ul v-for="(items,index) in tabarys" v-if="index == active">
+            <ul v-for="(items,index) in tabarys" v-if="items.id == active">
               <li v-for="(item,index2) in tabLists" @click="jumptodetail(item.title,item.id)">
                  <img :src="item.img" :alt="item.title">
                  <h4 v-text="item.title"></h4>
@@ -82,7 +82,11 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.tabarys = res.data.data;
-              this_.modelListFn(this_.tabarys[0].id);
+              if(this_.modeltypeid){
+                this_.modelListFn(this_.modeltypeid);
+              }else{
+                this_.modelListFn(this_.tabarys[0].id);
+              };
               this_.photoname = this_.tabarys[0].name;
             }
           }
@@ -100,11 +104,11 @@ import { mapState, mapMutations } from "vuex";
               this_.tabLists = res.data.data;
               if(paramsobj){
                 this_.changeModelTypeId(paramsobj.obj.id);
-                this_.changeModelId(this_.tabLists[0].id);
               }else{
                 this_.changeModelTypeId(this_.tabLists[0].type_id);
-                this_.changeModelId(this_.tabLists[0].id);
               }
+              this_.changeModelId(this_.tabLists[0].id);
+              this_.changeModelTypeName(this_.tabLists[0].title);
             }
           }
         })
@@ -112,6 +116,7 @@ import { mapState, mapMutations } from "vuex";
           console.log(error);
         });
       },
+      //切换类型栏
       tabchange(index,obj){
         var this_ = this;
         this_.active = index;
@@ -121,9 +126,7 @@ import { mapState, mapMutations } from "vuex";
           pindex:index
         }
         this_.modelListFn(obj.id,paramsobj);
-        
-        
-        this_.photoname = obj.name;
+       
       },
       //跳转到详情页面
       jumptodetail(name,id){
@@ -142,7 +145,7 @@ import { mapState, mapMutations } from "vuex";
       //跳转到开始制作页面
       jumptomake(){
         var this_ = this;
-        this_.changeModelTypeName(this_.photoname);
+        //this_.changeModelTypeName(this_.photoname);
         this_.$router.push({  
           path: 'startmake',   
           name: 'STARTMAKE',  
@@ -172,6 +175,9 @@ import { mapState, mapMutations } from "vuex";
       document.title = '首页';
       this_.modelTypeFn();
       this_.userLoginFn();
+      if(this_.modeltypeid){
+        this_.active = this_.modeltypeid;
+      }
     },
     computed:{
       ...mapState(['token',"vnickname","modeltypeid","modeltypename","modelid"])

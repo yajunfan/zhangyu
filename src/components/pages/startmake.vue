@@ -271,7 +271,7 @@ export default {
         if (res.data.code == 0) {
           if (res.data.data) {
             this_.tabarys = res.data.data;
-            this_.modelListFn(this_.modelid);
+            this_.modelListFn(this_.modeltypeid);
           }
         }
       }).catch(error => {
@@ -286,7 +286,9 @@ export default {
         message: "正在更换模板类型，请稍等...",
         duration:0
       });
-      this_.modelListFn(this.liid);
+      this_.changeModelTypeId(this_.liid);
+      this_.modelListFn(this_.liid);
+      
     },
     //获取右侧不同模板类型下不同模板列表
     modelListFn(typeId) {
@@ -730,9 +732,7 @@ export default {
   mounted() {
     var this_ = this;
     document.title = "马上制作";
-    //this_.changeimg([]);
     this_.photoName = this_.modeltypename;
-    //this_.userid = this_.$route.params.id;
     this_.modelTypeFn();
     this_.detailListsFn(this_.modelid);
     this_.liid = this_.modeltypeid; 

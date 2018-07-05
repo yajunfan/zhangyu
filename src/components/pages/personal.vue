@@ -45,7 +45,7 @@
               <span class="preview_photo d-i-b" @click="previewFn()"></span>
               <span class="edit_photo d-i-b" @click="jumptosave(bookOne)"></span>
             </div>
-            <div class="use_photo tc" @click="jumptostartmakeFn">制作相册</div>
+            <div class="use_photo tc" @click="jumptostartmakeFn(bookOne)">制作相册</div>
           </van-col>
         </van-row>
       </div>
@@ -54,7 +54,7 @@
           <img src="../../images/nobook.png" alt=".">
         </div>
         <p class="tc">亲~您的书架空空如也<br>快来开始著相册吧</p>
-        <div class="use_photo tc" @click="jumptostartmakeFn">马上制作</div>
+        <div class="use_photo tc" @click="jumptostartmakeFn(bookOne)">马上制作</div>
       </div>
     </div>
     <div class="footer">
@@ -135,7 +135,7 @@ export default {
         console.log(error);
       });
     },
-    //修改和删除图书信息
+    //删除图书信息
     operatebookFn(status){
       var this_ = this;
       var status = status || "";
@@ -233,9 +233,13 @@ export default {
 
       });
     },
-    //跳转到马上制作页面
-    jumptostartmakeFn(){
+    //制作相册 --- 跳转到马上制作页面
+    jumptostartmakeFn(paramobj){
       var this_ = this;
+      this_.changeModelTypeId(paramobj.type_id);
+      this_.changeModelId(paramobj.template_id);
+      this_.changeModelTypeName(paramobj.book_name);
+      this_.changebookid(paramobj.id);
       this.$router.push({  
         path: 'startmake',   
         name: 'STARTMAKE',  
@@ -270,7 +274,7 @@ export default {
      this.editflag =true;
     },
     ...mapMutations([
-      "changeToken","changeModelId","changeEnter","changeGift","changebookid"
+      "changeToken","changeModelId","changeModelTypeId","changeModelTypeName","changeEnter","changeGift","changebookid",
     ])
   },
   mounted() {
@@ -281,7 +285,7 @@ export default {
     this_.getUserCardFn(this_.token);
   },
   computed:{
-    ...mapState(['token',"modelid","vaddressenterflag","vgiftflag","vbookid"])
+    ...mapState(['token',"modelid","modeltypeid","modeltypename","vaddressenterflag","vgiftflag","vbookid" ])
   }
 };
 </script>
