@@ -36,7 +36,6 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.booklists=res.data.data;
-              console.log(this_.booklists)
             }
           }
         }).catch(error => {

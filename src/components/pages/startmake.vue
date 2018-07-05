@@ -735,6 +735,7 @@ export default {
     //this_.userid = this_.$route.params.id;
     this_.modelTypeFn();
     this_.detailListsFn(this_.modelid);
+    this_.liid = this_.modeltypeid; 
     this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
     
   },

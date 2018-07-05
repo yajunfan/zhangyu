@@ -3,7 +3,7 @@
     <div class="back_orange">
       <div class="head_image">
         <!-- userInfo.header_img -->
-        <img src="../../images/title1.jpg" alt="userInfo.nick_name">
+        <img :src="userInfo.header_img" alt="userInfo.nick_name">
       </div>
       <div class="person_name">
         <span v-text="username" v-if="!editflag"></span>

@@ -91,15 +91,20 @@ import { mapState, mapMutations } from "vuex";
         });
       },
       //获取模板列表
-      modelListFn(typeId){
+      modelListFn(typeId,paramsobj){
         var this_ = this;
         var obj={"service":"getTemplateList","type_id":typeId};
         SERVERUTIL.base.baseurl(obj).then(res => {
           if(res.data.code ==0){
             if(res.data.data){
               this_.tabLists = res.data.data;
-              this_.changeModelTypeId(this_.tabLists[0].type_id);
-              this_.changeModelId(this_.tabLists[0].id);
+              if(paramsobj){
+                this_.changeModelTypeId(paramsobj.obj.id);
+                this_.changeModelId(this_.tabLists[0].id);
+              }else{
+                this_.changeModelTypeId(this_.tabLists[0].type_id);
+                this_.changeModelId(this_.tabLists[0].id);
+              }
             }
           }
         })
@@ -110,9 +115,14 @@ import { mapState, mapMutations } from "vuex";
       tabchange(index,obj){
         var this_ = this;
         this_.active = index;
-        this_.changeModelTypeId(obj.id);
-        this_.changeModelId(this_.tabLists[index].id);
-        this_.modelListFn(obj.id);
+        var paramsobj={
+          flag:true,
+          obj:obj,
+          pindex:index
+        }
+        this_.modelListFn(obj.id,paramsobj);
+        
+        
         this_.photoname = obj.name;
       },
       //跳转到详情页面

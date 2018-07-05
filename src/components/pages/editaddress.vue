@@ -1,52 +1,7 @@
 <template>
   <div class="editaddress_container">
     <div class="edit_container">
-      <van-address-edit :area-list="areaList"  :address-info = "addressIinfo"  :show-set-default="defaultflag"  @save="onSave"/>
-      
-      <!-- <ul>
-        <li>
-          <van-cell-group class="h88">
-           <van-field v-model="info.name" label="收货人" placeholder="请输入收货人姓名" :error-message="nameerrmessage" />
-          </van-cell-group>
-         
-        </li>
-         <li style="margin-top: -2px;">
-            <van-cell-group class="h88" >
-             <van-field v-model="info.tel" label="联系电话" placeholder="请输入收货人手机号" :error-message="telerrmessage" />
-            </van-cell-group>
-         
-        </li>
-         <li>
-          <van-row class="edit_item">
-            <van-col span="6" class="title_left">
-              <span class="h88">所在地区</span>
-            </van-col>
-            <van-col span="18" class="content-right" >
-              
-               <input  type="text" placeholder="请输入收货人地区">
-            </van-col>
-          </van-row>
-        </li>
-         <li>
-          <van-row class="edit_item" style="border:none;">
-            <van-col span="6" class="title_left">
-              <span class="h88">详细地址</span>
-            </van-col>
-            <van-col span="18" class="content-right" >
-               <textarea v-model="address" name="" id="" cols="30" rows="5" placeholder="请输入详细地址信息，如道路、门牌号等"></textarea>
-            </van-col>
-          </van-row>
-        </li>
-       <li>
-          <van-cell-group >
-            <van-switch-cell v-model="checked" title="设置默认地址" />
-          </van-cell-group>
-        </li>
-      </ul> -->
-      <!-- <div class="save_container">
-        <div class="save_btn tc" @click="onSave()">保存 </div>  
-      </div> -->
-      
+      <van-address-edit :area-list="areaList"  :address-info = "addressIinfo"  :show-set-default="defaultflag"  @save="onSave"/> 
     </div>
   </div>
 </template>
