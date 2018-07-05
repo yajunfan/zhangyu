@@ -11,7 +11,7 @@
             <span class="preview_photo d-i-b" @click="previewFn(item)"></span>
             <span class="edit_photo d-i-b" @click="jumptosave(item)"></span>
           </div>
-          <div class="use_photo tc" @click="jumptostartmakeFn(item.book_name,item.id)">制作相册</div>
+          <div class="use_photo tc" @click="jumptostartmakeFn(item.book_name,item.template_id)">制作相册</div>
         </van-col>
       </van-row>
  </div>
@@ -36,6 +36,7 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.booklists=res.data.data;
+              console.log(this_.booklists)
             }
           }
         }).catch(error => {
@@ -66,6 +67,8 @@ import { mapState, mapMutations } from "vuex";
       //跳转到马上制作页面
       jumptostartmakeFn(name,id){
         var this_ = this;
+        this_.changeModelTypeName(name);
+        this_.changeModelId(id);
         this.$router.push({  
           path: 'startmake',   
           name: 'STARTMAKE',  
@@ -102,7 +105,7 @@ import { mapState, mapMutations } from "vuex";
         });
       },
       ...mapMutations([
-        "changeToken","changeModelId","changeEnter","changeGift","changebookid"
+        "changeToken","changeModelId","changeModelTypeName","changeEnter","changeGift","changebookid"
       ])
 
     },
@@ -115,7 +118,7 @@ import { mapState, mapMutations } from "vuex";
 
     } ,
     computed:{
-      ...mapState(['token',"modelid","vaddressenterflag","vgiftflag","vbookid"])
+      ...mapState(['token',"modelid", "modeltypename","vaddressenterflag","vgiftflag","vbookid"])
     }   
   }
 </script>

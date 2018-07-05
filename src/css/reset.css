@@ -134,9 +134,7 @@ a:hover{
 .clear{
   clear:both;
 }
-.green{background-color: #5dd266;}
-.black{background-color: #000;}
-.green,.black,.orange,.Crimson{width: 25px;height: 10px;}
+
 .tc{
   text-align:center;
 }
@@ -162,21 +160,7 @@ em
 }
 
 /* change colours to suit your needs */
-ins {
-  background-color:#ff9;
-  color:#000;
-  text-decoration:none;
-}
-.uparrow{
-  display: inline-block;
-  width:20px;
-  height: 20px;
-  background: url("../../static/images/arrowUp.png") no-repeat;
-}
-.addDatas{
-  font-family: "Tahoma";
-  color:#fc6310;
-}
+
 /* change colours to suit your needs */
 mark {
   background-color:#ff9;

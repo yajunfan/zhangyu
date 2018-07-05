@@ -31,7 +31,7 @@
                 <van-col span="8">
                   <span class="onload_icon d-i-b">
                     <!-- <form ref="form"></form> -->
-                    <van-uploader :after-read="onRead"  accept="image/gif, image/jpeg" multiple class="fileImage">
+                    <van-uploader :after-read="onRead"  accept="image/gif, image/jpeg" multiple class="fileImage" v-if="modelnum>0">
                       <van-icon name="photograph" />
                     </van-uploader> 
                     
@@ -39,7 +39,7 @@
                      <!-- <input id="fileImage" name="file" ref="img_input" class="fileImage" type="file" @change='add_img'  accept="image/*" capture="camera" size="30"> -->
                  
                     
-                    <img src="../../images/onload.png" alt="上传">
+                    <img src="../../images/onload.png" alt="上传" @click="completeFn()">
                     <!-- <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
                       @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
                     </vue-core-image-upload> -->
@@ -92,12 +92,12 @@
                 <van-col span="8">
                   <span class="onload_icon d-i-b" @click="markflag=true;">
                     <!-- <form ref="form">  </form> -->
-                      <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage">
+                      <van-uploader :after-read="onRead" accept="image/gif, image/jpeg" multiple class="fileImage" v-if="modelnum>0">
                         <van-icon name="photograph" />
                       </van-uploader>
                   
                     
-                    <img src="../../images/onload.png" alt="上传">
+                    <img src="../../images/onload.png" alt="上传" @click="completeFn()">
                     <!-- <input id="fileImage" name="file" ref="img_input" class="fileImage" type="file" @change='add_img'  accept="image/*" capture="camera" size="30"> -->
                     <!-- <vue-core-image-upload class="btn btn-primary" style="width:100%;height:100%;position:absolute;top:0" :crop="false"
                       @imageuploaded="imageUploded" :max-file-size="5242880" :multiple="true" :multiple-size="4" :text="''" url="http://192.144.141.33:8081/book/book/uploadImage" >
@@ -267,19 +267,16 @@ export default {
     modelTypeFn() {
       var this_ = this;
       var obj = { service: "getTemplateType" };
-      SERVERUTIL.base
-        .baseurl(obj)
-        .then(res => {
-          if (res.data.code == 0) {
-            if (res.data.data) {
-              this_.tabarys = res.data.data;
-              this_.modelListFn(this_.modeltypeid);
-            }
+      SERVERUTIL.base.baseurl(obj).then(res => {
+        if (res.data.code == 0) {
+          if (res.data.data) {
+            this_.tabarys = res.data.data;
+            this_.modelListFn(this_.modelid);
           }
-        })
-        .catch(error => {
-          console.log(error);
-        });
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //更改右侧模板类型下拉对应的模板列表变化
     changeTypsFn() {
@@ -479,7 +476,17 @@ export default {
           }
         }
       }else{  //只上传一张
-        this_.unloadImg(file.file);
+        if(this_.modelnum>0){
+          this_.unloadImg(file.file);
+        }else{
+          this_.$toast({
+            mask: true,
+            forbidClick:true,
+            message: "已全部上传完毕，不可再传",
+            duration:1000
+          }); 
+        }
+        
       };
      
       
@@ -490,6 +497,16 @@ export default {
       this_.nosucceeflag = false; 
       this_.onRead(file,true);
       this_.nosucceeflag = false; 
+    },
+     //当上传的图片数已满时，继续上传的操作 提示不可再传
+    completeFn(){
+      var this_ = this;
+      this_.$toast({
+        mask: false,
+        forbidClick:true,
+        message: "已全部上传完毕,可点击保存相册",
+        duration:1000
+      });
     },
      //制作模版
     makeModelFn(url,index){
@@ -715,12 +732,11 @@ export default {
     document.title = "马上制作";
     //this_.changeimg([]);
     this_.photoName = this_.modeltypename;
-    this_.userid = this_.$route.params.id;
-    this_.detailListsFn(this_.modelid);
-    //if(!this_.vloadimg.length){
-      this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
-    //}
+    //this_.userid = this_.$route.params.id;
     this_.modelTypeFn();
+    this_.detailListsFn(this_.modelid);
+    this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
+    
   },
   computed: {
     ...mapState([
