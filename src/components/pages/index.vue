@@ -31,7 +31,7 @@ import { mapState, mapMutations } from "vuex";
   export default {
     data(){
       return{
-        active:0,
+        active:1,
         num:0, //记录点击的次数
         photoname:"", //模板类型名称
         tabarys:[], //模板类型列表
@@ -66,7 +66,6 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.username = res.data.data.nick_name;
-              console.log(this_.username)
               this_.changeNickname(this_.username);
             }
           }
@@ -82,6 +81,7 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.tabarys = res.data.data;
+              this_.active = this_.tabarys[0].id; 
               if(this_.modeltypeid){
                 this_.modelListFn(this_.modeltypeid);
               }else{

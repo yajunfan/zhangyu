@@ -231,6 +231,8 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+           console.log(res)
+            this_.$toast.clear();
             if (res.data.data.length) {
               this_.modelLists = res.data.data;
               // 给每个页面增加一个上传图片的url属性
@@ -240,7 +242,40 @@ export default {
                 }else{
                   item.imgtrueurl = item.template_img;
                 }
+                item.imgurl ="";
               });
+              //判断是否有从保存页面返回的图片数组
+              if(this_.vloadimg.length){
+                this_.canusenum = 0;
+                this_.vloadimg.forEach((item,index) =>{
+                  if(item.length){
+                    if(index < this_.modelLists.length){
+                      this_.modelLists[index].imgurl = item;
+                      this_.canusenum++;
+                    };
+                    
+                  }
+                });
+                //给不合格的加上标记
+                this_.modelLists.forEach((item,index)=>{
+                  this_.vfailimgary.forEach(itemfail=>{
+                    if(item.imgurl == itemfail.url){
+                      item.warnflag = true;
+                    }
+                  })
+                });
+                //给已经上传了的图片算总数，以便计算还可以上传几张
+                this_.imgindex =this_.canusenum;
+                //计算出可以
+                this_.modelnum = this_.totalnum-this_.finishnum;
+                if(this_.modelnum>0){
+                  this_.savebookflag = false;
+                }else{
+                  this_.savebookflag = true;
+                }
+              }else{
+               // this_.modelnum = this_.modelLists.length;
+              };
             }else{
               this_.modelLists = [];
             }
@@ -301,6 +336,7 @@ export default {
             if (res.data.data) {
               this_.bookinfos = res.data.data;
               this_.modelnum = this_.bookinfos.img_num;
+              console.log(this_.modelnum)
             }
           }
         }).catch(error => {
@@ -377,7 +413,7 @@ export default {
                 this_.savebookflag = true;
               }
             }else{
-              //this_.modelnum = this_.modelLists.length;
+              this_.modelnum = this_.modelLists.length;
             };
           }else{
             this_.modelLists = [];
@@ -701,9 +737,14 @@ export default {
     //保存功能并跳到保存成功页面
     saveFn() {
       var this_ = this;
-      var num=0;
-      //对列表中有上传图片的进行计算总数
-      num = this_.modelLists.length - this_.modelnum;
+      var flag=false,num=0;
+      // 对列表中有上传图片的进行计算总数
+      this_.modelLists.forEach(item=>{
+        if(item.imgurl.length){
+          flag = true;
+          num++;
+        }
+      });
       //判断是都有图片上传
       if(this_.imgindex < 0 || this_.imgindex === 0){
         this_.$toast({

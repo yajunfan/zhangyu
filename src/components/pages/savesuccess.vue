@@ -99,6 +99,7 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.modelLists = res.data.data;
+              console.log(this_.modelLists)
               var imgary = [];
               if(this_.modelLists.length){
                 this_.modelLists.forEach(item =>{
