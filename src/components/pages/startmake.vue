@@ -398,7 +398,6 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
-            console.log("boook",res.data.data)
             this_.changebookid(res.data.data.book_id);
             this_.getBookDetailInfoFn(res.data.data.book_id,this_.token)
           }
