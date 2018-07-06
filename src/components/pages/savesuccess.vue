@@ -7,7 +7,7 @@
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
         <li v-for="item in modelLists" @dblclick="editBookFn" v-if="item.liflag">
-           <img :src="item.result_img" alt="muban">
+           <img :src="item.imgtrueurl" alt="muban">
         </li>
         
      </ul>
@@ -103,11 +103,15 @@ import { mapState, mapMutations } from "vuex";
               var imgary = [];
               if(this_.modelLists.length){
                 this_.modelLists.forEach(item =>{
-                  imgary.push(item.source_img);
                   item.liflag=false;
                   if(item.result_img.length){
+                    item.imgtrueurl= item.result_img;
                     item.liflag=true;
-                  }
+                    imgary.push({"imgtrueurl":item.imgtrueurl,"flag":true});
+                  }else{
+                    item.imgtrueurl= item.template_img;
+                    imgary.push({"imgtrueurl":item.imgtrueurl,"flag":false});
+                  };
                 });
                 this_.changeimg(imgary);
               }
