@@ -610,6 +610,7 @@ export default {
                 this_.changeModelId(objparams.id);
                 this_.changeModelTypeName(objparams.title);
                 //获取新的book_id
+              
                 this_.getbookidFn(objparams.id,this_.token,objparams.title,this_.vnickname);
               }).catch(() => {
                   // on cancel
@@ -774,7 +775,10 @@ export default {
     this_.modelTypeFn();
     //this_.detailListsFn(this_.modelid);
     this_.liid = this_.modeltypeid; 
-    this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
+    if(!this_.vloadimg.length){
+      this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);              
+    }
+    
     this_.getBookDetailInfoFn(this_.vbookid,this_.token);
   },
   computed: {
