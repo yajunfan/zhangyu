@@ -196,7 +196,7 @@ export default {
       tabarys: [], //模板类型列表
       liid: "1",
       userid: "", //相册模板id
-      modelnum: "", //模板总共有几张，上传成功之后，剩余多少张需要上传，动态计算
+      modelnum: 1, //模板总共有几张，上传成功之后，剩余多少张需要上传，动态计算
       modelLists: [],//模板的详情页面列表
       tabLists: [], //右侧的类型列表
       showflag: true,
@@ -235,23 +235,14 @@ export default {
               this_.modelLists = res.data.data;
               // 给每个页面增加一个上传图片的url属性
               var num = 0;
-              if(this_.vloadimg.length){
-                this_.vloadimg.forEach((item,index)=>{
-                  if(item.flag){
-                    num++;
-                  }
-                  this_.modelLists[index].imgtrueurl = item.imgtrueurl;
-                });
-                this_.modelnum = this_.modelLists.length-num;
-              }else{
-                this_.modelLists.forEach(item=>{
-                  if(item.result_img.length){
-                    item.imgtrueurl = item.result_img;
-                  }else{
-                    item.imgtrueurl = item.template_img;
-                  }
-                });
-              }
+              this_.modelLists.forEach(item=>{
+                if(item.result_img.length){
+                  item.imgtrueurl = item.result_img;
+                }else{
+                  item.imgtrueurl = item.template_img;
+                }
+              });
+              console.log(this_.modelLists)
             }else{
               this_.modelLists = [];
             }
@@ -275,9 +266,6 @@ export default {
       }else{
         this_.changeModelId(obj.id);
         this_.changeModelTypeName(obj.title);
-       // this_.detailListsFn(obj.id);
-        
-        this_.getTemplateInfoFn(obj.id);
         this_.photoName = obj.title;
         this_.userid = obj.id;
         this_.modelLists.forEach(item=>{
@@ -296,7 +284,6 @@ export default {
           if (res.data.data) {
             this_.tabarys = res.data.data;
             this_.modelListFn(this_.modeltypeid);
-            this_.getTemplateInfoFn(this_.modelid);
           }
         }
       }).catch(error => {
@@ -312,7 +299,6 @@ export default {
           if (res.data.data) {
             this_.bookinfos = res.data.data;
             this_.modelnum = this_.bookinfos.img_num;
-            console.log(this_.bookinfos)
           }
         }
       }).catch(error => {
@@ -412,6 +398,7 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+            console.log("boook",res.data.data)
             this_.changebookid(res.data.data.book_id);
             this_.getBookDetailInfoFn(res.data.data.book_id,this_.token)
           }
@@ -585,6 +572,8 @@ export default {
           if (res.data.data) {
              this_.totalnum = res.data.data.total_num;
              this_.finishnum = res.data.data.finish_num;
+             this_.modelnum = this_.totalnum-this_.finishnum;
+             console.log(this_.totalnum,this_.finishnum)
              var content = "当前图书未制作完成";
             if(res.data.data.finish_num<res.data.data.total_num){
               content = "当前模板中图片未全部上传，确定更换模板";
@@ -603,8 +592,6 @@ export default {
                   item.imgurl ="";
                 });
                 this_.i = index;
-                //this_.detailListsFn(objparams.id);
-                this_.getTemplateInfoFn(objparams.id);
                 this_.photoName = objparams.title;
                 this_.userid = objparams.id;
                 this_.changeModelId(objparams.id);
@@ -718,29 +705,14 @@ export default {
       //对列表中有上传图片的进行计算总数
       num = this_.modelLists.length - this_.modelnum;
       //判断是都有图片上传
-      if(this_.imgindex < 0 || this_.imgindex === 0){
-        this_.$toast({
-          mask: false,
-          message: "请先选择上传图片",
-        });
-      }else{
-        if(num == this_.modelLists.length){
-          //判断是否有不合格的图片，如果有，显示
-          if(this_.fileList.length){
-            this_.nofitnum = this_.fileList.length;
-            if(!this_.failimgflag){
-              this_.nofitflag = true;
-              return;
-            }else{
-              this_.savecommonFn();
-            }
-          }else{  
-            this_.savecommonFn();
-          };
+      if(this_.modelnum>0){
+        if(this_.imgindex < 0 || this_.imgindex === 0){
+          this_.$toast({
+            mask: false,
+            message: "请先选择上传图片",
+          });
         }else{
-          this_.$toast.clear();
-          if(this_.savebookflag){
-            this_.nosucceeflag=false;
+          if(num == this_.modelLists.length){
             //判断是否有不合格的图片，如果有，显示
             if(this_.fileList.length){
               this_.nofitnum = this_.fileList.length;
@@ -754,10 +726,33 @@ export default {
               this_.savecommonFn();
             };
           }else{
-             this_.nosucceeflag=true;
+            this_.$toast.clear();
+            if(this_.savebookflag){
+              this_.nosucceeflag=false;
+              //判断是否有不合格的图片，如果有，显示
+              if(this_.fileList.length){
+                this_.nofitnum = this_.fileList.length;
+                if(!this_.failimgflag){
+                  this_.nofitflag = true;
+                  return;
+                }else{
+                  this_.savecommonFn();
+                }
+              }else{  
+                this_.savecommonFn();
+              };
+            }else{
+              this_.nosucceeflag=true;
+            }
           }
-        }
-      };
+        };
+      }else{
+        this_.$router.push({
+          path: "/savesuccess",
+          name: "SAVESUCCESS",
+        });
+      }
+     
     },
     ...mapMutations([
       "changeToken",
@@ -773,12 +768,11 @@ export default {
     document.title = "马上制作";
     this_.photoName = this_.modeltypename;
     this_.modelTypeFn();
-    //this_.detailListsFn(this_.modelid);
     this_.liid = this_.modeltypeid; 
     if(!this_.vloadimg.length){
       this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);              
-    }
-    
+    };
+    this_.getBookStatusFn(this_.vbookid,this_.token); 
     this_.getBookDetailInfoFn(this_.vbookid,this_.token);
   },
   computed: {
