@@ -436,7 +436,6 @@ export default {
             if (file.size > 3145728 || file.size < 102400) {
               this_.fileList.push({url:imgurl,index:this_.imgindex});
             };
-            console.log(this_.imgindex)
             this_.modelLists[this_.imgindex].imgtrueurl = imgurl;
             this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
             this_.$toast.loading({
@@ -642,7 +641,7 @@ export default {
       var this_ = this;
       this_.nofitflag = false;
       this_.fileList.forEach((item,index)=>{
-        this_.modelLists[item.index].imgurl ="";
+        this_.modelLists[item.index].imgtrueurl ="";
         this_.modelnum++;
         this_.imgindex--;
       });
@@ -673,7 +672,6 @@ export default {
         message: "正在提交模板",
         duration:0
       });
-      console.log(this_.maxnum,this_.imgindex )
       if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
         this_.modelLists.forEach((item,index)=>{
           if(!item.result_img.length){
