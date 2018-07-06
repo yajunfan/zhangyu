@@ -196,7 +196,7 @@ export default {
       tabarys: [], //模板类型列表
       liid: "1",
       userid: "", //相册模板id
-      modelnum: "", //模板总共有几张，上传成功之后，剩余多少张需要上传，动态计算
+      modelnum: 1, //模板总共有几张，上传成功之后，剩余多少张需要上传，动态计算
       modelLists: [],//模板的详情页面列表
       tabLists: [], //右侧的类型列表
       showflag: true,
@@ -231,51 +231,18 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
-           console.log(res)
-            this_.$toast.clear();
             if (res.data.data.length) {
               this_.modelLists = res.data.data;
               // 给每个页面增加一个上传图片的url属性
+              var num = 0;
               this_.modelLists.forEach(item=>{
                 if(item.result_img.length){
                   item.imgtrueurl = item.result_img;
                 }else{
                   item.imgtrueurl = item.template_img;
                 }
-                item.imgurl ="";
               });
-              //判断是否有从保存页面返回的图片数组
-              if(this_.vloadimg.length){
-                this_.canusenum = 0;
-                this_.vloadimg.forEach((item,index) =>{
-                  if(item.length){
-                    if(index < this_.modelLists.length){
-                      this_.modelLists[index].imgurl = item;
-                      this_.canusenum++;
-                    };
-                    
-                  }
-                });
-                //给不合格的加上标记
-                this_.modelLists.forEach((item,index)=>{
-                  this_.vfailimgary.forEach(itemfail=>{
-                    if(item.imgurl == itemfail.url){
-                      item.warnflag = true;
-                    }
-                  })
-                });
-                //给已经上传了的图片算总数，以便计算还可以上传几张
-                this_.imgindex =this_.canusenum;
-                //计算出可以
-                this_.modelnum = this_.totalnum-this_.finishnum;
-                if(this_.modelnum>0){
-                  this_.savebookflag = false;
-                }else{
-                  this_.savebookflag = true;
-                }
-              }else{
-               // this_.modelnum = this_.modelLists.length;
-              };
+              console.log(this_.modelLists)
             }else{
               this_.modelLists = [];
             }
@@ -301,7 +268,7 @@ export default {
         this_.changeModelTypeName(obj.title);
        // this_.detailListsFn(obj.id);
         
-        this_.getTemplateInfo(obj.id);
+        //this_.getTemplateInfoFn(obj.id);
         this_.photoName = obj.title;
         this_.userid = obj.id;
         this_.modelLists.forEach(item=>{
@@ -320,7 +287,7 @@ export default {
           if (res.data.data) {
             this_.tabarys = res.data.data;
             this_.modelListFn(this_.modeltypeid);
-            this_.getTemplateInfo(this_.modelid);
+            //this_.getTemplateInfoFn(this_.modelid);
           }
         }
       }).catch(error => {
@@ -328,20 +295,20 @@ export default {
       });
     },
     //查询模板详情 -- 当前页面只为了获取当前模板可上传的图片数量
-    getTemplateInfo(id){
+    getTemplateInfoFn(id){
       var  this_ = this;
       var obj = { service: "getTemplateInfo", id: id };
       SERVERUTIL.base.baseurl(obj).then(res => {
-          if (res.data.code == 0) {
-            if (res.data.data) {
-              this_.bookinfos = res.data.data;
-              this_.modelnum = this_.bookinfos.img_num;
-              console.log(this_.modelnum)
-            }
+        if (res.data.code == 0) {
+          if (res.data.data) {
+            this_.bookinfos = res.data.data;
+            this_.modelnum = this_.bookinfos.img_num;
+            console.log(this_.bookinfos)
           }
-        }).catch(error => {
-          console.log(error);
-        });
+        }
+      }).catch(error => {
+        console.log(error);
+      });
     },
     //更改右侧模板类型下拉对应的模板列表变化
     changeTypsFn() {
@@ -413,7 +380,7 @@ export default {
                 this_.savebookflag = true;
               }
             }else{
-              this_.modelnum = this_.modelLists.length;
+              //this_.modelnum = this_.modelLists.length;
             };
           }else{
             this_.modelLists = [];
@@ -436,6 +403,7 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+            console.log("boook",res.data.data)
             this_.changebookid(res.data.data.book_id);
             this_.getBookDetailInfoFn(res.data.data.book_id,this_.token)
           }
@@ -508,7 +476,7 @@ export default {
       var meassage="一次最多上传9张照片";
       //如果是从保存页面返回的，有之前保存的图片的情况
       if(this_.vloadimg.length){
-        morenum = this_.modelLists.length - this_.canusenum;
+        morenum = this_.modelnum;
         meassage = "还可以上传"+morenum+'照片';
       }else{
         if(nextflag){
@@ -609,6 +577,8 @@ export default {
           if (res.data.data) {
              this_.totalnum = res.data.data.total_num;
              this_.finishnum = res.data.data.finish_num;
+             this_.modelnum = this_.totalnum-this_.finishnum;
+             console.log(this_.totalnum,this_.finishnum)
              var content = "当前图书未制作完成";
             if(res.data.data.finish_num<res.data.data.total_num){
               content = "当前模板中图片未全部上传，确定更换模板";
@@ -628,12 +598,13 @@ export default {
                 });
                 this_.i = index;
                 //this_.detailListsFn(objparams.id);
-                this_.getTemplateInfo(objparams.id);
+                //this_.getTemplateInfoFn(objparams.id);
                 this_.photoName = objparams.title;
                 this_.userid = objparams.id;
                 this_.changeModelId(objparams.id);
                 this_.changeModelTypeName(objparams.title);
                 //获取新的book_id
+              
                 this_.getbookidFn(objparams.id,this_.token,objparams.title,this_.vnickname);
               }).catch(() => {
                   // on cancel
@@ -717,7 +688,7 @@ export default {
       });
       if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
         this_.modelLists.forEach((item,index)=>{
-          this_.makeModelFn(item.imgurl,index);
+          this_.makeModelFn(item.imgtrueurl,index);
         });
       };
       //判断当所有的图片都已经制作成功了，就可以跳转到成功页面 -- 分为就在当前页面上传和从成功页面返回来两种情况
@@ -737,38 +708,18 @@ export default {
     //保存功能并跳到保存成功页面
     saveFn() {
       var this_ = this;
-      var flag=false,num=0;
-      // 对列表中有上传图片的进行计算总数
-      this_.modelLists.forEach(item=>{
-        if(item.imgurl.length){
-          flag = true;
-          num++;
-        }
-      });
+      var num=0;
+      //对列表中有上传图片的进行计算总数
+      num = this_.modelLists.length - this_.modelnum;
       //判断是都有图片上传
-      if(this_.imgindex < 0 || this_.imgindex === 0){
-        this_.$toast({
-          mask: false,
-          message: "请先选择上传图片",
-        });
-      }else{
-        if(num == this_.modelLists.length){
-          //判断是否有不合格的图片，如果有，显示
-          if(this_.fileList.length){
-            this_.nofitnum = this_.fileList.length;
-            if(!this_.failimgflag){
-              this_.nofitflag = true;
-              return;
-            }else{
-              this_.savecommonFn();
-            }
-          }else{  
-            this_.savecommonFn();
-          };
+      if(this_.modelnum>0){
+        if(this_.imgindex < 0 || this_.imgindex === 0){
+          this_.$toast({
+            mask: false,
+            message: "请先选择上传图片",
+          });
         }else{
-          this_.$toast.clear();
-          if(this_.savebookflag){
-            this_.nosucceeflag=false;
+          if(num == this_.modelLists.length){
             //判断是否有不合格的图片，如果有，显示
             if(this_.fileList.length){
               this_.nofitnum = this_.fileList.length;
@@ -782,10 +733,33 @@ export default {
               this_.savecommonFn();
             };
           }else{
-             this_.nosucceeflag=true;
+            this_.$toast.clear();
+            if(this_.savebookflag){
+              this_.nosucceeflag=false;
+              //判断是否有不合格的图片，如果有，显示
+              if(this_.fileList.length){
+                this_.nofitnum = this_.fileList.length;
+                if(!this_.failimgflag){
+                  this_.nofitflag = true;
+                  return;
+                }else{
+                  this_.savecommonFn();
+                }
+              }else{  
+                this_.savecommonFn();
+              };
+            }else{
+              this_.nosucceeflag=true;
+            }
           }
-        }
-      };
+        };
+      }else{
+        this_.$router.push({
+          path: "/savesuccess",
+          name: "SAVESUCCESS",
+        });
+      }
+     
     },
     ...mapMutations([
       "changeToken",
@@ -803,7 +777,11 @@ export default {
     this_.modelTypeFn();
     //this_.detailListsFn(this_.modelid);
     this_.liid = this_.modeltypeid; 
-    this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);
+    if(!this_.vloadimg.length){
+      this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);              
+    };
+    this_.getBookStatusFn(this_.vbookid,this_.token); 
+    console.log(this_.vbookid);
     this_.getBookDetailInfoFn(this_.vbookid,this_.token);
   },
   computed: {
