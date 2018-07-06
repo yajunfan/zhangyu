@@ -7,10 +7,10 @@ import store from './store'
 import $ from '../src/js/jquery.min'
 import 'vant/lib/vant-css/index.css'
 import './css/reset.css'
-import { Area,AddressEdit ,Button ,Card,CellGroup,ContactCard, ContactList, ContactEdit, Col,Dialog,Field ,Icon ,Popup, Row ,Tab, Tabs ,Toast ,
+import { Area,AddressEdit ,Button ,Card,CellGroup,ContactCard, ContactList, ContactEdit, Col,Dialog,Field ,Icon ,Lazyload  ,Popup, Row ,Tab, Tabs ,Toast ,
   Search ,Step, Steps,Switch ,SwitchCell ,Sku ,Uploader ,SubmitBar} from 'vant'
 Vue.use(Area).use(AddressEdit).use(Button).use(Card).use(CellGroup).use(ContactCard).use(ContactList).use(ContactEdit).use(Col).use(Dialog)
-.use(Field).use(Icon).use(Popup).use(Row).use(Tab).use(Tabs).use(Toast).use(Search).use(Switch).use(SwitchCell).use(Step).use(Steps).use(Sku)
+.use(Field).use(Icon).use(Lazyload).use(Popup).use(Row).use(Tab).use(Tabs).use(Toast).use(Search).use(Switch).use(SwitchCell).use(Step).use(Steps).use(Sku)
 .use(Uploader).use(SubmitBar);
 Dialog.resetDefaultOptions={
   className:"tc"

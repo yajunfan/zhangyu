@@ -13,7 +13,7 @@
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
                  <div>
-                   <img :src="item.imgtrueurl" alt="1"/>
+                   <img  v-lazy="item.imgtrueurl" alt="1"/>
                    <!-- <img :src="item.imgurl " alt="" class="upload_img"> -->
                    <i class="warning_icon" v-if="item.warnflag" ></i>
                  </div>
@@ -67,7 +67,7 @@
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
                  <div>
-                   <img :src="item.imgtrueurl" alt="1"/>
+                   <img  v-lazy="item.imgtrueurl"alt="1"/>
                    <!-- <img :src="item.imgurl " alt="" class="upload_img"> -->
                 </div>
               </li>
@@ -109,7 +109,7 @@
              <ul class="prewimg">
                <li v-for="(item,index) in tabLists" :key="index">
                  <div @click="selectPrewImgFn(index,item)" :class="item.id==modelid?'selDiv':''">
-                   <img :src="item.img" alt="1" />
+                   <img v-lazy="item.img" alt="1" />
                  </div>
                </li>
              </ul>
@@ -118,12 +118,12 @@
         </van-row>
     </div>
     <!-- 当图片出现不合格的时候弹框 -->
-    <div class="imgnofit_container" v-if="nofitflag">
+    <div class="imgnofit_container" v-if="nofitflag" :style="{'position':nofitflag?'fixed':'absolute'}">
       <div class="img_container">
          <h4 class="tc"><span class="tc" style="color:#ff5547;" v-text="nofitnum"></span><span>张照片像素过低或大小不合格<br>建议删除再重新上传</span></h4>
          <ul class="img_list">
            <li v-for="(item,index) in fileList" :key="index">
-             <img :src="item.url" alt="不合格">
+             <img v-lazy="item.url" alt="不合格">
             </li>
          </ul>
          <div class="img_operate w100">
@@ -139,7 +139,7 @@
       </div>
     </div>
     <!-- 提示未制作完成， -->
-    <div class="imgnosucce_container" v-if="nosucceeflag">
+    <div class="imgnosucce_container" v-if="nosucceeflag" :style="{'position':nosucceeflag?'fixed':'absolute'}">
       <div class="img_container tip_container">
          <h4 class="tc">提示</h4>
          <p class="tc">本书尚未制作完成<br>还需上传<span v-text="modelnum" style="color:#ff5547"></span>张照片</p>
@@ -159,7 +159,7 @@
       </div>
     </div>
      <!-- 提示照片清晰度不足， -->
-    <div class="imgnosucce_container" v-if="noprefactflag">
+    <div class="imgnosucce_container" v-if="noprefactflag" :style="{'position':noprefactflag?'fixed':'absolute'}">
       <div class="img_container tip_container">
          <h4 class="tc">照片清晰度不足</h4>
          <p class="tc">像素不足会影响印刷清晰度<br>建议选择清晰度高的<span v-text="9" style="color:#ff5547"></span>照片制作</p>
@@ -436,6 +436,7 @@ export default {
             if (file.size > 3145728 || file.size < 102400) {
               this_.fileList.push({url:imgurl,index:this_.imgindex});
             };
+            console.log(this_.imgindex)
             this_.modelLists[this_.imgindex].imgtrueurl = imgurl;
             this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
             this_.$toast.loading({
@@ -443,10 +444,9 @@ export default {
               message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
             });
             this_.modelnum--;
-            console.log(this_.modelnum)
             this_.imgindex++;
             //每上传一张图片，创建一次图书
-            // this_.makeModelFn(imgurl);
+            this_.makeModelFn(imgurl,this_.imgindex);
           }else{
             this_.$toast({
               mask: false,
@@ -469,16 +469,12 @@ export default {
       var morenum=9;
       var meassage="一次最多上传9张照片";
       //如果是从保存页面返回的，有之前保存的图片的情况
-      if(this_.vloadimg.length){
+      if(morenum>9){
+        meassage="一次最多上传9张照片";
+      }else{
         morenum = this_.modelnum;
         meassage = "还可以上传"+morenum+'照片';
-      }else{
-        if(nextflag){
-          morenum = this_.modelnum;
-          meassage = "还可以上传"+morenum+'照片';
-        }
-      };
-     
+      }
       this_.$toast({
         mask: true,
         forbidClick:true,
@@ -572,7 +568,6 @@ export default {
              this_.totalnum = res.data.data.total_num;
              this_.finishnum = res.data.data.finish_num;
              this_.modelnum = this_.totalnum-this_.finishnum;
-             console.log(this_.totalnum,this_.finishnum)
              var content = "当前图书未制作完成";
             if(res.data.data.finish_num<res.data.data.total_num){
               content = "当前模板中图片未全部上传，确定更换模板";
@@ -678,9 +673,13 @@ export default {
         message: "正在提交模板",
         duration:0
       });
+      console.log(this_.maxnum,this_.imgindex )
       if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
         this_.modelLists.forEach((item,index)=>{
-          this_.makeModelFn(item.imgtrueurl,index);
+          if(!item.result_img.length){
+             this_.makeModelFn(item.imgtrueurl,index);
+          }
+         
         });
       };
       //判断当所有的图片都已经制作成功了，就可以跳转到成功页面 -- 分为就在当前页面上传和从成功页面返回来两种情况

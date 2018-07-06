@@ -2,12 +2,12 @@
   <div class="save_container">
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="ifedit">
         <li v-for="item in modelLists">
-           <img :src="item.result_img" alt="muban">
+           <img  v-lazy="item.imgtrueurl" alt="muban">
         </li>
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
         <li v-for="item in modelLists" @dblclick="editBookFn" v-if="item.liflag">
-           <img :src="item.imgtrueurl" alt="muban">
+           <img  v-lazy="item.imgtrueurl" alt="muban">
         </li>
         
      </ul>
@@ -26,7 +26,7 @@
         <van-row>
          <van-col span="21">
            <div class="type_header">
-             <img :src="modelimg" alt="模板" class="logo_img" >
+             <img  v-lazy="modelimg" alt="模板" class="logo_img" >
              <ul class="detail_container">
                 <li class="detail_title"><span v-text="detailinfo.title" ></span></li>
                 <li class="detail_specifications"><span>规格：</span><span v-text="detailinfo.size"></span></li>
@@ -99,7 +99,6 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.modelLists = res.data.data;
-              console.log(this_.modelLists)
               var imgary = [];
               if(this_.modelLists.length){
                 this_.modelLists.forEach(item =>{
