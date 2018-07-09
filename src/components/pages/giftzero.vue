@@ -101,6 +101,7 @@ export default {
     return {
       active: 0,
       activeicon: 0,
+      message:"卡密码错误",
       ifgiftflag: false, //是否有礼品卡
       showgift: false, //是否显示绑定礼品卡弹框
       showgiftinfo: false, //是否显示使用说明弹框
@@ -200,7 +201,6 @@ export default {
         pwd:this_.giftpassword
       };
       SERVERUTIL.base.baseurl(obj).then(res => {
-        this_.message=res.data.message;
         if(res.data.code == 0){
           this_.getUserCardFn(this_.token,"");
           this_.showgift = false;

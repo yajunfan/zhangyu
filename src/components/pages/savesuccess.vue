@@ -1,13 +1,13 @@
 <template>
-  <div class="save_container">
+  <div class="save_container" @dblclick="editBookFn">
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="ifedit">
         <li v-for="item in modelLists">
            <img  v-lazy="item.imgtrueurl" alt="muban">
         </li>
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
-        <li v-for="item in modelLists" @dblclick="editBookFn" v-if="item.liflag">
-           <img  v-lazy="item.imgtrueurl" alt="muban">
+        <li v-for="item in modelLists"  v-if="item.liflag">
+           <img  v-lazy="item.imgtrueurl" alt="muban" @click="editBookFn">
         </li>
         
      </ul>
@@ -176,6 +176,7 @@ import { mapState, mapMutations } from "vuex";
        //编辑图书
        editBookFn(){
          var this_ = this;
+         consoel.log(111)
        },
        ...mapMutations([
         "changeToken","changeModelTypeId","changeModelTypeName","changeModelId","changeObj","changebookid","changeimg"
@@ -189,6 +190,7 @@ import { mapState, mapMutations } from "vuex";
          document.title = '预览';
       };
       this_.ifedit = this_.$route.params.flag;
+      console.log(this_.ifedit)
       this_.getBookDetailInfoFn(this_.token,this_.vbookid);
       this_.modelDetailFn(this_.modelid);
       

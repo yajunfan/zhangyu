@@ -57,6 +57,10 @@ import { mapState, mapMutations } from "vuex";
         };
         SERVERUTIL.base.baseurl(paramsobj).then(res => {
           if(res.data.code == 0){
+            this_.$toast({
+              mask: false,
+              message: "删除成功"  
+            });
             this_.getBookListFn(this_.token);
           }
         }).catch(error => {

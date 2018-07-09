@@ -49,31 +49,35 @@ import { mapState, mapMutations } from "vuex";
         SERVERUTIL.base.baseurl(obj).then(res => {
           if(res.data.code ==0){
             if(res.data.data){
-              this_.orderlists = res.data.data; 
-              console.log(this_.orderlists)
-              this_.orderlists.forEach((  item,index)=>{
-                item.real_price = Number(item.real_price).toFixed(0);
-                item.paymoneyflag=true;
-                item.paymoneybtn=false;
-                item.paymoneytext=false;
-                if(item.status == 1){
-                  item.chinaStatus = '待付款';
-                  item.paymoneyflag=false;
-                  item.paymoneybtn=true;
-                }else  if(item.status == 2){
-                  item.chinaStatus = '已取消'; 
-                }else  if(item.status == 3){
-                  item.chinaStatus = '已付款，待印刷'; 
-                }else  if(item.status == 4){
-                  item.chinaStatus = '已发货';
-                  item.paymoneybtn=true; 
-                  item.paymoneytext=true;
-                }else  if(item.status == 5){
-                  item.chinaStatus = '已签收'; 
-                }else  if(item.status == 6){
-                  item.chinaStatus = '已完成'; 
-                };
-              }); 
+              if(res.data.data.length){
+                 this_.orderlists = res.data.data; 
+                this_.orderlists.forEach((  item,index)=>{
+                  item.real_price = Number(item.real_price).toFixed(0);
+                  item.paymoneyflag=true;
+                  item.paymoneybtn=false;
+                  item.paymoneytext=false;
+                  if(item.status == 1){
+                    item.chinaStatus = '待付款';
+                    item.paymoneyflag=false;
+                    item.paymoneybtn=true;
+                  }else  if(item.status == 2){
+                    item.chinaStatus = '已取消'; 
+                  }else  if(item.status == 3){
+                    item.chinaStatus = '已付款，待印刷'; 
+                  }else  if(item.status == 4){
+                    item.chinaStatus = '已发货';
+                    item.paymoneybtn=true; 
+                    item.paymoneytext=true;
+                  }else  if(item.status == 5){
+                    item.chinaStatus = '已签收'; 
+                  }else  if(item.status == 6){
+                    item.chinaStatus = '已完成'; 
+                  };
+                }); 
+              }else{
+                this_.orderflag = false;
+              }
+             
             }
           }
         }).catch(error => {
@@ -124,6 +128,7 @@ import { mapState, mapMutations } from "vuex";
       document.title = "我的订单";
       this_.userid = this_.$route.params.id;
       this_.orderFn(this_.userid,this_.token);
+      
     }, 
     computed:{
       ...mapState(['token'])
