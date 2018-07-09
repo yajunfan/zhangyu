@@ -242,7 +242,6 @@ export default {
                   item.imgtrueurl = item.template_img;
                 }
               });
-              console.log(this_.modelLists)
             }else{
               this_.modelLists = [];
             }
@@ -411,11 +410,12 @@ export default {
       var this_ = this;
       this_.loadflag = true;
       let formData = new FormData();
-      if (file.type.indexOf('image/jpeg') == -1) {
+      var type = file.type;
+      if (type !="image/jpg" && type !="image/jpeg" && type !="image/bmp" && type !="image/png"&& type !="image/gif") {
         this_.$toast({
           mask: true,
           forbidClick:true,
-          message: "请选择我们支持的图片格式！image/jpeg",
+          message: "请选择图片格式文件上传(jpeg,jpg,png,gif, bmp)！",
           duration: 0,  
         });
         return false;
