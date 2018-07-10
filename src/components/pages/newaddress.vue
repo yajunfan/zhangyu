@@ -24,14 +24,14 @@
                     <span :style="{'opacity':vaddressenterflag?'1':'0'}" v-text="item.is_default?'默认地址':'设为默认'"></span></van-col>
                     
                   <van-col span="12" class="tel_right tr" >
-                    <span class="ad_edit d-i-b" @click="addAddressFn(false,item)"><i class="d-i-b"></i>编辑</span>
-                    <span class="ad_delete d-i-b" @click="deleteaddressFn(item)"><i class="d-i-b"></i>删除</span>
+                    <span class="ad_edit d-i-b" @click.stop="addAddressFn($event,false,item)"><i class="d-i-b"></i>编辑</span>
+                    <span class="ad_delete d-i-b" @click.stop="deleteaddressFn(item)"><i class="d-i-b"></i>删除</span>
                   </van-col>
                </van-row>  
              </div>
           </li>
        </ul> 
-       <div class="add_address tc"  @click="addAddressFn(true)">添加新地址 </div>  
+       <div class="add_address tc"  @click.stop="addAddressFn($event,true)">添加新地址 </div>  
      </div>
   </div>
 </template>
@@ -57,7 +57,6 @@ import { mapState, mapMutations } from "vuex";
       });
       this_.addressLists[index].is_default = true;
       this_.$set(this_.addressLists,index,this_.addressLists[index]);
-      console.log(item)
       var obj={
           "service":"setAddress",
           "stoken":this_.token,
@@ -70,7 +69,6 @@ import { mapState, mapMutations } from "vuex";
           "id" :item.id
       };
       SERVERUTIL.base.baseurl(obj).then(res => {
-        console.log(res)
         if(res.data.code == 0){
         }
       }).catch(error => {
@@ -84,23 +82,29 @@ import { mapState, mapMutations } from "vuex";
       SERVERUTIL.base.baseurl(obj).then(res => {
         if(res.data.code ==0){
           if(res.data.data){
-            this_.addressLists = res.data.data;
-            this_.addressLists.forEach(item =>{
-              var ary = item.district.split("-");
-              item.province = ary[0];
-              item.city = ary[1];
-              item.county = ary[2];
-              item.address_detail = item.address;
-              item.name=item.link_name;
-              item.tel=item.link_tel;
-              item.area_code=item.district_id;
-              if(item.default_status == 2){
-                item.is_default= false;
-              }else{
-                item.is_default= true;
-              };
-            });
-            this_.addressLists.reverse();
+            if(res.data.data.length){
+              this_.ifnewflag = false;
+              this_.addressLists = res.data.data;
+              this_.addressLists.forEach(item =>{
+                var ary = item.district.split("-");
+                item.province = ary[0];
+                item.city = ary[1];
+                item.county = ary[2];
+                item.address_detail = item.address;
+                item.name=item.link_name;
+                item.tel=item.link_tel;
+                item.area_code=item.district_id;
+                if(item.default_status == 2){
+                  item.is_default= false;
+                }else{
+                  item.is_default= true;
+                };
+              });
+              this_.addressLists.reverse();
+            }else{
+              this_.ifnewflag = true;
+            }
+           
           }
         }
       }).catch(error => {
@@ -128,7 +132,7 @@ import { mapState, mapMutations } from "vuex";
       }
     },
     //添加新地址-跳转到地址编辑页面
-    addAddressFn(flag,obj){
+    addAddressFn(event,flag,obj){
       var this_ = this;
       var useobj={};
       if(obj){

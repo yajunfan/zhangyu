@@ -174,12 +174,8 @@ export default {
       var this_ = this;
       this_.changebookid(obj.id);
       this_.$router.push({  
-        path: '/savesuccess',
-        name: 'SAVESUCCESS',  
-        params: {   
-          id:obj.id,
-          flag:false
-        }, 
+        path: '/editimg',
+        name: 'EDITIMG' 
       });
     },
     //跳转到我的书架更多

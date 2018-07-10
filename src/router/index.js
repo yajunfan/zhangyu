@@ -63,6 +63,14 @@ export default new Router({
       }
     },
     {
+      path: '/editimg',
+      name: 'EDITIMG',
+      component: resolve => require(['@/components/pages/editimg'],resolve),
+      meta: {
+        title: '编辑图片'
+      }
+    },
+    {
       path: '/savesuccess',
       name: 'SAVESUCCESS',
       component: resolve => require(['@/components/pages/savesuccess'],resolve),

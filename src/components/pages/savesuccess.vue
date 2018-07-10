@@ -2,7 +2,7 @@
   <div class="save_container" @dblclick="editBookFn">
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="ifedit">
         <li v-for="item in modelLists">
-           <img  v-lazy="item.imgtrueurl" alt="muban">
+           <img  :src="item.imgtrueurl" alt="muban">
         </li>
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
@@ -131,7 +131,7 @@ import { mapState, mapMutations } from "vuex";
           this_.selectItem.size=this_.detailinfo.size;
           this_.selectItem.title = this_.detailinfo.title;
           this_.selectItem.modelimg = this_.detailImg[index];
-       },
+      },
      
       //获取制作图书的规格信息 -- getTemplateInfo
       modelDetailFn(id){
@@ -179,7 +179,7 @@ import { mapState, mapMutations } from "vuex";
          consoel.log(111)
        },
        ...mapMutations([
-        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId","changeObj","changebookid","changeimg"
+        "changeToken","changeModelTypeId","changeModelTypeName","changeModelId","changeObj","changebookid","changeimg","changesaveflag"
        ])
      },
      mounted(){
@@ -188,15 +188,16 @@ import { mapState, mapMutations } from "vuex";
       if(this_.$route.params.title){
         var title = this_.$route.params.title;
          document.title = '预览';
+      }else{
+        this_.changesaveflag(true);
       };
       this_.ifedit = this_.$route.params.flag;
-      console.log(this_.ifedit)
       this_.getBookDetailInfoFn(this_.token,this_.vbookid);
       this_.modelDetailFn(this_.modelid);
       
     },
     computed:{
-      ...mapState(['token',"modeltypeid","modeltypename","modelid","bookinfo","vbookid","vloadimg"])
+      ...mapState(['token',"modeltypeid","modeltypename","modelid","bookinfo","vbookid","vloadimg","vsavetoeditflag"])
     }       
   }
 </script>

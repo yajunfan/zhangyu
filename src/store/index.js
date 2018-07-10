@@ -20,9 +20,8 @@ const state = {
   vbuynum:1, //购买数量
   vbookid:"", //获取book_id
   vloadimg:[],//上传的图片
-  vfailimgary:[], //不合格的图片列表
-
-
+  vfailimgary:[], //不合格的图片列表,
+  vsavetoeditflag:false, //从保存到编辑页面
 }
 
 const mutations = {
@@ -81,6 +80,10 @@ const mutations = {
   //获取上传成功的图片
   changefailimg(state,value){
     state.vfailimgary=value;
+  },
+  //从保存到编辑页面
+  changesaveflag(state,value){
+    state.vsavetoeditflag=value;
   },
 }
 

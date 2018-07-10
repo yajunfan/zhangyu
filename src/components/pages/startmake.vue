@@ -13,7 +13,7 @@
                  <span v-if="index == 0" class="cover">封面</span>
                  <span v-else v-text="index"></span>
                  <div>
-                   <img  v-lazy="item.imgtrueurl" alt="1"/>
+                   <img  :src="item.imgtrueurl" alt="1"/>
                    <!-- <img :src="item.imgurl " alt="" class="upload_img"> -->
                    <i class="warning_icon" v-if="item.warnflag" ></i>
                  </div>
@@ -101,10 +101,17 @@
         <van-col span="7">
           <div class="scaling ">
              <img src="../../images/scale.png" alt="" @click="showflag=true;" class="icon_img"/>
-             <div class="option_container">
-               <select class="tc" @change="changeTypsFn"  v-model="liid">
+             <div class="option_container" >
+               <van-collapse v-model="activeNames" accordion id="myselect">
+                 <van-collapse-item :title="modeltypevalue" name='1'>
+                   <ul class="tc modeltype_list">
+                     <li class="tc" v-for="item in tabarys" :key="item.id" v-text="item.name" @click="getvalueFn(item.name,item.id)"></li>
+                   </ul>
+                </van-collapse-item>
+               </van-collapse>
+               <!-- <select class="tc" @change="changeTypsFn"  v-model="liid">
                  <option :value ="item.id" v-for="item in tabarys" :key="item.id">{{item.name}}</option>
-               </select>
+               </select> -->
              </div>
              <ul class="prewimg">
                <li v-for="(item,index) in tabLists" :key="index">
@@ -192,6 +199,8 @@ export default {
   },
   data() {
     return {
+      activeNames: '',
+      modeltypevalue:"",
       photoName: "",
       tabarys: [], //模板类型列表
       liid: "1",
@@ -221,6 +230,7 @@ export default {
       maxnum:0, //最大值
       failimgflag:false , //当图片大小不合格的时候，仍然坚持上传
       savebookflag:false , //未制作完成，先保存到书架
+      
     };
   },
   methods: {
@@ -282,6 +292,7 @@ export default {
         if (res.data.code == 0) {
           if (res.data.data) {
             this_.tabarys = res.data.data;
+            this_.modeltypevalue = this_.tabarys[0].name;
             this_.modelListFn(this_.modeltypeid);
           }
         }
@@ -315,6 +326,18 @@ export default {
       this_.changeModelTypeId(this_.liid);
       this_.modelListFn(this_.liid);
       
+    },
+    getvalueFn(value,id){
+      var this_ = this;
+      this_.modeltypevalue = value;
+      this_.activeNames='';
+      this_.$toast.loading({
+        mask: false,
+        message: "正在更换模板类型，请稍等...",
+        duration:0
+      });
+      this_.changeModelTypeId(id);
+      this_.modelListFn(id);
     },
     //获取右侧不同模板类型下不同模板列表
     modelListFn(typeId) {
@@ -415,8 +438,7 @@ export default {
         this_.$toast({
           mask: true,
           forbidClick:true,
-          message: "请选择图片格式文件上传(jpeg,jpg,png,gif, bmp)！",
-          duration: 0,  
+          message: "请选择图片格式文件上传(jpeg,jpg,png,gif, bmp)！"  
         });
         return false;
       };
@@ -435,7 +457,7 @@ export default {
             var imgurl=res.data.url;
             if (file.size > 3145728 || file.size < 102400) {
               this_.fileList.push({url:imgurl,index:this_.imgindex});
-            };
+            };0
             this_.modelLists[this_.imgindex].imgtrueurl = imgurl;
             this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
             this_.$toast.loading({
@@ -513,8 +535,6 @@ export default {
         }
         
       };
-     
-      
     },
      //当上传的图片数未满时，继续上传的操作   这里需要设置最多还能上传几张的提示
     nextonRead(file){
@@ -702,7 +722,7 @@ export default {
       num = this_.modelLists.length - this_.modelnum;
       //判断是都有图片上传
       if(this_.modelnum>0){
-        if(this_.imgindex < 0 || this_.imgindex === 0){
+        if(this_.modelnum === this_.modelLists.length){
           this_.$toast({
             mask: false,
             message: "请先选择上传图片",
@@ -750,26 +770,30 @@ export default {
       }
      
     },
-    ...mapMutations([
-      "changeToken",
-      "changeNickname",
-      "changeModelTypeId",
-      "changeModelTypeName",
-      "changeModelId",
-      "changebookid","changeimg","changefailimg"
+    ...mapMutations([ "changeToken", "changeNickname", "changeModelTypeId", "changeModelTypeName",
+      "changeModelId", "changebookid","changeimg","changefailimg","changesaveflag"
     ])
   },
   mounted() {
     var this_ = this;
     document.title = "马上制作";
-    this_.photoName = this_.modeltypename;
-    this_.modelTypeFn();
-    this_.liid = this_.modeltypeid; 
-    if(!this_.vloadimg.length){
-      this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);              
+    if(this_.vsavetoeditflag){
+      this_.$router.push({
+        path: '/editimg',
+        name: 'EDITIMG'
+      });
+    }else{
+      this_.photoName = this_.modeltypename;
+      this_.modelTypeFn();
+      this_.liid = this_.modeltypeid; 
+      if(!this_.vloadimg.length){
+        this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);              
+      };
+      this_.getBookStatusFn(this_.vbookid,this_.token); 
+      this_.getBookDetailInfoFn(this_.vbookid,this_.token);
     };
-    this_.getBookStatusFn(this_.vbookid,this_.token); 
-    this_.getBookDetailInfoFn(this_.vbookid,this_.token);
+    this_.changesaveflag(false);
+    
   },
   computed: {
     ...mapState([
@@ -778,7 +802,7 @@ export default {
       "modeltypeid",
       "modeltypename",
       "modelid",
-      "vbookid","vloadimg","vfailimgary"
+      "vbookid","vloadimg","vfailimgary","vsavetoeditflag"
     ])
   }
 };
@@ -841,12 +865,46 @@ body {
             outline: none;
           }
         }
+        #myselect{
+          width: 1.8rem;
+          position: fixed;
+          text-align: center;
+          background: none;
+          right:0.1rem;
+          div{
+            padding: 0;
+            font-size: 0.28rem;
+            div{
+              padding: 0;
+              .van-cell__value--alone{
+                text-align: center;
+                font-size: 0.28rem;
+              }
+            }
+            
+          }
+          .van-collapse-item__content{
+            padding:0;
+            background: red;
+            .modeltype_list{
+              padding: 0;
+              background: none;
+              li{
+                padding: 0.06rem;
+                font-size: 0.28rem;
+                box-sizing: border-box;
+              }
+            }
+          }
+        }
+        
+        
       }
 
       .prewimg {
         display: flex;
         flex-direction: column;
-
+        margin-top: 0.88rem;
         li {
           width: 100%;
           height: 100%;

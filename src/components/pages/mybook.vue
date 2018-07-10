@@ -97,12 +97,8 @@ import { mapState, mapMutations } from "vuex";
         var this_ = this;
         this_.changebookid(obj.id);
         this_.$router.push({  
-          path: '/savesuccess',
-          name: 'SAVESUCCESS',  
-          params: {   
-            id:obj.id,
-            flag:false
-          }, 
+          path: '/editimg',
+          name: 'EDITIMG' 
         });
       },
       ...mapMutations([

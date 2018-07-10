@@ -1,7 +1,7 @@
 <template>
   <div class="editaddress_container">
     <div class="edit_container">
-      <van-address-edit :area-list="areaList"  :address-info = "addressIinfo"  :show-set-default="defaultflag"  @save="onSave"/> 
+      <van-address-edit :area-list="areaList" :item-height='45' :address-info = "addressIinfo" :show-set-default="defaultflag"  @save="onSave" @delete="onDelete"/> 
     </div>
   </div>
 </template>
@@ -9,7 +9,6 @@
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
 import AREALIST from "../../data/areaList"
-import UTILS from "../../lib/utils";
 import { mapState, mapMutations } from "vuex";
   export default {
     data(){
@@ -17,9 +16,6 @@ import { mapState, mapMutations } from "vuex";
         addressflag:true, //编辑地址
         areaList:{},
         checked:true,
-        name:"", //收货人姓名
-        phone:'13310253603', //收货人手机号
-        address:"", //收货人详细地址
         nameerrmessage:"", //名字错误提示
         telerrmessage:"",  //电话错误提示
         info:{},
@@ -37,14 +33,14 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.addressIinfo = res.data.data;
+              this_.addressIinfo.name=this_.addressIinfo.link_name;
+              this_.addressIinfo.tel=this_.addressIinfo.link_tel;
+              this_.addressIinfo.area_code=this_.addressIinfo.district_id;
               var ary = this_.addressIinfo.district.split("-");
               this_.addressIinfo.province = ary[0];
               this_.addressIinfo.city = ary[1];
               this_.addressIinfo.county = ary[2];
               this_.addressIinfo.address_detail = this_.addressIinfo.address;
-              this_.addressIinfo.name=this_.addressIinfo.link_name;
-              this_.addressIinfo.tel=this_.addressIinfo.link_tel;
-              this_.addressIinfo.area_code=this_.addressIinfo.district_id;
               if(this_.addressIinfo.default_status == 2){
                 this_.addressIinfo.is_default= false;
               }else{
@@ -93,6 +89,33 @@ import { mapState, mapMutations } from "vuex";
           console.log(error);
         });
       },
+       //删除地址
+      onDelete(res){
+        var this_ = this;
+        var paramsobj={};
+          paramsobj={
+            "service":"setAddress",
+            "id":res.id,
+            "stoken":this_.token,
+            "link_name":res.name,
+            "link_tel":res.tel,
+            "district":res.province+"-"+res.city+"-"+ res.county,
+            "address":res.address_detail,
+            "district_id":res.area_code,
+            "default_status":status,
+            "status":10
+          };
+        SERVERUTIL.base.baseurl(paramsobj).then(res => {
+          if(res.data.code == 0){
+            this_.$router.push({  
+              path: '/newaddress',
+              name: 'NEWADDRESS',
+            }); 
+          }
+        }).catch(error => {
+          console.log(error);
+        }); 
+      },
       ...mapMutations([
         "changeToken"
       ])
@@ -102,19 +125,12 @@ import { mapState, mapMutations } from "vuex";
       document.title = "编辑收货地址";
       this_.addressflag = this_.$route.params.flag;
       this_.areaList = AREALIST.areaList;
-      
       if(this_.$route.params.data){
         this_.userid = this_.$route.params.data.id;
+        console.log(this_.userid)
         this_.getAddressInfoFn(this_.userid,this_.token);
         this_.defaultflag=true;
       };
-      
-      if(this_.$route.params.data){
-        this_.addressIinfo = this_.$route.params.data;
-      }
-      if(!this_.addressflag){
-        
-      }
     }, 
     computed: {
     ...mapState([
