@@ -301,20 +301,20 @@ export default {
       });
     },
     //查询模板详情 -- 当前页面只为了获取当前模板可上传的图片数量
-    getTemplateInfoFn(id){
-      var  this_ = this;
-      var obj = { service: "getTemplateInfo", id: id };
-      SERVERUTIL.base.baseurl(obj).then(res => {
-        if (res.data.code == 0) {
-          if (res.data.data) {
-            this_.bookinfos = res.data.data;
-            this_.modelnum = this_.bookinfos.img_num;
-          }
-        }
-      }).catch(error => {
-        console.log(error);
-      });
-    },
+    // getTemplateInfoFn(id){
+    //   var  this_ = this;
+    //   var obj = { service: "getTemplateInfo", id: id };
+    //   SERVERUTIL.base.baseurl(obj).then(res => {
+    //     if (res.data.code == 0) {
+    //       if (res.data.data) {
+    //         this_.bookinfos = res.data.data;
+    //         this_.modelnum = this_.bookinfos.img_num;
+    //       }
+    //     }
+    //   }).catch(error => {
+    //     console.log(error);
+    //   });
+    // },
     //更改右侧模板类型下拉对应的模板列表变化
     changeTypsFn() {
       var this_ = this;
@@ -327,6 +327,7 @@ export default {
       this_.modelListFn(this_.liid);
       
     },
+    //更改右侧模板类型下拉对应的模板列表变化
     getvalueFn(value,id){
       var this_ = this;
       this_.modeltypevalue = value;
@@ -420,8 +421,10 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+            console.log(res.data.data)
             this_.changebookid(res.data.data.book_id);
-            this_.getBookDetailInfoFn(res.data.data.book_id,this_.token)
+            this_.getBookDetailInfoFn(res.data.data.book_id,this_.token);
+            this_.getBookStatusFn(res.data.data.book_id,this_.token); 
           }
         }
       }).catch(error => {
@@ -789,8 +792,12 @@ export default {
       if(!this_.vloadimg.length){
         this_.getbookidFn(this_.modelid,this_.token,this_.modeltypename,this_.vnickname);              
       };
-      this_.getBookStatusFn(this_.vbookid,this_.token); 
-      this_.getBookDetailInfoFn(this_.vbookid,this_.token);
+      
+      if(this_.vbookid){
+        this_.getBookDetailInfoFn(this_.vbookid,this_.token);
+        this_.getBookStatusFn(this_.vbookid,this_.token); 
+      }
+      
     };
     this_.changesaveflag(false);
     
