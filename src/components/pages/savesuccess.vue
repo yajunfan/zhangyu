@@ -318,6 +318,7 @@ import { mapState, mapMutations } from "vuex";
        }
     } 
     .close_img{
+      height: 0.32rem;;
       margin-top: 0.2rem;
     }
     .detail_next{

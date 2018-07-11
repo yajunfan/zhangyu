@@ -91,6 +91,7 @@ import { mapState, mapMutations } from "vuex";
  .detailContainer{
    padding: 0 0.4rem;
    box-sizing: border-box;
+   height: 100%;
    .showContainer{
      position: relative;
      height: 4.42rem;
@@ -126,8 +127,7 @@ import { mapState, mapMutations } from "vuex";
        }
        .materialList{
          width: 100%;
-         height:200px;
-         padding: 0 0.2rem;
+         padding: 0 0.2rem 0.2rem;
          box-sizing: border-box;
          display: flex;
          flex-direction: row ;

@@ -109,9 +109,6 @@
                    </ul>
                 </van-collapse-item>
                </van-collapse>
-               <!-- <select class="tc" @change="changeTypsFn"  v-model="liid">
-                 <option :value ="item.id" v-for="item in tabarys" :key="item.id">{{item.name}}</option>
-               </select> -->
              </div>
              <ul class="prewimg">
                <li v-for="(item,index) in tabLists" :key="index">
@@ -243,6 +240,7 @@ export default {
           if (res.data.data) {
             if (res.data.data.length) {
               this_.modelLists = res.data.data;
+              console.log(this_.modelLists);
               // 给每个页面增加一个上传图片的url属性
               var num = 0;
               this_.modelLists.forEach(item=>{
@@ -299,33 +297,6 @@ export default {
       }).catch(error => {
         console.log(error);
       });
-    },
-    //查询模板详情 -- 当前页面只为了获取当前模板可上传的图片数量
-    // getTemplateInfoFn(id){
-    //   var  this_ = this;
-    //   var obj = { service: "getTemplateInfo", id: id };
-    //   SERVERUTIL.base.baseurl(obj).then(res => {
-    //     if (res.data.code == 0) {
-    //       if (res.data.data) {
-    //         this_.bookinfos = res.data.data;
-    //         this_.modelnum = this_.bookinfos.img_num;
-    //       }
-    //     }
-    //   }).catch(error => {
-    //     console.log(error);
-    //   });
-    // },
-    //更改右侧模板类型下拉对应的模板列表变化
-    changeTypsFn() {
-      var this_ = this;
-      this_.$toast.loading({
-        mask: false,
-        message: "正在更换模板类型，请稍等...",
-        duration:0
-      });
-      this_.changeModelTypeId(this_.liid);
-      this_.modelListFn(this_.liid);
-      
     },
     //更改右侧模板类型下拉对应的模板列表变化
     getvalueFn(value,id){
@@ -421,7 +392,6 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
-            console.log(res.data.data)
             this_.changebookid(res.data.data.book_id);
             this_.getBookDetailInfoFn(res.data.data.book_id,this_.token);
             this_.getBookStatusFn(res.data.data.book_id,this_.token); 
@@ -432,7 +402,7 @@ export default {
       });
     },
     //上传图片
-    unloadImg(file){
+    unloadImg(file,index){
       var this_ = this;
       this_.loadflag = true;
       let formData = new FormData();
@@ -461,13 +431,16 @@ export default {
             if (file.size > 3145728 || file.size < 102400) {
               this_.fileList.push({url:imgurl,index:this_.imgindex});
             };0
-            this_.modelLists[this_.imgindex].imgtrueurl = imgurl;
-            this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
+            //this_.modelLists[this_.imgindex].imgtrueurl = imgurl;
+            //this_.$set(this_.modelLists,this_.imgindex,this_.modelLists[this_.imgindex]);
+            
+            this_.getBookStatusFn(this_.vbookid, this_.token);
+            this_.getBookDetailInfoFn(this_.vbookid, this_.token);
             this_.$toast.loading({
               mask: true,
-              message: "上传图片"+(this_.imgindex+1)+"/" + this_.modelLists.length
+              message: "上传图片"+(index)+"/" + this_.modelnum
             });
-            this_.modelnum--;
+            //this_.modelnum--;
             this_.imgindex++;
             //每上传一张图片，创建一次图书
             this_.makeModelFn(imgurl,this_.imgindex);
@@ -521,13 +494,13 @@ export default {
             });
           }else{
             file.forEach((item,index)=>{
-              this_.unloadImg(item.file);
+              this_.unloadImg(item.file,index+1);
             });
           }
         }
       }else{  //只上传一张
         if(this_.modelnum>0){
-          this_.unloadImg(file.file);
+          this_.unloadImg(file.file,1);
         }else{
           this_.$toast({
             mask: true,
@@ -587,6 +560,7 @@ export default {
       SERVERUTIL.base.baseurl(obj).then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+            console.log(res.data.data)
              this_.totalnum = res.data.data.total_num;
              this_.finishnum = res.data.data.finish_num;
              this_.modelnum = this_.totalnum-this_.finishnum;
@@ -722,6 +696,7 @@ export default {
       var this_ = this;
       var num=0;
       //对列表中有上传图片的进行计算总数
+      
       num = this_.modelLists.length - this_.modelnum;
       //判断是都有图片上传
       if(this_.modelnum>0){
