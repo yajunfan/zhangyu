@@ -277,16 +277,15 @@ export default {
   mounted() {
     var this_ = this;
     document.title = "个人中心";
-    this_.getUserInfoFn(this_.token);
-    this_.getBookListFn(this_.token);
-    this_.getUserCardFn(this_.token);
-    console.log(window.location.href);
     if(!this_.token.length){
       var str=window.location.href;
       var obj = UTILS.PARAMSREG.paramsregurl(str);
-      console.log(obj)
       this_.changeToken(obj["stoken"]);
     };
+    console.log(this_.token)
+    this_.getUserInfoFn(this_.token);
+    this_.getBookListFn(this_.token);
+    this_.getUserCardFn(this_.token);
   },
   computed:{
     ...mapState(['token',"modelid","modeltypeid","modeltypename","vaddressenterflag","vgiftflag","vbookid" ])
