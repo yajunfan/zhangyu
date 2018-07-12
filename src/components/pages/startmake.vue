@@ -22,7 +22,7 @@
             <div class="iconcontainer">
               <van-row>
                 <van-col span="8">
-                  <span class="preview_icon d-i-b" @click="previewFn()">
+                  <span class="preview_icon d-i-b" @click="saveFn('preview')">
                     <img src="../../images/preview.png" alt="预览">
                   </span>
                 </van-col>
@@ -38,7 +38,7 @@
                 </van-col>
                 <van-col span="8">
                   <span class="save_icon d-i-b">
-                    <img src="../../images/save.png" alt="保存" @click="saveFn()">
+                    <img src="../../images/save.png" alt="保存" @click="saveFn('save')">
                   </span>
                 </van-col>
               </van-row>
@@ -75,7 +75,7 @@
             <div class="iconcontainer iconcontainershow">
               <van-row>
                 <van-col span="8">
-                  <span class="preview_icon d-i-b" @click="previewFn()">
+                  <span class="preview_icon d-i-b" @click="saveFn('preview')">
                     <img src="../../images/preview.png" alt="预览">
                   </span>
                 </van-col>
@@ -91,7 +91,7 @@
                 </van-col>
                 <van-col span="8">
                   <span class="save_icon d-i-b">
-                    <img src="../../images/save.png" alt="保存" @click="saveFn()">
+                    <img src="../../images/save.png" alt="保存" @click="saveFn('save')">
                   </span>
                 </van-col>
               </van-row>
@@ -538,9 +538,11 @@ export default {
         stoken: this_.token,
         url:url
       };
+     
       SERVERUTIL.base .baseurl(obj) .then(res => {
         if (res.data.code == 0) {
           if (res.data.data) {
+            
             this_.allsuccess = res.data.data; 
             this_.makenum = index;  
             this_.makenum++;
@@ -658,8 +660,13 @@ export default {
       });
     },
     //保存公共部分
-    savecommonFn(){
+    savecommonFn(titlename){
       var this_ = this;
+      if(titlename == 'preview'){
+        titlename = '预览';
+      }else  if(titlename == 'save'){
+        titlename = '保存成功';
+      }{}
       var timer;
       //如果没有，判断创建图书返回的是否都为true，如果有不为的，不跳转，不清晰的图书弹框出现；如果全部都是true，就跳转
       //执行制作的调用
@@ -685,18 +692,18 @@ export default {
           name: "SAVESUCCESS",
           params: {
             id: this_.$route.params.id,
-            flag: true
+            flag: true,
+            title: titlename
           }
         });
         this_.$toast.clear();
       },this_.imgindex*1000);
     },
     //保存功能并跳到保存成功页面
-    saveFn() {
+    saveFn(name) {
       var this_ = this;
       var num=0;
       //对列表中有上传图片的进行计算总数
-      
       num = this_.modelLists.length - this_.modelnum;
       //判断是都有图片上传
       if(this_.modelnum>0){
@@ -711,13 +718,17 @@ export default {
             if(this_.fileList.length){
               this_.nofitnum = this_.fileList.length;
               if(!this_.failimgflag){
-                this_.nofitflag = true;
+                if(name == 'save'){
+                  this_.nofitflag = true;
+                }else{
+                  this_.savecommonFn(name);
+                };
                 return;
               }else{
-                this_.savecommonFn();
+                this_.savecommonFn(name);
               }
             }else{  
-              this_.savecommonFn();
+              this_.savecommonFn(name);
             };
           }else{
             this_.$toast.clear();
@@ -727,16 +738,25 @@ export default {
               if(this_.fileList.length){
                 this_.nofitnum = this_.fileList.length;
                 if(!this_.failimgflag){
-                  this_.nofitflag = true;
+                  if(name == 'save'){
+                    this_.nofitflag = true;
+                  }else{
+                    this_.savecommonFn(name);
+                  };
                   return;
                 }else{
-                  this_.savecommonFn();
+                  this_.savecommonFn(name);
                 }
               }else{  
-                this_.savecommonFn();
+                this_.savecommonFn(name);
               };
             }else{
-              this_.nosucceeflag=true;
+              if(name == 'save'){
+                this_.nosucceeflag=true;
+              }else{
+                this_.savecommonFn(name);
+              };
+              
             }
           }
         };

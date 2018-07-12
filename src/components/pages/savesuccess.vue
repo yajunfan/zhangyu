@@ -94,10 +94,16 @@ import { mapState, mapMutations } from "vuex";
       //获取图书页面的详情
       getBookDetailInfoFn(token,id){
         var this_ = this;
+         this_.$toast.loading({
+          mask: false,
+          message: "正在制作图书...",
+          duration:0
+        });
         var obj={"service":"getBookDetailInfo","id":id,"stoken": token,};
         SERVERUTIL.base.baseurl(obj).then(res => {
           if(res.data.code ==0){
             if(res.data.data){
+              this_.$toast.clear();
               this_.modelLists = res.data.data;
               var imgary = [];
               if(this_.modelLists.length){
