@@ -49,7 +49,7 @@ import { mapState, mapMutations } from "vuex";
           if(res.data.code ==0){
             if(res.data.data){
               this_.getstoken = res.data.data.stoken;
-              this_.getUserInfoFn(this_.getstoken);
+              //this_.getUserInfoFn(this_.getstoken);
               this_.changeToken(this_.getstoken);
             }
           }
@@ -177,7 +177,11 @@ import { mapState, mapMutations } from "vuex";
       this_.userLoginFn();
       if(this_.modeltypeid){
         this_.active = this_.modeltypeid;
-      }
+      };
+      var str=window.location.href;
+      var obj = UTILS.PARAMSREG.paramsregurl(str);
+      this_.changeToken(obj["arybehind"][0]);
+
     },
     computed:{
       ...mapState(['token',"vnickname","modeltypeid","modeltypename","modelid"])
