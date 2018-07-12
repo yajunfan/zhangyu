@@ -180,8 +180,7 @@ import { mapState, mapMutations } from "vuex";
       };
       var str=window.location.href;
       var obj = UTILS.PARAMSREG.paramsregurl(str);
-      this_.changeToken(obj["arybehind"][0]);
-
+      this_.changeToken(obj["stoken"]);
     },
     computed:{
       ...mapState(['token',"vnickname","modeltypeid","modeltypename","modelid"])

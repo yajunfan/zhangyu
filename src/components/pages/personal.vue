@@ -279,6 +279,11 @@ export default {
     this_.getUserInfoFn(this_.token);
     this_.getBookListFn(this_.token);
     this_.getUserCardFn(this_.token);
+    if(!this_.token){
+      var str=window.location.href;
+      var obj = UTILS.PARAMSREG.paramsregurl(str);
+      this_.changeToken(obj["stoken"]);
+    };
   },
   computed:{
     ...mapState(['token',"modelid","modeltypeid","modeltypename","vaddressenterflag","vgiftflag","vbookid" ])

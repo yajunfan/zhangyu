@@ -104,7 +104,11 @@ export default {
 			aryfront.push($2);
 		  arybehind.push($3);
 		});
-		return {"aryfront":aryfront,"arybehind":arybehind};
+		var obj={};
+		aryfront.forEach((item,index)=>{
+			obj[item] = arybehind[index];
+		})
+		return obj;
 	  }
 	},
 	//数组操作 -- 去除里边的重复对象
