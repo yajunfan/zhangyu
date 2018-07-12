@@ -65,6 +65,7 @@
 
 <script>
 import SERVERUTIL from "../../lib/SeviceUtil";
+import UTILS from "../../lib/utils";
 import { mapState, mapMutations } from "vuex";
 import { ImagePreview } from 'vant';
 export default {
