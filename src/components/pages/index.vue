@@ -174,7 +174,7 @@ import { mapState, mapMutations } from "vuex";
       var this_ = this;
       document.title = '首页';
       this_.modelTypeFn();
-      this_.userLoginFn();
+      //this_.userLoginFn();
       if(this_.modeltypeid){
         this_.active = this_.modeltypeid;
       };
