@@ -791,7 +791,9 @@ export default {
         name: 'EDITIMG'
       });
     }else{
-      this_.photoName = this_.modeltypename;
+      if(this_.modeltypename){
+        this_.photoName = this_.modeltypename;
+      };
       this_.modelTypeFn();
       this_.liid = this_.modeltypeid; 
       if(!this_.vloadimg.length){

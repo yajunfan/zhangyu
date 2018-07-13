@@ -141,7 +141,7 @@ import { mapState, mapMutations } from "vuex";
         var obj={"service":"getUserCard","stoken":token,"status":"1"};
         SERVERUTIL.base.baseurl(obj).then(res => {
           if(res.data.code ==0){
-            if(res.data.data){
+            if(res.data.data.length){
               this_.giftcardnum = res.data.data.length;
             }
           }
