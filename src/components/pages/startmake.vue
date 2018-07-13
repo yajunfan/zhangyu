@@ -262,25 +262,35 @@ export default {
     //右侧的点击每一项更换模板 - 查询上一本书的制作情况，确认更换后 调用选择模板的接口获取新的bookid
     selectPrewImgFn(index, obj) {
       var this_ = this;
-      this_.$toast.loading({
-        mask: false,
-        message: "正在更换模板...",
-        duration:0
-      });
-      //如果loadflag为false，说明就没有点击上传，那就可以直接更换模板
-      if(this_.loadflag){
-        this_.getBookStatusFn(this_.vbookid,this_.token,index, obj); 
-      }else{
-        this_.changeModelId(obj.id);
-        this_.changeModelTypeName(obj.title);
-        this_.photoName = obj.title;
-        this_.userid = obj.id;
-        this_.modelLists.forEach(item=>{
-          item.imgurl ="";
+      if(obj.id == this_.modelid){
+        this_.$toast({
+          mask: false,
+          message: "该模板已被选中",
+          duration:1000
         });
-        //获取新的book_id
-        this_.getbookidFn(obj.id,this_.token,obj.title,this_.vnickname);
-     }
+      }else{
+        this_.$toast.loading({
+          mask: false,
+          message: "正在更换模板...",
+          duration:0
+        });
+        //如果loadflag为false，说明就没有点击上传，那就可以直接更换模板
+        if(this_.loadflag){
+          this_.getBookStatusFn(this_.vbookid,this_.token,index, obj); 
+        }else{
+          this_.changeModelId(obj.id);
+          this_.changeModelTypeName(obj.title);
+          this_.photoName = obj.title;
+          this_.userid = obj.id;
+          this_.modelLists.forEach(item=>{
+            item.imgurl ="";
+          });
+          //获取新的book_id
+          this_.getbookidFn(obj.id,this_.token,obj.title,this_.vnickname);
+        }
+      }
+      
+     
     },
     //获取模板类型
     modelTypeFn() {

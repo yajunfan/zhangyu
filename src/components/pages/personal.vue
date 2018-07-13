@@ -12,25 +12,18 @@
       </div>
     </div>
     <div class="change_router">
-      <span> 
         <div @click="jumptoorder(userInfo.id)">
-          <img src="../../images/order.png" alt="">
+          <img src="../../images/order.png" alt="" class="order_icon">
           <p>订单</p>
         </div>
-      </span>
-      <span> 
         <div @click="jumptoaddress(true)">
-          <img src="../../images/peraddress.png" alt="">
+          <img src="../../images/peraddress.png" alt="" class="address_icon">
           <p>地址</p>
         </div>
-      </span>
-      <span> 
         <div @click="jumptogift(true)">
-          <img src="../../images/giftcard.png" alt="">
+          <img src="../../images/giftcard.png" alt="" class="gift_icon">
           <p>礼品卡</p>
         </div>
-      </span>
-
     </div>
     <div class="my_book">
       <h4>我的书架 <span @click="jumptobook" v-if="bookflag2">更多<img src="../../images/rightjt.png" alt="无"></span></h4>
@@ -341,28 +334,36 @@ export default {
     background: #fff;
     border-radius: 0.2rem;
     border:1px solid #999;
-    top:3.5rem;
-    z-index:20;
     box-shadow: 0px 2px 2px #999;
-    span{
-      display: inline-block;
-      vertical-align: middle;
-      width:28vw;
-      div:nth-child(1){
-        width:40%;
-        padding-top:10%;
-        padding-left:35%;
-        img{
-          width:60%;
-          padding-left:20%;
-          height: 60%;
-        }
+    display: flex;
+    flex-direction: row;
+    justify-content:center;
+    // span{
+    //   display: inline-block;
+    //   vertical-align: middle;
+    div{
+      display: flex;
+      flex-direction: column;
+      flex-grow: 3;
+      justify-content:center;
+      img{
+        margin: 0 auto 0.1rem;;
+        width: 0.48rem;
+        height: 0.48rem;
+        
       }
+      .address_icon{
+        width: 0.39rem;
+      }
+      .gift_icon{
+        width: 0.48rem;
+        height: 0.39rem;
+      }
+    }
       p{
         text-align:center;
         color: #ff4747;
       }
-    }
   }
   .my_book{
     margin-top: 0.4rem;

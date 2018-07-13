@@ -3,7 +3,7 @@
     <van-row class="book_item"  v-for="(item,index) in booklists" :key="index">
         <van-col span="10" class="title_left">
           <img :src="item.img" alt="相册">
-          <i class=" d-i-b " :class="item.status == 1?'book_ststus':(item.status == 2?'fail_status':'')"></i>
+          <i class=" d-i-b " :class="item.status == 1?'fail_status':(item.status == 2?'':'fail_status')"></i>
         </van-col>
         <van-col span="14" class="content-right">
           <div class="opearte_container">

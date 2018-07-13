@@ -17,7 +17,7 @@
        </li>
     </ul>
     <div class="btn_container">
-      <van-button type="primary"  bottom-action>保存</van-button>
+      <van-button bottom-action>保存</van-button>
     </div>
   </div>
 </template>
@@ -168,6 +168,16 @@ import { mapState, mapMutations } from "vuex";
           }
         }
       }
+    }
+  }
+  .btn_container{
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    
+    button{
+      background:#fff;
+      color:#ff4747;
     }
   }
 }
