@@ -113,8 +113,8 @@ export default {
       },
       errorflag: false, //错误显示
       notAvailableList: [ ],//不可用礼品卡
-      notVnum:"", //不可用卡的数量
-      Vnum:"", //可用卡数量
+      notVnum:0, //不可用卡的数量
+      Vnum:0, //可用卡数量
       vailableList:[],  //可用礼品卡
       tipbindgiftflag:false //绑定礼品卡的小提示连接
     };

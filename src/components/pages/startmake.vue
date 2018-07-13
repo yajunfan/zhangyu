@@ -264,7 +264,7 @@ export default {
       var this_ = this;
       this_.$toast.loading({
         mask: false,
-        message: "正在更换模板，请稍等...",
+        message: "正在更换模板...",
         duration:0
       });
       //如果loadflag为false，说明就没有点击上传，那就可以直接更换模板

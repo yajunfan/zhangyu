@@ -96,7 +96,7 @@ import { mapState, mapMutations } from "vuex";
         var this_ = this;
          this_.$toast.loading({
           mask: false,
-          message: "正在制作图书...",
+          message: "正在制作图书",
           duration:0
         });
         var obj={"service":"getBookDetailInfo","id":id,"stoken": token,};

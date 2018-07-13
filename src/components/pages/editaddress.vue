@@ -1,7 +1,7 @@
 <template>
   <div class="editaddress_container">
     <div class="edit_container">
-      <van-address-edit :area-list="areaList" :item-height='45' :address-info = "addressIinfo" :show-set-default="defaultflag"  @save="onSave" @delete="onDelete"/> 
+      <van-address-edit id="area_style" :area-list="areaList" :item-height='45' :address-info = "addressIinfo" :show-set-default="defaultflag"  @save="onSave" @delete="onDelete"/> 
     </div>
   </div>
 </template>
@@ -149,6 +149,11 @@ import { mapState, mapMutations } from "vuex";
      border:none;
      padding: 0;
      height: 0.86rem;
+    }
+    #area_style{
+      .van-field{
+        height: 45px;
+      }
     }
     textarea{
       height:1.76rem;  

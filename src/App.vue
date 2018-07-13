@@ -46,6 +46,18 @@ export default {
   margin: 0.28rem 0 0;
   padding: 0;
 }
+#area_style{
+  box-sizing: border-box;
+}
+#area_style .van-field{
+ padding: 0.2rem;
+ border-bottom-width:0px;
+ border-bottom:1px solid #f2f2f2;
+
+}
+#area_style .van-field::after{
+  border-bottom-width:0px;
+}
 .van-cell__value{
   font-size: 0.28rem;
   margin-left:0.3rem;
