@@ -83,6 +83,7 @@ import { mapState, mapMutations } from "vuex";
       previewFn(obj){
         var this_ = this;
         this_.changeModelId(obj.template_id);
+        this_.changebookid(obj.id);
         this.$router.push({  
           path: '/savesuccess',
           name: 'SAVESUCCESS',  
