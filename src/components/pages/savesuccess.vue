@@ -1,13 +1,13 @@
 <template>
   <div class="save_container" @dblclick="editBookFn">
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="ifedit">
-        <li v-for="item in modelLists">
+        <li v-for="(item,index) in modelLists" :key="index">
            <img  :src="item.imgtrueurl" alt="muban">
         </li>
      </ul>
      <ul class="photo_list" :class="markflag?'photo_list_fix':''" v-if="!ifedit">
-        <li v-for="item in modelLists"  v-if="item.liflag">
-           <img  v-lazy="item.imgtrueurl" alt="muban" @click="editBookFn">
+        <li v-for="(item,index) in modelLists" :key="index" >
+           <img  :src="item.imgtrueurl" alt="muban" @click="editBookFn">
         </li>
         
      </ul>
@@ -61,27 +61,6 @@ import { mapState, mapMutations } from "vuex";
          ifedit:true, //是否可编辑
          i:0,
          modelLists:[], //列表
-         styleAry:{
-           "logoimg":"../../images/title1.jpg",
-           "title":"冬季的旅行",
-            "typeList":[
-              {
-                "name":"轻奢杂志",
-                "specifications":"20cm*30cm",
-                "price":"233.00"
-              },
-              {
-                "name":"简版杂志",
-                "specifications":"20cm*30cm",
-                "price":"210.00"
-              },
-              {
-                "name":"其他杂志",
-                "specifications":"20cm*30cm",
-                "price":"133.00"
-              }
-            ]
-         },
          selectItem: {},
          detailinfo:{} ,//图书信息规格
          paytypelist:[] , //不同种类的价格
@@ -105,6 +84,7 @@ import { mapState, mapMutations } from "vuex";
             if(res.data.data){
               this_.$toast.clear();
               this_.modelLists = res.data.data;
+              
               var imgary = [];
               if(this_.modelLists.length){
                 this_.modelLists.forEach(item =>{

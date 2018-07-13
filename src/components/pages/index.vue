@@ -178,10 +178,8 @@ import { mapState, mapMutations } from "vuex";
       if(this_.modeltypeid){
         this_.active = this_.modeltypeid;
       };
-      console.log('首页',window.location.href)
       var str=window.location.href;
       var obj = UTILS.PARAMSREG.paramsregurl(str);
-      console.log('首页obj',obj)
       this_.changeToken(obj["stoken"]);
     },
     computed:{

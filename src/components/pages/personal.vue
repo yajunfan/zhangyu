@@ -154,6 +154,7 @@ export default {
     previewFn(){
       var this_ = this;
       this_.changeModelId(this_.booklists[0].template_id);
+      this_.changebookid(this_.bookOne.id);
       this.$router.push({  
         path: '/savesuccess',
         name: 'SAVESUCCESS',  
@@ -270,16 +271,11 @@ export default {
   mounted() {
     var this_ = this;
     document.title = "个人中心";
-    console.log(1,this_.token,!this_.token.length)
-    var str1=window.location.href;
-    console.log('str1',str)
-    if(!this_.token.length){
+    if(!this_.token){
       var str=window.location.href;
-      console.log('str',str)
       var obj = UTILS.PARAMSREG.paramsregurl(str);
       this_.changeToken(obj["stoken"]);
     };
-    console.log(2,this_.token)
     this_.getUserInfoFn(this_.token);
     this_.getBookListFn(this_.token);
     this_.getUserCardFn(this_.token);
