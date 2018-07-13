@@ -305,7 +305,7 @@ export default {
       this_.activeNames='';
       this_.$toast.loading({
         mask: false,
-        message: "正在更换模板类型，请稍等...",
+        message: "正在更换模板类型...",
         duration:0
       });
       this_.changeModelTypeId(id);
@@ -577,7 +577,7 @@ export default {
               }).then(() => {
                 this_.$toast.loading({
                   mask: false,
-                  message: "正在更换模板，请稍等...",
+                  message: "正在更换模板...",
                   duration:0
                 });
                 this_.modelLists.forEach(item=>{
@@ -673,7 +673,7 @@ export default {
        // 判断是否是模板中的所有图片都已上传，这是等于的情况
       this_.$toast.loading({
         mask: false,
-        message: "正在提交模板",
+        message: "正在提交模板...",
         duration:0
       });
       if(this_.maxnum < this_.imgindex || this_.maxnum == this_.imgindex){
