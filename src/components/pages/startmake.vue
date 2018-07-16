@@ -243,7 +243,7 @@ export default {
               console.log(this_.modelLists);
               // 给每个页面增加一个上传图片的url属性
               var num = 0;
-              this_.modelLists.forEach(item=>{
+              this_.modelLists.forEach((item,index)=>{
                 if(item.result_img.length){
                   item.imgtrueurl = item.result_img;
                 }else{
